@@ -519,7 +519,7 @@ def generate_wind_files(dlc_generator, FAST_namingOut, wind_directory, rotorD, h
 
     Turbulent_Gust = False
     if dlc_generator.cases[i_case].turbulent_wind:
-        if dlc_generator.cases[i_case].user_btsfilename:
+        if hasattr(dlc_generator.cases[i_case],'user_btsfilename'):
             wind_file_path_InflowWind = dlc_generator.cases[i_case].user_btsfilename
             wind_file_type = 3
         else:
