@@ -2170,8 +2170,11 @@ class FASTLoadCases(ExplicitComponent):
             # fst_vt['SStC'].append(StC_i)
 
         for i_case, case_inputs in enumerate(dlc_generator.openfast_case_inputs):
+            StC_files = []
+            stc_writer = InputWriter_OpenFAST()
+            stc_writer.FAST_runDirectory = self.FAST_runDirectory
+
             if ('SStC', 'StaticLoad') in case_inputs:
-                StC_files = []
 
                 # Write Load input
                 for i_load, load_val in enumerate(case_inputs[('SStC', 'StaticLoad')]['vals']):
@@ -2189,10 +2192,52 @@ class FASTLoadCases(ExplicitComponent):
                     StC_files.append(StC_filename)
 
                     # Write StC Input, add filename to case_inputs
-                    stc_writer = InputWriter_OpenFAST()
-                    stc_writer.FAST_runDirectory = self.FAST_runDirectory
 
                     stc_writer.write_StC(StC_i,StC_filename)
+
+                    # Add StC file to case_inputs
+                    case_inputs[('ServoDyn', 'NumSStC')] = {}
+                    case_inputs[('ServoDyn', 'NumSStC')]['group'] = 0
+                    case_inputs[('ServoDyn', 'NumSStC')]['vals'] = [1]
+
+                    case_inputs[('ServoDyn', 'SStCfiles')] = {}
+                    case_inputs[('ServoDyn', 'SStCfiles')]['group'] = 2
+                    case_inputs[('ServoDyn', 'SStCfiles')]['vals'] = StC_files
+            
+                    # move to ServoDyn so we can use case_matrix to see load applied
+                    case_inputs[('ServoDyn', 'StaticLoad')] = case_inputs.pop(('SStC', 'StaticLoad'), None) 
+
+            elif ('SStC', 'StepLoad') in case_inputs:
+                # Construct step input matrix
+                # Time step for the load application
+                dt = 0.05
+                # Create time vector from 0 to TMax with step dt
+                time = np.arange(0, case_inputs[('Fst', 'TMax')]['vals'][0] + dt, dt).reshape(-1,1)
+                # Repeat steady load for each time step
+                steady_load = np.tile(case_inputs[('SStC', 'SteadyLoad')]['vals'][0], (time.size, 1))
+                # Repeat step load for each time step
+                step_load = np.tile(case_inputs[('SStC', 'StepLoad')]['vals'][0], (time.size, 1))
+                # Get start and end times for the step load
+                start = case_inputs[('SStC', 'StepStart')]['vals'][0]
+                end = case_inputs[('SStC', 'StepEnd')]['vals'][0]
+                # Create boolean mask for time indices where step load is active
+                ind = np.tile(np.bitwise_and(time >= start, time <= end), (1, step_load.shape[1]))
+                # Set step load to zero outside the active interval
+                step_load[~ind] = 0
+                # Combine time, steady load, and step load into full matrix for StC timeseries input
+                full_matrix = np.c_[time, steady_load + step_load]
+
+                step_filename = os.path.join(self.FAST_runDirectory,f"step_load_{i_case}.dat")
+                with open(step_filename, 'w') as f:
+                    np.savetxt(f, full_matrix)
+
+                StC_i = default_StC_vt()
+                StC_i['StC_DOF_MODE'] = 4
+                StC_i['PrescribedForcesFile'] = step_filename
+                StC_i['PrescribedForcesCoord'] = 1
+                StC_filename = os.path.join(self.FAST_runDirectory,f"StC_{i_case}.dat")
+                StC_files.append(StC_filename)
+                stc_writer.write_StC(StC_i,StC_filename)
 
                 # Add StC file to case_inputs
                 case_inputs[('ServoDyn', 'NumSStC')] = {}
@@ -2201,10 +2246,13 @@ class FASTLoadCases(ExplicitComponent):
 
                 case_inputs[('ServoDyn', 'SStCfiles')] = {}
                 case_inputs[('ServoDyn', 'SStCfiles')]['group'] = 2
-                case_inputs[('ServoDyn', 'SStCfiles')]['vals'] = StC_files
+                case_inputs[('ServoDyn', 'SStCfiles')]['vals'] = [StC_files]
         
-                 # move to ServoDyn so we can use case_matrix to see load applied
-                case_inputs[('ServoDyn', 'StaticLoad')] = case_inputs.pop(('SStC', 'StaticLoad'), None) 
+                # move to ServoDyn so we can use case_matrix to see load applied
+                case_inputs[('ServoDyn', 'SteadyLoad')] = case_inputs.pop(('SStC', 'SteadyLoad'), None) 
+                case_inputs[('ServoDyn', 'StepLoad')]   = case_inputs.pop(('SStC', 'StepLoad'), None) 
+                case_inputs[('ServoDyn', 'StepStart')]  = case_inputs.pop(('SStC', 'StepStart'), None) 
+                case_inputs[('ServoDyn', 'StepEnd')]    = case_inputs.pop(('SStC', 'StepEnd'), None) 
                     
         # Parameteric inputs
         case_name = []
@@ -2778,8 +2826,9 @@ class FASTLoadCases(ExplicitComponent):
         if len(U) > 0:
             self.cruncher.set_probability_turbine_class(U, discrete_inputs['turbine_class'], idx=idx_pwrcrv)
             
-        AEP, _ = self.cruncher.compute_aep("GenPwr", idx=idx_pwrcrv)
-        outputs['AEP'] = AEP
+        if 'GenPwr' in sum_stats:
+            AEP, _ = self.cruncher.compute_aep("GenPwr", idx=idx_pwrcrv)
+            outputs['AEP'] = AEP
 
         if len(idx_pwrcrv) > 0:
             sum_stats = sum_stats.iloc[idx_pwrcrv]

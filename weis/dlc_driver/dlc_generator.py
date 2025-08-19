@@ -100,6 +100,10 @@ openfast_input_map = {
     'stc_number': ("ServoDyn", "NumSStC"),
     'stc_filenames': ("ServoDyn","SStCfiles"),
     'excursion_load': ("SStC","StaticLoad"),
+    'stc_step_start': ("SStC","StepStart"),
+    'stc_step_end': ("SStC","StepEnd"),
+    'stc_step_load': ("SStC","StepLoad"),
+    'stc_steady_load': ("SStC","SteadyLoad"),
 
     'pitch_control_mode': ("ServoDyn","PCMode"),
     'torque_control_mode': ("ServoDyn","VSContrl"),
@@ -1999,6 +2003,28 @@ class DLCGenerator(object):
             if ptfm_ic not in dlc_options:
                 dlc_options[ptfm_ic] = 0
 
+        step_case_inputs = []
+        if 'step' in dlc_options:
+            # Check that start, end and step_load are in dlc_options['step']
+            if 'start' not in dlc_options['step']:
+                raise Exception('start must be set for the step DLC freedecay')
+            if 'end' not in dlc_options['step']:
+                raise Exception('end must be set for the step DLC freedecay')
+            if 'step_load' not in dlc_options['step']:
+                raise Exception('step_load must be set for the step DLC freedecay')
+            
+            # Enable ServoDyn, but disable pitch/torque
+            dlc_options['compute_control'] = 1
+            dlc_options['pitch_control_mode'] = 0
+            dlc_options['torque_control_mode'] = 0
+
+            # Add step inputs to options for case generator in openmdao_openfast
+            dlc_options['stc_step_start'] = dlc_options['step']['start']
+            dlc_options['stc_step_end'] = dlc_options['step']['end']
+            dlc_options['stc_step_load'] = [dlc_options['step']['step_load']]
+            dlc_options['stc_steady_load'] = [dlc_options['step']['steady_load']]
+            step_case_inputs = ['stc_step_start','stc_step_end','stc_step_load','stc_steady_load', 'pitch_control_mode','torque_control_mode']
+
         # DLC-specific: define groups
         # Groups are dependent variables, the cases are a cross product of the independent groups
         # The options in each group should have the same length
@@ -2019,8 +2045,8 @@ class DLCGenerator(object):
             'compute_aerodynamics',
             'compute_inflow',
             'compute_control',
-            ])  # group 0, (usually constants) turbine variables, DT, aero_modeling
-        
+            ] + step_case_inputs)  # group 0, (usually constants) turbine variables, DT, aero_modeling
+
         # Don't need wind/waves/yaw
         generic_case_inputs.append(['wind_speed','wave_height','wave_period', 'wind_seed', 'wave_seed']) # group 1, initial conditions will be added here, define some method that maps wind speed to ICs and add those variables to this group
 
