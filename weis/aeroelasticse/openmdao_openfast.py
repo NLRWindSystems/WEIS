@@ -2025,6 +2025,60 @@ class FASTLoadCases(ExplicitComponent):
             fst_vt['SubDyn']['JMXY'] = fst_vt['SubDyn']['JMXZ'] = fst_vt['SubDyn']['JMYZ'] = [0.0]
             fst_vt['SubDyn']['MCGX'] = fst_vt['SubDyn']['MCGY'] = fst_vt['SubDyn']['MCGZ'] = [0.0]
 
+            # def add_concentrated_mass(fst_vt, m_ballast, z_pos, n_members, n_joints, joints_xyz, inputs, k, kname, iprop_rigid_link):
+            #     # Update fst_vt in place
+                
+            #     # Place the ballast joint z_pos along the member centerline
+            #     xyz0 = inputs[f"member{k}_{kname}:joint1"]
+            #     xyz1 = inputs[f"member{k}_{kname}:joint2"]
+            #     dxyz = xyz1 - xyz0
+            #     vector_length = np.linalg.norm(dxyz)
+            #     unit_vector = dxyz / vector_length
+            #     ballast_position = xyz0 + unit_vector * z_pos
+
+            #     # Make a new member from xyz0 to ballast_position
+            #     n_joints += 1
+            #     fst_vt['SubDyn']['NJoints'] = n_joints
+            #     fst_vt['SubDyn']['JointID'] += [n_joints]
+            #     fst_vt['SubDyn']['JointXss'] = np.append(fst_vt['SubDyn']['JointXss'], [ballast_position[0]])
+            #     fst_vt['SubDyn']['JointYss'] = np.append(fst_vt['SubDyn']['JointYss'], [ballast_position[1]])
+            #     fst_vt['SubDyn']['JointZss'] = np.append(fst_vt['SubDyn']['JointZss'], [ballast_position[2]])
+            #     fst_vt['SubDyn']['JointType'] += [1]
+
+            #     fst_vt['SubDyn']['JointDirX'] = np.append(fst_vt['SubDyn']['JointDirX'], [0])
+            #     fst_vt['SubDyn']['JointDirY'] = np.append(fst_vt['SubDyn']['JointDirY'], [0])
+            #     fst_vt['SubDyn']['JointDirZ'] = np.append(fst_vt['SubDyn']['JointDirZ'], [0])
+            #     fst_vt['SubDyn']['JointStiff'] = np.append(fst_vt['SubDyn']['JointStiff'], [0])
+
+            #     n_members += 1  # in case this is used after here
+            #     fst_vt['SubDyn']['NMembers'] = n_members
+            #     fst_vt['SubDyn']['MemberID'] += [n_members]
+
+            #     ibase = util.closest_node(joints_xyz, xyz0)
+            #     fst_vt['SubDyn']['MJointID1'] += [ibase]
+            #     fst_vt['SubDyn']['MJointID2'] += [n_joints]  # New joint at ballast position
+            #     fst_vt['SubDyn']['MPropSetID1'] += [iprop_rigid_link]    # ID of rigid link property set
+            #     fst_vt['SubDyn']['MPropSetID2'] += [iprop_rigid_link]    # ID of rigid link property set
+            #     fst_vt['SubDyn']['MType'] = np.append(fst_vt['SubDyn']['MType'], [3])  # Rigid link type
+            #     fst_vt['SubDyn']['M_Spin'] = np.append(fst_vt['SubDyn']['M_Spin'], [0])
+            #     fst_vt['SubDyn']['M_COSMID'] = np.append(fst_vt['SubDyn']['M_COSMID'], [-1])
+
+            #     # Finally add the concentrated mass at the ballast joint
+            #     fst_vt['SubDyn']['NCmass'] += 1
+            #     fst_vt['SubDyn']['JMass'] += [m_ballast[0]]
+            #     fst_vt['SubDyn']['CMJointID'] += [n_joints]
+
+            #     # TODO translate intertia from base axis to cg
+            #     fst_vt['SubDyn']['JMXX'] += [inputs[f"member{k}_{kname}:ballast_I_base"][0]]
+            #     fst_vt['SubDyn']['JMYY'] += [inputs[f"member{k}_{kname}:ballast_I_base"][1]]
+            #     fst_vt['SubDyn']['JMZZ'] += [inputs[f"member{k}_{kname}:ballast_I_base"][2]]
+            #     fst_vt['SubDyn']['JMXY'] += [0.0]
+            #     fst_vt['SubDyn']['JMXZ'] += [0.0]
+            #     fst_vt['SubDyn']['JMYZ'] += [0.0]
+            #     fst_vt['SubDyn']['MCGX'] += [0.0]
+            #     fst_vt['SubDyn']['MCGY'] += [0.0]
+            #     fst_vt['SubDyn']['MCGZ'] += [0.0]
+
             # Ballast Mass as lumped mass
             for k in range(n_member):
                 kname = modopt['floating']['members']['name'][k]
@@ -2032,7 +2086,6 @@ class FASTLoadCases(ExplicitComponent):
                 m_ballast = inputs[f"member{k}_{kname}:ballast_mass"]
                 if m_ballast > 0.0:
 
-                    self.add_concentrated_mass(fst_vt, m_ballast[0], z_pos, n_members, n_joints, joints_xyz, inputs, k, kname, iprop_rigid_link)
 
                     # Place the ballast joint z_pos along the member centerline
                     xyz0 = inputs[f"member{k}_{kname}:joint1"]
@@ -2042,7 +2095,7 @@ class FASTLoadCases(ExplicitComponent):
                     unit_vector = dxyz / vector_length
                     ballast_position = xyz0 + unit_vector * z_pos
 
-                    # Make a new member from xyz0 to ballast_position
+                    # Make a new member (rigid link) from xyz0 to ballast_position
                     n_joints += 1
                     fst_vt['SubDyn']['NJoints'] = n_joints
                     fst_vt['SubDyn']['JointID'] += [n_joints]
