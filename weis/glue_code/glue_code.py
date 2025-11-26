@@ -554,6 +554,12 @@ class WindPark(om.Group):
                         self.connect(f"floatingse.member{k}_{kname}.ballast_z_cg", f"aeroelastic.member{k}_{kname}:ballast_z_cg")
                         self.connect(f"floatingse.member{k}_{kname}.ballast_mass", f"aeroelastic.member{k}_{kname}:ballast_mass")
                         self.connect(f"floatingse.member{k}_{kname}.ballast_I_base", f"aeroelastic.member{k}_{kname}:ballast_I_base")
+                        self.connect(f"floatingse.member{k}_{kname}:variable_ballast_cg", f"aeroelastic.member{k}_{kname}:variable_ballast_cg")
+                        self.connect(f"floatingse.member{k}_{kname}:variable_ballast_mass", f"aeroelastic.member{k}_{kname}:variable_ballast_mass")
+                        self.connect(f"floatingse.member{k}_{kname}:variable_ballast_I", f"aeroelastic.member{k}_{kname}:variable_ballast_I")
+                        self.connect(f"floatingse.member{k}_{kname}.bulkhead_mass", f"aeroelastic.member{k}_{kname}:bulkhead_mass")
+                        self.connect(f"floatingse.member{k}_{kname}.bulkhead_z_cg", f"aeroelastic.member{k}_{kname}:bulkhead_z_cg")
+                        self.connect(f"floatingse.member{k}_{kname}.bulkhead_I_base", f"aeroelastic.member{k}_{kname}:bulkhead_I_base")
 
                         # Member coefficients
                         if modeling_options['floating']['members']['outer_shape'][k] == "circular":

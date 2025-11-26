@@ -86,7 +86,7 @@ OpenFAST: # Options for WEIS fidelity level 3 = nonlinear time domain
         CompAero: 2
         CompServo: 1
         CompHydro: 1
-        CompSub: 1 # to use subdyn
+        CompSub: 0 # to use subdyn
         CompMooring: 3
         CompIce: 0
         OutFileFmt: 3
@@ -119,11 +119,11 @@ OpenFAST: # Options for WEIS fidelity level 3 = nonlinear time domain
         WvHiCOff: 3.2
         WaveSeed1: 123456789
     HydroDyn:
-        AddBLin1: [5.51e4, 0.0, 0.0, 0.0, 0, 0.0]
+        AddBLin1: [5.51e4, 0.0, 0.0, 0.0, 0, 0.0] # From OC7
         AddBLin2: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
         AddBLin3: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        AddBLin4: [0.0, 0.0, 0.0, 0.0, 4.34e8, 0.0]
-        AddBLin5: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        AddBLin4: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        AddBLin5: [0.0, 0.0, 0.0, 0.0, 4.34e8, 0.0] # From OC7
         AddBLin6: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
 RAFT:
