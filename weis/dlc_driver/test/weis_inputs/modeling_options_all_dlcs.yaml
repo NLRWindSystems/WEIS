@@ -28,6 +28,8 @@ OpenFAST: # Options for WEIS fidelity level 3 = nonlinear time domain
     SeaState:
       WvDiffQTF: False
       WvSumQTF: False
+    HydroDyn:
+      DiffQTF: 0
 
 ROSCO:
     flag: True
