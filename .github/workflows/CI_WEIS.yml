@@ -64,9 +64,6 @@ jobs:
           conda remove --force openraft
           pip install https://github.com/yqliaohk/RAFT/archive/meshing_update.zip
 
-          conda remote --force wisdem
-
-
       # Don't delete after this
 
       
