@@ -251,12 +251,8 @@ class TuneROSCO(ExplicitComponent):
             if param in rosco_init_options:
                 rosco_init_options[param] = float(inputs[param][0])
 
-        rosco_init_options['IPC_Kp1p']    = max(0.0, float(inputs['IPC_Kp1p'][0]))
-        rosco_init_options['IPC_Ki1p']    = max(0.0, float(inputs['IPC_Ki1p'][0]))
-        rosco_init_options['IPC_Kp2p']    = 0.0 # 2P optimization is not currently supported
-        rosco_init_options['IPC_Kp2p']    = 0.0
-        rosco_init_options['twr_freq']    = float(inputs['twr_freq']) * 2 * np.pi
 
+        rosco_init_options['twr_freq']    = float(inputs['twr_freq']) * 2 * np.pi   # ROSCO wants rad/s
 
         if rosco_init_options['Flp_Mode'] > 0:
             rosco_init_options['flp_maxpit']  = float(inputs['delta_max_pos'][0])
@@ -269,8 +265,7 @@ class TuneROSCO(ExplicitComponent):
         # Generic inputs
         rosco_tuning_dvs = self.opt_options['design_variables']['control']['rosco_tuning']
         for dv in rosco_tuning_dvs:
-            # TODO: support arrays, figure out casting
-            rosco_init_options[dv['name']] = inputs[dv['name']][0]
+            rosco_init_options[dv['name']] = inputs[dv['name']]
 
         # Generic DISCON Inputs
         discon_dvs = self.opt_options['design_variables']['control']['discon']
@@ -650,8 +645,12 @@ def update_rosco_options(modeling_options):
 
     # Apply changes in modeling options, should have already been validated
     modopts_no_defaults = load_yaml(modeling_options['fname_input_modeling'])  
-    skip_options = ['tuning_yaml']  # Options to skip loading, tuning_yaml path has been updated, don't overwrite
+    skip_options = ['tuning_yaml','DISCON']  # Options to skip loading, tuning_yaml path has been updated, don't overwrite
     for option, value in modopts_no_defaults['ROSCO'].items():
         if option not in skip_options:
             modeling_options['ROSCO'][option] = value
+    # Handle DISCON inputs separately
+    if 'DISCON' in modopts_no_defaults['ROSCO']:
+        for option, value in modopts_no_defaults['ROSCO']['DISCON'].items():
+            modeling_options['ROSCO']['DISCON'][option] = value
 

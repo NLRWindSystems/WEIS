@@ -98,7 +98,7 @@ class WindPark(om.Group):
                 else:
                     raise Exception(f"The DISCON design variable {dv['name']} does not have a defined start, nor is it defined in the modeling options.")
 
-            tune_rosco_ivc.add_output(f'discon:{dv["name"]}', val=dv['start'], units=ivc_units, desc=ivc_desc)
+            tune_rosco_ivc.add_output(f"discon:{dv['name']}", val=dv['start'], units=ivc_units, desc=ivc_desc)
 
         # optional inputs - not connected right now!!
         optional_inputs = [
@@ -107,15 +107,15 @@ class WindPark(om.Group):
             'vs_minspd',
             'ss_vsgain',
             'ss_pcgain',
-            'ps_percent',
+            # 'ps_percent',
         ]
         for param in optional_inputs:
             if param in rosco_options:
-                tune_rosco_ivc.add_output(param, val=0.0, desc='Optional input for ROSCO tuning')              desc='Stability margin for robust tuning')
+                tune_rosco_ivc.add_output(param, val=0.0, desc='Optional input for ROSCO tuning')
         
         # Skip if already added, could apply same treatment to The Ones Above
-        if 'ps_percent' not in rosco_tuning_dv_names:
-            tune_rosco_ivc.add_output('ps_percent', val=modeling_options['ROSCO']['ps_percent'],  desc='Peak shaving fraction [0-1], {default = 1.0}')
+        if "ps_percent" not in rosco_tuning_dv_names:
+            tune_rosco_ivc.add_output("ps_percent", val=modeling_options["ROSCO"]["ps_percent"],  desc="Peak shaving fraction [0-1], {default = 1.0}")
 
 
         self.add_subsystem("tune_rosco_ivc",tune_rosco_ivc)
@@ -248,25 +248,10 @@ class WindPark(om.Group):
             for param in optional_inputs:
                 if param in rosco_options:
                     self.connect(f'tune_rosco_ivc.{param}', f'sse_tune.tune_rosco.{param}')
-
-            # required parameters
-            self.connect('tune_rosco_ivc.omega_pc',         'sse_tune.tune_rosco.omega_pc')
-            self.connect('tune_rosco_ivc.zeta_pc',          'sse_tune.tune_rosco.zeta_pc')
-            self.connect('tune_rosco_ivc.omega_vs',         'sse_tune.tune_rosco.omega_vs')
-            self.connect('tune_rosco_ivc.zeta_vs',          'sse_tune.tune_rosco.zeta_vs')
-            self.connect('tune_rosco_ivc.IPC_Kp1p',         'sse_tune.tune_rosco.IPC_Kp1p')
-            self.connect('tune_rosco_ivc.IPC_Ki1p',         'sse_tune.tune_rosco.IPC_Ki1p')
-            self.connect('tune_rosco_ivc.stability_margin', 'sse_tune.tune_rosco.stability_margin')
-            self.connect('tune_rosco_ivc.omega_pc_max', 'sse_tune.tune_rosco.omega_pc_max')
             
             # Peak shaving DV should also influence rotor power in WISDEM
             if not modeling_options['OpenFAST']['from_openfast']:
                 self.connect(f'tune_rosco_ivc.ps_percent', "rotorse.rp.powercurve.ps_percent")
-
-            self.connect('dac_ivc.delta_max_pos',           'sse_tune.tune_rosco.delta_max_pos')
-            if modeling_options['ROSCO']['Flp_Mode'] > 0:
-                self.connect('tune_rosco_ivc.flp_kp_norm',    'sse_tune.tune_rosco.flp_kp_norm')
-                self.connect('tune_rosco_ivc.flp_tau',     'sse_tune.tune_rosco.flp_tau')
 
             # Connect generic ivc/dvs
             for dv in rosco_tuning_dvs:

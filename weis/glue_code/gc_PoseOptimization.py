@@ -1,6 +1,8 @@
 from wisdem.glue_code.gc_PoseOptimization import PoseOptimization
 import numpy as np
-from weis.inputs.validation import get_modeling_schema, re_validate_modeling
+from weis.inputs.validation import get_modeling_schema
+import weis.inputs as sch
+
 from copy import deepcopy
 
 class PoseOptimizationWEIS(PoseOptimization):
@@ -51,10 +53,14 @@ class PoseOptimizationWEIS(PoseOptimization):
             wt_opt.model.add_objective(f'{self.floating_solve_component}.rotor_overspeed')
 
         elif merit_figure.lower() == 'std_ptfmpitch':
-            wt_opt.model.add_objective('aeroelastic.Std_PtfmPitch')
+            if not any(self.level_flags):
+                raise Exception('Please turn on the call to OpenFAST or RAFT if you are trying to optimize rotor overspeed constraints.')
+            wt_opt.model.add_objective(f'{self.floating_solve_component}.Std_PtfmPitch')
 
         elif merit_figure.lower() == 'max_ptfmpitch':
-            wt_opt.model.add_objective('aeroelastic.Max_PtfmPitch')
+            if not any(self.level_flags):
+                raise Exception('Please turn on the call to OpenFAST or RAFT if you are trying to optimize rotor overspeed constraints.')
+            wt_opt.model.add_objective(f'{self.floating_solve_component}.Max_PtfmPitch')
 
         elif merit_figure.lower() == 'cp':
             wt_opt.model.add_objective('aeroelastic.Cp_out', ref=-1.)
@@ -100,7 +106,7 @@ class PoseOptimizationWEIS(PoseOptimization):
                 min_modopts = deepcopy(self.modeling)
                 min_modopts['ROSCO'][dv['name']] = dv['min']  # apply to modopts
                 try:
-                    re_validate_modeling(min_modopts)
+                    sch.load_modeling_yaml(min_modopts)
                 except:
                     raise Exception(f'Error validating the design variable {dv["name"]} (min) against the ROSCO schema.')
 
@@ -108,7 +114,7 @@ class PoseOptimizationWEIS(PoseOptimization):
                 max_modopts = deepcopy(self.modeling)
                 max_modopts['ROSCO'][dv['name']] = dv['max']  # apply to modopts
                 try:
-                    re_validate_modeling(max_modopts)
+                    sch.load_modeling_yaml(max_modopts)
                 except:
                     raise Exception(f'Error validating the design variable {dv["name"]} (max) against the ROSCO schema.')
 
@@ -144,7 +150,7 @@ class PoseOptimizationWEIS(PoseOptimization):
                 min_modopts = deepcopy(self.modeling)
                 min_modopts['ROSCO'][dv['name']] = dv['min']  # apply to modopts
                 try:
-                    re_validate_modeling(min_modopts)
+                    sch.load_modeling_yaml(min_modopts)
                 except:
                     raise Exception(f'Error validating the design variable {dv["name"]} (min) against the ROSCO schema.')
 
@@ -152,7 +158,7 @@ class PoseOptimizationWEIS(PoseOptimization):
                 max_modopts = deepcopy(self.modeling)
                 max_modopts['ROSCO'][dv['name']] = dv['max']  # apply to modopts
                 try:
-                    re_validate_modeling(max_modopts)
+                    sch.load_modeling_yaml(max_modopts)
                 except:
                     raise Exception(f'Error validating the design variable {dv["name"]} (max) against the ROSCO schema.')
 
@@ -306,8 +312,8 @@ class PoseOptimizationWEIS(PoseOptimization):
                 upper = control_constraints['rotor_overspeed']['max'])
 
         # Add PI gains if overspeed is merit_figure or constraint
-        if (control_constraints['rotor_overspeed']['flag'] or 'rotor_overspeed' in self.opt['merit_figure']) and \
-            self.modeling['ROSCO']['flag']:
+        if (control_constraints['rotor_overspeed']['flag'] or 'rotor_overspeed' in self.opt['merit_figure']) \
+            and self.modeling['ROSCO']['flag']:
             wt_opt.model.add_constraint('sse_tune.tune_rosco.PC_Kp',
                 upper = 0.0)
             wt_opt.model.add_constraint('sse_tune.tune_rosco.PC_Ki',

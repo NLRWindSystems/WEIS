@@ -2,9 +2,6 @@ def assign_ROSCO_values(wt_opt, modeling_options, opt_options):
 
     rosco_init_options = modeling_options["ROSCO"]
 
-    # Required inputs
-    wt_opt['tune_rosco_ivc.max_pitch']     = rosco_init_options['max_pitch']
-    wt_opt['tune_rosco_ivc.min_pitch']     = rosco_init_options['min_pitch']
 
     # Robust controller tuning
     if opt_options['design_variables']['control']['servo']['pitch_control']['stability_margin']['flag']:
