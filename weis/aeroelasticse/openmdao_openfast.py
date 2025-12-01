@@ -286,20 +286,6 @@ class FASTLoadCases(ExplicitComponent):
                         self.add_input(f"member{k}_{kname}:Cay", val=np.zeros(n_height_mem))
                         self.add_input(f"member{k}_{kname}:Cdy", val=np.zeros(n_height_mem))
 
-                    if modopt["floating"]["members"]["outer_shape"][k] == "circular":
-                        self.add_input(f"member{k}:outer_diameter", val=np.zeros(n_height_mem), units="m")
-                        self.add_input(f"member{k}:Ca", val=np.zeros(n_height_mem))
-                        self.add_input(f"member{k}:Cd", val=np.zeros(n_height_mem))
-                        self.add_output(f"platform_member{k+1}_d", val=np.zeros(n_height_mem), units="m")
-                    elif modopt["floating"]["members"]["outer_shape"][k] == "rectangular":
-                        raise Exception('Rectangular members are not yet supported in OpenFAST')
-                        self.add_input(f"member{k}:side_length_a", val=np.zeros(n_height_mem), units="m")
-                        self.add_input(f"member{k}:side_length_b", val=np.zeros(n_height_mem), units="m")
-                        self.add_input(f"member{k}:Ca", val=np.zeros(n_height_mem))
-                        self.add_input(f"member{k}:Cd", val=np.zeros(n_height_mem))
-                        self.add_input(f"member{k}:Cay", val=np.zeros(n_height_mem))
-                        self.add_input(f"member{k}:Cdy", val=np.zeros(n_height_mem))
-
             # Turbine level inputs
             self.add_discrete_input('rotor_orientation',val='upwind', desc='Rotor orientation, either upwind or downwind.')
             self.add_input('control_ratedPower',        val=0.,  units='W',    desc='machine power rating')

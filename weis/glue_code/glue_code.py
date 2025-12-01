@@ -60,6 +60,7 @@ class WindPark(om.Group):
 
         tune_rosco_ivc = om.IndepVarComp()
 
+        
         # Generic DVs
         rosco_tuning_dvs = opt_options['design_variables']['control']['rosco_tuning']
         rosco_tuning_dv_names = [ dv['name'] for dv in rosco_tuning_dvs ]
@@ -98,7 +99,6 @@ class WindPark(om.Group):
                 else:
                     raise Exception(f"The DISCON design variable {dv['name']} does not have a defined start, nor is it defined in the modeling options.")
 
-            tune_rosco_ivc.add_output(f"discon:{dv['name']}", val=dv['start'], units=ivc_units, desc=ivc_desc)
 
         # optional inputs - not connected right now!!
         optional_inputs = [
@@ -116,7 +116,6 @@ class WindPark(om.Group):
         # Skip if already added, could apply same treatment to The Ones Above
         if "ps_percent" not in rosco_tuning_dv_names:
             tune_rosco_ivc.add_output("ps_percent", val=modeling_options["ROSCO"]["ps_percent"],  desc="Peak shaving fraction [0-1], {default = 1.0}")
-
 
         self.add_subsystem("tune_rosco_ivc",tune_rosco_ivc)
 
@@ -381,11 +380,11 @@ class WindPark(om.Group):
                     self.connect(f"floating.rigid_body_{k}_mass",f"raft.rigid_body_{k}_mass")
                     self.connect(f"floating.rigid_body_{k}_inertia",f"raft.rigid_body_{k}_inertia")
 
-                self.connect("mooring.mooring_nodes", 'raft.mooring_nodes')
-                self.connect("mooring.unstretched_length", 'raft.unstretched_length')
-                for var in ['diameter','mass_density','stiffness','breaking_load','cost_rate',
-                            'transverse_added_mass','tangential_added_mass','transverse_drag','tangential_drag']:
-                    self.connect(f'mooring.line_{var}', f'raft.line_{var}')
+                self.connect("mooring.mooring_nodes", "raft.mooring_nodes")
+                self.connect("mooring.unstretched_length", "raft.unstretched_length")
+                for var in ["diameter","mass_density","stiffness","breaking_load","cost_rate",
+                            "transverse_added_mass","tangential_added_mass","transverse_drag","tangential_drag"]:
+                    self.connect(f"mooring.line_{var}", f"raft.line_{var}")
 
         # TMD connections to openmdao_openfast
         if modeling_options["flags"]["TMDs"]:
@@ -582,20 +581,6 @@ class WindPark(om.Group):
                             self.connect(f"floating.memgrid{idx}.cd_usr_grid", f"aeroelastic.member{k}_{kname}:Cd")
                             self.connect(f"floating.memgrid{idx}.cay_usr_grid", f"aeroelastic.member{k}_{kname}:Cay")
                             self.connect(f"floating.memgrid{idx}.cdy_usr_grid", f"aeroelastic.member{k}_{kname}:Cdy")
-
-
-                        # Member coefficients
-                        if modeling_options['floating']['members']['outer_shape'][k] == "circular":
-                            self.connect(f"floatingse.member{k}.outer_diameter", f"aeroelastic.member{k}:outer_diameter")
-                            self.connect(f"floating.memgrid{idx}.ca_usr_grid", f"aeroelastic.member{k}:Ca")
-                            self.connect(f"floating.memgrid{idx}.cd_usr_grid", f"aeroelastic.member{k}:Cd")
-                        elif modeling_options['floating']['members']['outer_shape'][k] == "rectangular":
-                            self.connect(f"floatingse.member{k}.side_length_a", f"aeroelastic.member{k}:side_length_a")
-                            self.connect(f"floatingse.member{k}.side_length_b", f"aeroelastic.member{k}:side_length_b")
-                            self.connect(f"floating.memgrid{idx}.ca_usr_grid", f"aeroelastic.member{k}:Ca")
-                            self.connect(f"floating.memgrid{idx}.cd_usr_grid", f"aeroelastic.member{k}:Cd")
-                            self.connect(f"floating.memgrid{idx}.cay_usr_grid", f"aeroelastic.member{k}:Cay")
-                            self.connect(f"floating.memgrid{idx}.cdy_usr_grid", f"aeroelastic.member{k}:Cdy")
 
 
                         for var in ["joint1", "joint2", "s_ghost1", "s_ghost2"]:
@@ -957,10 +942,10 @@ class WindPark(om.Group):
 
             else:  # connections from outside WISDEM
                 if modeling_options['ROSCO']['flag']:
-                    self.connect('rosco_turbine.v_rated',               'aeroelastic.Vrated')
-                    self.connect('rosco_turbine.R',                     'aeroelastic.Rtip')
-                    self.connect('rosco_turbine.hub_height',            'aeroelastic.hub_height')
-                    self.connect('rosco_turbine.twr_freq',              'sse_tune.tune_rosco.twr_freq')
+                    self.connect("rosco_turbine.v_rated", "aeroelastic.Vrated")
+                    self.connect("rosco_turbine.R", "aeroelastic.Rtip")
+                    self.connect("rosco_turbine.hub_height", "aeroelastic.hub_height")
+                    self.connect("rosco_turbine.twr_freq", "sse_tune.tune_rosco.twr_freq")
                 else:
                     # TODO: how should we make these connections? We should be able to fill with assembly info or something
                     # R and hub height for wind file generation, but the user can input GridWidth, etc. from modeling options
@@ -1010,9 +995,9 @@ class WindPark(om.Group):
                 self.connect('rotorse.blade_mass',  'outputs_2_screen_weis.blade_mass')
                 self.connect('aeroelastic.max_TipDxc', 'outputs_2_screen_weis.tip_deflection')
 
-            if modeling_options['General']['openfast_configuration']['model_only'] == False:
-                self.connect('aeroelastic.DEL_RootMyb',        'outputs_2_screen_weis.DEL_RootMyb')
-                self.connect('aeroelastic.DEL_TwrBsMyt',       'outputs_2_screen_weis.DEL_TwrBsMyt')
-                self.connect('aeroelastic.rotor_overspeed',    'outputs_2_screen_weis.rotor_overspeed')
-                self.connect('aeroelastic.Std_PtfmPitch',      'outputs_2_screen_weis.Std_PtfmPitch')
-                self.connect('aeroelastic.Max_PtfmPitch',      'outputs_2_screen_weis.Max_PtfmPitch')
+            if modeling_options["General"]["openfast_configuration"]["model_only"] == False:
+                self.connect("aeroelastic.DEL_RootMyb",        "outputs_2_screen_weis.DEL_RootMyb")
+                self.connect("aeroelastic.DEL_TwrBsMyt",       "outputs_2_screen_weis.DEL_TwrBsMyt")
+                self.connect("aeroelastic.rotor_overspeed",    "outputs_2_screen_weis.rotor_overspeed")
+                self.connect("aeroelastic.Std_PtfmPitch",      "outputs_2_screen_weis.Std_PtfmPitch")
+                self.connect("aeroelastic.Max_PtfmPitch",      "outputs_2_screen_weis.Max_PtfmPitch")
