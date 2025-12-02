@@ -425,7 +425,16 @@ class FASTLoadCases(ExplicitComponent):
         else:
             self.FAST_runDirectory = FAST_directory_base
             self.FAST_namingOut = self.FAST_InputFile
-        self.wind_directory = os.path.join(self.FAST_runDirectory, 'wind')
+        
+        # Wind directory
+        if 'wind_directory' in OFmgmt.keys():
+            self.wind_directory = OFmgmt['wind_directory']
+            if not os.path.isabs(self.wind_directory):
+                self.wind_directory =  os.path.join(os.path.dirname(self.options['modeling_options']['fname_input_modeling']),
+                                                 OFmgmt['wind_directory'])
+        else:
+            self.wind_directory = os.path.join(self.FAST_runDirectory, 'wind')
+        
         if not os.path.exists(self.FAST_runDirectory):
             os.makedirs(self.FAST_runDirectory, exist_ok=True)
         if not os.path.exists(self.wind_directory):
