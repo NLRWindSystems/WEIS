@@ -7,7 +7,6 @@ Contributor: Athul Krishna Sundarrajan (AthulKrishnaSundarrajan on Github)
 Primary Contributor: Daniel R. Herber (danielrherber on Github)
 """
 import numpy as np
-from numpy.matlib import repmat
 from scipy.sparse import csc_matrix
 from matplotlib.pyplot import spy
 from weis.dtqpy.utilities.DTQPy_tmultiprod import DTQPy_tmultiprod
@@ -52,20 +51,20 @@ def DTQPy_DEFECTS_TR(A,B,G,d,internal,opts):
         Jy = Index_Columns(nt, ny, nu)
         Jys = np.vstack([Jy,Jy+1])
         Ty = Jy-nt*nu 
-        Hy = repmat(0.5*h,ny,1)
+        Hy = np.tile(0.5*h,(ny,1))
         
         # Column indices for controls
         if nu>0:
             Ju = Index_Columns(nt,nu,0)
             Jus = np.vstack([Ju,Ju+1])
             Tu = Ju
-            Hu = repmat(0.5*h,nu,1)
+            Hu = np.tile(0.5*h,(nu,1))
         
         # Column indices for plant parameters
         if npl>0:
             Jp = np.kron(nt*(nu+ny)*(np.arange(1,npl+1)),np.ones((nt-1,1)))
             Tp = Index_Columns(nt,npl,0)
-            Hp = repmat(0.5*h,npl,1)
+            Hp = np.tile(0.5*h,(npl,1))
         
         # Column indices for disturbances
         if nd>0:
@@ -89,7 +88,7 @@ def DTQPy_DEFECTS_TR(A,B,G,d,internal,opts):
                if Bv.any():
                    
                    # defect constraint row value
-                   Iu = repmat(DefectIndices,nu,1)
+                   Iu = np.tile(DefectIndices,(nu,1))
                 
                    # theta values
                    V3 = -Hu*(np.take(Bv,Tu))
@@ -120,7 +119,7 @@ def DTQPy_DEFECTS_TR(A,B,G,d,internal,opts):
                  if  KiFlag or Av.any():
                      
                      # defect row constraints
-                     Iy = repmat(DefectIndices,ny,1)
+                     Iy = np.tile(DefectIndices,(ny,1))
                      
                      # theta values
                      if Av.any():
@@ -149,7 +148,7 @@ def DTQPy_DEFECTS_TR(A,B,G,d,internal,opts):
                    if any.Gv():
                        
                        # defect constraint (row) locations
-                       Is = repmat(DefectIndices,np,1)
+                       Is = np.tile(DefectIndices,(npl,1))
                        
                        # theta values
                        Vs = -Hp*(np.take(Gv,Tp)+np.take(Gv,Tp+1))

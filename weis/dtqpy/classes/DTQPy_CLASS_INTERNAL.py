@@ -7,7 +7,6 @@ Contributor: Athul Krishna Sundarrajan (AthulKrishnaSundarrajan on Github)
 Primary Contributor: Daniel R. Herber (danielrherber on Github)
 """
 import numpy as np
-from numpy.matlib import repmat
 from weis.dtqpy.classes.DTQPy_CLASS_SETUP import LQ_objective
 
 def DTQPy_extact_order_subsets(Otemp):
@@ -105,7 +104,7 @@ def DTQPy_initialize(setup,dt):
     IN.append(IN[0])
     IN.append(IN[0])
     
-    I_stored = np.hstack([np.reshape(np.arange(0,(nu+ny)*nt),(nt,(ny+nu)),order = 'F'),repmat(((nu+ny)*nt+np.arange(0,npl)),nt,1)])
+    I_stored = np.hstack([np.reshape(np.arange(0,(nu+ny)*nt),(nt,(ny+nu)),order = 'F'),np.tile(((nu+ny)*nt+np.arange(0,npl)),(nt,1))])
     
     i.IN = IN
     i.I_stored = I_stored

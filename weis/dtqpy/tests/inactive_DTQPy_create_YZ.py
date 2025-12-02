@@ -7,7 +7,6 @@ test file for DTQPy_crearte YZ
 import numpy as np
 from weis.dtqpy.classes.DTQPy_CLASS_SETUP import *
 from weis.dtqpy.add_constraints.DTQPy_create_YZ import DTQPy_create_YZ
-from numpy.matlib import repmat
 
 class dummy:
     pass
@@ -41,7 +40,7 @@ IN.append(IN[1])
 IN.append(IN[0])
 IN.append(IN[0])
     
-I_stored = np.hstack([np.reshape(np.arange(0,(nu+ny)*nt),(nt,(ny+nu)),order = 'F'),repmat(((nu+ny)*nt+np.arange(0,npl)),nt,1)])
+I_stored = np.hstack([np.reshape(np.arange(0,(nu+ny)*nt),(nt,(ny+nu)),order = 'F'),np.tile(((nu+ny)*nt+np.arange(0,npl)),(nt,1))])
     
 internal.IN = IN; internal.I_stored = I_stored
 
