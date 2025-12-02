@@ -94,7 +94,7 @@ properties:
                     overwrite_outputs:
                         type: boolean
                         description: If False, will check for existing .outb file before running OpenFAST.
-                        default: False
+                        default: True
             goodman_correction:
                 type: boolean
                 default: False
