@@ -313,8 +313,8 @@ class FASTLoadCases(ExplicitComponent):
             self.add_input("platform_I_total", np.zeros(6), units="kg*m**2")
 
             if modopt['flags']["floating"]:
-                n_member = modopt["floating"]["members"]["n_members"]
-                for k in range(n_member):
+                n_member_floatingse = modopt["floating"]["members"]["n_members"]
+                for k in range(n_member_floatingse):
                     kname = modopt['floating']['members']['name'][k]
                     n_height_mem = modopt["floating"]["members"]["n_height"][k]
                     self.add_input(f"member{k}_{kname}:joint1", np.zeros(3), units="m")
@@ -1428,15 +1428,15 @@ class FASTLoadCases(ExplicitComponent):
             idx0 = np.intersect1d(np.where(z_coarse>-0.5), np.where(z_coarse<0.5))
             z_coarse = np.delete(z_coarse, idx0) 
             n_joints = len(z_coarse)
-            n_members = n_joints - 1
+            n_member_openfast = n_joints - 1
             joints_xyz = np.c_[np.zeros((n_joints,2)), z_coarse]
             d_coarse = np.interp(z_coarse, mono_elev[:], mono_d[:])
             t_coarse = util.sectional_interp(z_coarse, mono_elev[1:], mono_t[1:])
             a_coarse = np.zeros_like(d_coarse) # dummy a and b
             b_coarse = np.zeros_like(d_coarse)
-            MSecGeom = np.ones(n_members, dtype=np.int_)  # 1 for circular
-            N1 = np.arange( n_members, dtype=np.int_ ) + 1
-            N2 = np.arange( n_members, dtype=np.int_ ) + 2
+            MSecGeom = np.ones(n_member_openfast, dtype=np.int_)  # 1 for circular
+            N1 = np.arange( n_member_openfast, dtype=np.int_ ) + 1
+            N2 = np.arange( n_member_openfast, dtype=np.int_ ) + 2
             rigid_links_xyz = np.empty((0, 3)) # No rigid links for monopile, dummy
             
             
@@ -1461,15 +1461,16 @@ class FASTLoadCases(ExplicitComponent):
             rho_coarse = np.array([])
             rigid_links_xyz = np.empty((0, 3))
 
-
-            idx_circular_member = [i for i, shape in enumerate(modopt['floating']['members']['outer_shape']) if shape == 'circular']
-            idx_rectangular_member = [i for i, shape in enumerate(modopt['floating']['members']['outer_shape']) if shape == 'rectangular']
+            # OpenFAST member indices that are circular or rectangular, to help build coefficients later
+            idx_circular_member = np.array([], dtype=np.int_) 
+            idx_rectangular_member = np.array([], dtype=np.int_) 
+            i_member_openfast = 0
 
             # Look over members and grab all nodes and internal connections
-            n_member = modopt["floating"]["members"]["n_members"]
+            n_member_floatingse = modopt["floating"]["members"]["n_members"]
 
             
-            for k in range(n_member):
+            for k in range(n_member_floatingse):
 
                 member_shape = modopt['floating']['members']['outer_shape'][k]
 
@@ -1496,12 +1497,20 @@ class FASTLoadCases(ExplicitComponent):
                 dxyz = xyz1 - xyz0
                 inode_xyz = np.outer(s_coarse, dxyz) + xyz0[np.newaxis, :]
                 inode_range = np.arange(inode_xyz.shape[0] - 1)
+                openfast_members_in_fse_member = inode_xyz.shape[0] - 1 # We break the floatingse members (with various diameters, etc.) into multiple OpenFAST members between each node
 
                 nk = joints_xyz.shape[0]
                 N1 = np.append(N1, nk + inode_range + 1)
                 N2 = np.append(N2, nk + inode_range + 2)
                 t_coarse = np.append(t_coarse, it_coarse)  
                 joints_xyz = np.append(joints_xyz, inode_xyz, axis=0)
+
+                # Shape indices (OpenFAST)
+                if member_shape == 'circular':
+                    idx_circular_member = np.append(idx_circular_member, np.arange(i_member_openfast, i_member_openfast + openfast_members_in_fse_member))
+                elif member_shape == 'rectangular':
+                    idx_rectangular_member = np.append(idx_rectangular_member, np.arange(i_member_openfast, i_member_openfast + openfast_members_in_fse_member))
+                i_member_openfast += openfast_members_in_fse_member
 
                 # Save rigid links - they are likely to be saved at the joint locations already, but saving now so we can find the indices/jointID later because they are likely on different members and only used for subDyn
                 if inputs[f"member{k}_{kname}:s_ghost1"] > 0.0:
@@ -1540,7 +1549,7 @@ class FASTLoadCases(ExplicitComponent):
 
                 # Start assigning member-shape dependent properties
                 if member_shape == 'circular':
-                    MSecGeom = np.append(MSecGeom, 1)
+                    MSecGeom = np.append(MSecGeom, np.full_like(inode_range,1))
                     id_coarse = np.interp(s_coarse, s_grid, idiam)
                     d_coarse = np.append(d_coarse, id_coarse)  
                     a_coarse = np.append(a_coarse, np.zeros_like(id_coarse))
@@ -1548,7 +1557,7 @@ class FASTLoadCases(ExplicitComponent):
                     Cay_coarse = np.append(Cay_coarse, np.zeros_like(id_coarse))
                     Cdy_coarse = np.append(Cdy_coarse, np.zeros_like(id_coarse))
                 elif member_shape == 'rectangular':
-                    MSecGeom = np.append(MSecGeom, 2)
+                    MSecGeom = np.append(MSecGeom, np.full_like(inode_range,2))
                     ia_coarse = np.interp(s_coarse, s_grid, i_a)
                     ib_coarse = np.interp(s_coarse, s_grid, i_b)
                     d_coarse = np.append(d_coarse, np.zeros_like(id_coarse))
@@ -1608,11 +1617,11 @@ class FASTLoadCases(ExplicitComponent):
             n_joints = joints_xyz.shape[0]
             assert n_circular + n_rectangular == n_joints, "Error in member shape classification for HydroDyn."
 
-            n_members = N1.shape[0]
+            n_member_openfast = N1.shape[0]
             ijoints = np.arange( n_joints, dtype=np.int_ ) + 1
             ijoints_circular = ijoints[idx_circular]
             ijoints_rectangular = ijoints[idx_rectangular]
-            imembers = np.arange( n_members, dtype=np.int_ ) + 1
+            imembers = np.arange( n_member_openfast, dtype=np.int_ ) + 1
             fst_vt['HydroDyn']['NJoints'] = n_joints
             fst_vt['HydroDyn']['JointID'] = ijoints
             fst_vt['HydroDyn']['Jointxi'] = joints_xyz[:,0]
@@ -1632,7 +1641,7 @@ class FASTLoadCases(ExplicitComponent):
             fst_vt['HydroDyn']['RecPropThck'] = t_coarse[idx_rectangular]
 
 
-            fst_vt['HydroDyn']['NMembers'] = n_members
+            fst_vt['HydroDyn']['NMembers'] = n_member_openfast
             fst_vt['HydroDyn']['MemberID'] = imembers
             fst_vt['HydroDyn']['MJointID1'] = fst_vt['HydroDyn']['MPropSetID1'] = N1
             fst_vt['HydroDyn']['MJointID2'] = fst_vt['HydroDyn']['MPropSetID2'] = N2
@@ -1951,8 +1960,8 @@ class FASTLoadCases(ExplicitComponent):
             sub_N2 = np.append(sub_N2, rigid_link_N2)
             fst_vt['SubDyn']['MJointID1'] = sub_N1.tolist()
             fst_vt['SubDyn']['MJointID2'] = sub_N2.tolist()
-            n_members = len(sub_N1)
-            imembers = np.arange( n_members, dtype=np.int_ ) + 1
+            n_member_openfast = len(sub_N1)
+            imembers = np.arange( n_member_openfast, dtype=np.int_ ) + 1
 
 
             # Get indices for circular and rectangular members
@@ -1997,16 +2006,16 @@ class FASTLoadCases(ExplicitComponent):
             fst_vt['SubDyn']['JointStiff'] = np.zeros( n_joints )
             fst_vt['SubDyn']['ItfTDXss'] = fst_vt['SubDyn']['ItfTDYss'] = fst_vt['SubDyn']['ItfTDZss'] = [1]
             fst_vt['SubDyn']['ItfRDXss'] = fst_vt['SubDyn']['ItfRDYss'] = fst_vt['SubDyn']['ItfRDZss'] = [1]
-            fst_vt['SubDyn']['NMembers'] = n_members 
+            fst_vt['SubDyn']['NMembers'] = n_member_openfast 
             fst_vt['SubDyn']['MemberID'] = imembers.tolist()
-            fst_vt['SubDyn']['MPropSetID1'] = propID1.tolist() + (n_members - len(propID1)) * [iprop_rigid_link]    # Add rigid link property id
-            fst_vt['SubDyn']['MPropSetID2'] = propID2.tolist() + (n_members - len(propID2)) * [iprop_rigid_link]
-            mtype = np.ones( n_members, dtype=np.int_ )
+            fst_vt['SubDyn']['MPropSetID1'] = propID1.tolist() + (n_member_openfast - len(propID1)) * [iprop_rigid_link]    # Add rigid link property id
+            fst_vt['SubDyn']['MPropSetID2'] = propID2.tolist() + (n_member_openfast - len(propID2)) * [iprop_rigid_link]
+            mtype = np.ones( n_member_openfast, dtype=np.int_ )
             mtype[idx_rectangular_member] = -1
             mtype[idx_rigid_member] = 3
             fst_vt['SubDyn']['MType'] = mtype
-            fst_vt['SubDyn']['M_COSMID'] = np.ones( n_members, dtype=np.int_ ) * -1 #  TODO: verify based on https://openfast.readthedocs.io/en/dev/source/user/subdyn/input_files.html#members
-            fst_vt['SubDyn']['M_Spin'] = np.zeros( n_members, dtype=np.int_ ) #  TODO: no rotation or rectangular members supported yet, see https://openfast.readthedocs.io/en/dev/source/user/subdyn/input_files.html#members
+            fst_vt['SubDyn']['M_COSMID'] = np.ones( n_member_openfast, dtype=np.int_ ) * -1 #  TODO: verify based on https://openfast.readthedocs.io/en/dev/source/user/subdyn/input_files.html#members
+            fst_vt['SubDyn']['M_Spin'] = np.zeros( n_member_openfast, dtype=np.int_ ) #  TODO: no rotation or rectangular members supported yet, see https://openfast.readthedocs.io/en/dev/source/user/subdyn/input_files.html#members
 
 
             # Circular beam cross-section properties
@@ -2031,7 +2040,7 @@ class FASTLoadCases(ExplicitComponent):
             fst_vt['SubDyn']['JMXY'] = fst_vt['SubDyn']['JMXZ'] = fst_vt['SubDyn']['JMYZ'] = [0.0]
             fst_vt['SubDyn']['MCGX'] = fst_vt['SubDyn']['MCGY'] = fst_vt['SubDyn']['MCGZ'] = [0.0]
 
-            def add_concentrated_mass(mass,inertia,location,n_joints,n_members,fst_vt):
+            def add_concentrated_mass(mass,inertia,location,n_joints,n_member_openfast,fst_vt):
                 # Update fst_vt in place
 
                 # Make a new member from xyz0 to location
@@ -2048,9 +2057,9 @@ class FASTLoadCases(ExplicitComponent):
                 fst_vt['SubDyn']['JointDirZ'] = np.append(fst_vt['SubDyn']['JointDirZ'], [0])
                 fst_vt['SubDyn']['JointStiff'] = np.append(fst_vt['SubDyn']['JointStiff'], [0])
 
-                n_members += 1  # in case this is used after here
-                fst_vt['SubDyn']['NMembers'] = n_members
-                fst_vt['SubDyn']['MemberID'] += [n_members]
+                n_member_openfast += 1  # in case this is used after here
+                fst_vt['SubDyn']['NMembers'] = n_member_openfast
+                fst_vt['SubDyn']['MemberID'] += [n_member_openfast]
 
                 ibase = util.closest_node(joints_xyz, xyz0)
                 fst_vt['SubDyn']['MJointID1'] += [ibase+1]
@@ -2078,7 +2087,7 @@ class FASTLoadCases(ExplicitComponent):
                 fst_vt['SubDyn']['MCGZ'] += [0.0]
 
             # Ballast Mass as lumped mass
-            for k in range(n_member):
+            for k in range(n_member_floatingse):
                 kname = modopt['floating']['members']['name'][k]
                 z_pos = inputs[f"member{k}_{kname}:ballast_z_cg"]
                 m_ballast = inputs[f"member{k}_{kname}:ballast_mass"]
@@ -2093,9 +2102,9 @@ class FASTLoadCases(ExplicitComponent):
                     unit_vector = dxyz / vector_length
                     ballast_position = xyz0 + unit_vector * z_pos
 
-                    add_concentrated_mass(m_ballast, inputs[f"member{k}_{kname}:ballast_I_base"], ballast_position, n_joints, n_members, fst_vt)
+                    add_concentrated_mass(m_ballast, inputs[f"member{k}_{kname}:ballast_I_base"], ballast_position, n_joints, n_member_openfast, fst_vt)
                     n_joints += 1
-                    n_members += 1 
+                    n_member_openfast += 1 
 
                 # Do the same for variable ballast
                 variable_ballast_mass = inputs[f"member{k}_{kname}:variable_ballast_mass"]
@@ -2103,9 +2112,9 @@ class FASTLoadCases(ExplicitComponent):
                 variable_ballast_position = inputs[f"member{k}_{kname}:variable_ballast_cg"]
                 if variable_ballast_mass > 0.0:
 
-                    add_concentrated_mass(variable_ballast_mass, variable_ballast_inertia, variable_ballast_position, n_joints, n_members, fst_vt)
+                    add_concentrated_mass(variable_ballast_mass, variable_ballast_inertia, variable_ballast_position, n_joints, n_member_openfast, fst_vt)
                     n_joints += 1
-                    n_members += 1 
+                    n_member_openfast += 1 
 
                 # Add bulkhead masses
                 # TODO (someday): account for individual bulkheads, they are currently lumped together
@@ -2122,9 +2131,9 @@ class FASTLoadCases(ExplicitComponent):
                     unit_vector = dxyz / vector_length
                     bulkhead_xyz = xyz0 + unit_vector * bulkhead_position
 
-                    add_concentrated_mass(bulkhead_mass, bulkhead_inertia, bulkhead_xyz, n_joints, n_members, fst_vt)
+                    add_concentrated_mass(bulkhead_mass, bulkhead_inertia, bulkhead_xyz, n_joints, n_member_openfast, fst_vt)
                     n_joints += 1
-                    n_members += 1 
+                    n_member_openfast += 1 
 
 
             # Make a weightless rigid link type for all the rigid links
