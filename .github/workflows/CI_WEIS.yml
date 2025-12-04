@@ -40,29 +40,29 @@ jobs:
       #  run: |
       #    conda install -y -c intel intel-openmp mkl
 
-      # Delete the next entry once WISDEM and RAFT have releases with feature branches supporting this PR
+      # Enable the next entries to use feature branches of dependencies for CI testing
 
-      - name: Add dependencies ubuntu specific
-        if: false == contains( matrix.os, 'windows')
-        run: |
-          conda install -y gfortran
+      # - name: Add dependencies ubuntu specific
+      #   if: false == contains( matrix.os, 'windows')
+      #   run: |
+      #     conda install -y compilers
 
-      - name: Add dependencies windows specific
-        if: contains( matrix.os, 'windows')
-        run: |
-          conda install -y gfortran libpython
-          pip install --no-deps control
+      # - name: Add dependencies windows specific
+      #   if: contains( matrix.os, 'windows')
+      #   run: |
+      #     conda install -y gfortran libpython
+      #     pip install --no-deps control
       
 
       
-      - name: feature branches of other codes
-        run: |
+      # - name: feature branches of other codes
+      #   run: |
 
-          conda remove --force wisdem
-          pip install https://github.com/dzalkind/WISDEM/archive/floating_outputs.zip
+      #     conda remove --force wisdem
+      #     pip install https://github.com/dzalkind/WISDEM/archive/floating_outputs.zip
 
-          conda remove --force openraft
-          pip install https://github.com/yqliaohk/RAFT/archive/meshing_update.zip
+      #     conda remove --force openraft
+      #     pip install https://github.com/yqliaohk/RAFT/archive/meshing_update.zip
 
       # Don't delete after this
 
