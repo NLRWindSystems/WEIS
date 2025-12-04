@@ -55,14 +55,11 @@ jobs:
       
 
       
-      # - name: feature branches of other codes
-      #   run: |
+      - name: feature branches of other codes
+        run: |
 
-      #     conda remove --force wisdem
-      #     pip install https://github.com/dzalkind/WISDEM/archive/floating_outputs.zip
-
-      #     conda remove --force openraft
-      #     pip install https://github.com/yqliaohk/RAFT/archive/meshing_update.zip
+          conda remove --force openraft
+          pip install https://github.com/yqliaohk/RAFT/archive/meshing_update.zip
 
       # Don't delete after this
 
