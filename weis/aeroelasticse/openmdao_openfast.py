@@ -1438,6 +1438,7 @@ class FASTLoadCases(ExplicitComponent):
             N1 = np.arange( n_member_openfast, dtype=np.int_ ) + 1
             N2 = np.arange( n_member_openfast, dtype=np.int_ ) + 2
             rigid_links_xyz = np.empty((0, 3)) # No rigid links for monopile, dummy
+            n_member_floatingse = 0
             
             
         elif modopt['flags']['floating']:
@@ -1660,7 +1661,7 @@ class FASTLoadCases(ExplicitComponent):
             # Member-based coefficients
             if modopt['flags']['floating']: # Why is this only used for floating? Not offshore as above?
 
-                fst_vt['HydroDyn']['PtfmVol0'] = [float(inputs['platform_displacement'])] 
+                fst_vt['HydroDyn']['PtfmVol0'] = [inputs['platform_displacement'][0]] 
 
                 fst_vt['HydroDyn']['MCoefMod']          = 3 * np.ones( fst_vt['HydroDyn']['NMembers'], dtype=np.int_)  # TODO: should this be the default??
                 fst_vt['HydroDyn']['NCoefMembersCyl']   = len(idx_circular_member)
@@ -1808,42 +1809,43 @@ class FASTLoadCases(ExplicitComponent):
                         fig.savefig(os.path.join(os.path.dirname(fst_vt['HydroDyn']['PotFile']),'rad_fit',f'rad_fit_{i_fig}.png'))
 
 
-        # SubDyn inputs- monopile and floating YL: move it down so can reuse the coarsened discretization from hydrodyn 08-27-2025
+        # SubDyn inputs- monopile and floating
         if modopt['flags']['monopile']:
 
-            n_joints = len(d_coarse) # Omit submerged pile
+            mono_d = inputs['monopile_outer_diameter']
+            mono_t = inputs['monopile_wall_thickness']
+            mono_elev = inputs['monopile_z']
+            n_joints = len(mono_d[1:]) # Omit submerged pile
+            n_member_openfast = n_joints - 1
             itrans = n_joints - 1
             fst_vt['SubDyn']['JointXss'] = np.zeros( n_joints )
             fst_vt['SubDyn']['JointYss'] = np.zeros( n_joints )
-            fst_vt['SubDyn']['JointZss'] = z_coarse
+            fst_vt['SubDyn']['JointZss'] = mono_elev[1:]
             fst_vt['SubDyn']['NReact'] = 1
             fst_vt['SubDyn']['RJointID'] = [1]
             fst_vt['SubDyn']['RctTDXss'] = fst_vt['SubDyn']['RctTDYss'] = fst_vt['SubDyn']['RctTDZss'] = [1]
             fst_vt['SubDyn']['RctRDXss'] = fst_vt['SubDyn']['RctRDYss'] = fst_vt['SubDyn']['RctRDZss'] = [1]
             fst_vt['SubDyn']['NInterf'] = 1
             fst_vt['SubDyn']['IJointID'] = [n_joints]
-            fst_vt['SubDyn']['MJointID1'] = N1
-            fst_vt['SubDyn']['MJointID2'] = N2
-            propID1 = copy.deepcopy(N1) 
-            propID2 = copy.deepcopy(N2)
-            idx_rectangular_member = []
-            idx_rigid_member = []
-            n_properties = len(d_coarse)
-            i_properties = np.arange( n_properties, dtype=np.int_ ) + 1
-            n_circular = n_properties
-            n_rectangular = 0
-            iprop_circular = i_properties
-            iprop_rectangular = np.array([], dtype=np.int_)
+            fst_vt['SubDyn']['MJointID1'] = np.arange( n_member_openfast, dtype=np.int_ ) + 1
+            fst_vt['SubDyn']['MJointID2'] = np.arange( n_member_openfast, dtype=np.int_ ) + 2
+            n_properties = n_member_openfast
+            # propID1 = copy.deepcopy(N1) 
+            # propID2 = copy.deepcopy(N2)
+            # idx_rectangular_member = []
+            # idx_rigid_member = []
+            # i_properties = np.arange( n_properties, dtype=np.int_ ) + 1
+            # n_circular = n_properties
+            # n_rectangular = 0
+            # iprop_circular = i_properties
+            # iprop_rectangular = np.array([], dtype=np.int_)
             
             # Circular cross-section properties
-            E_coarse = util.sectional_interp(z_coarse, mono_elev[1:], inputs['monopile_E'][1:])
-            fst_vt['SubDyn']['YoungE1'] = E_coarse
-            G_coarse = util.sectional_interp(z_coarse, mono_elev[1:], inputs['monopile_G'][1:])
-            fst_vt['SubDyn']['ShearG1'] = G_coarse
-            rho_coarse = util.sectional_interp(z_coarse, mono_elev[1:], inputs['monopile_rho'][1:])
-            fst_vt['SubDyn']['MatDens1'] = rho_coarse
-            fst_vt['SubDyn']['XsecD'] = d_coarse
-            fst_vt['SubDyn']['XsecT'] = t_coarse
+            fst_vt['SubDyn']['YoungE1'] = inputs['monopile_E'][1:]
+            fst_vt['SubDyn']['ShearG1'] = inputs['monopile_G'][1:]
+            fst_vt['SubDyn']['MatDens1'] = inputs['monopile_rho'][1:]
+            fst_vt['SubDyn']['XsecD'] = util.nodal2sectional(mono_d[1:])[0] # Don't need deriv
+            fst_vt['SubDyn']['XsecT'] = mono_t[1:]
 
             # Find the members where the 9 channels of SubDyn should be placed
             grid_joints_monopile = (fst_vt['SubDyn']['JointZss'] - fst_vt['SubDyn']['JointZss'][0]) / (fst_vt['SubDyn']['JointZss'][-1] - fst_vt['SubDyn']['JointZss'][0])
@@ -1983,14 +1985,14 @@ class FASTLoadCases(ExplicitComponent):
             fst_vt['SubDyn']['ShearG2'] = G_coarse[idx_rectangular]
             fst_vt['SubDyn']['MatDens2'] = rho_coarse[idx_rectangular]
 
-            # Update the member numbers
-            n_circular = len(idx_circular)
-            n_rectangular = len(idx_rectangular)
-            n_properties = n_circular + n_rectangular
-            i_properties = np.arange( n_properties, dtype=np.int_ ) + 1
-            iprop_circular = i_properties[idx_circular]
-            iprop_rectangular = i_properties[idx_rectangular]
-            iprop_rigid_link = n_properties + 1
+        # Update the member numbers
+        n_circular = len(idx_circular)
+        n_rectangular = len(idx_rectangular)
+        n_properties = n_circular + n_rectangular
+        i_properties = np.arange( n_properties, dtype=np.int_ ) + 1
+        iprop_circular = i_properties[idx_circular]
+        iprop_rectangular = i_properties[idx_rectangular]
+        iprop_rigid_link = n_properties + 1
 
         # SubDyn inputs- offshore generic
         if modopt['flags']['offshore']:
@@ -2007,24 +2009,33 @@ class FASTLoadCases(ExplicitComponent):
             fst_vt['SubDyn']['ItfTDXss'] = fst_vt['SubDyn']['ItfTDYss'] = fst_vt['SubDyn']['ItfTDZss'] = [1]
             fst_vt['SubDyn']['ItfRDXss'] = fst_vt['SubDyn']['ItfRDYss'] = fst_vt['SubDyn']['ItfRDZss'] = [1]
             fst_vt['SubDyn']['NMembers'] = n_member_openfast 
-            fst_vt['SubDyn']['MemberID'] = imembers.tolist()
-            fst_vt['SubDyn']['MPropSetID1'] = propID1.tolist() + (n_member_openfast - len(propID1)) * [iprop_rigid_link]    # Add rigid link property id
-            fst_vt['SubDyn']['MPropSetID2'] = propID2.tolist() + (n_member_openfast - len(propID2)) * [iprop_rigid_link]
+            fst_vt['SubDyn']['MemberID'] = np.arange( n_member_openfast, dtype=np.int_ ) + 1
             mtype = np.ones( n_member_openfast, dtype=np.int_ )
-            mtype[idx_rectangular_member] = -1
-            mtype[idx_rigid_member] = 3
+            if modopt['flags']['monopile']:
+                fst_vt['SubDyn']['MPropSetID1'] = fst_vt['SubDyn']['MPropSetID2'] = np.arange( n_member_openfast, dtype=np.int_ ) + 1
+                fst_vt['SubDyn']['PropSetID1'] = np.arange( n_member_openfast, dtype=np.int_ ) + 1
+                fst_vt['SubDyn']['NBCPropSets'] = n_member_openfast
+                fst_vt['SubDyn']['NBRPropSets'] = 0
+            else: #floating
+                fst_vt['SubDyn']['MPropSetID1'] = propID1.tolist() + (n_member_openfast - len(propID1)) * [iprop_rigid_link]    # Add rigid link property id
+                fst_vt['SubDyn']['MPropSetID2'] = propID2.tolist() + (n_member_openfast - len(propID2)) * [iprop_rigid_link]
+                mtype[idx_rectangular_member] = -1
+                mtype[idx_rigid_member] = 3
+
+                # Circular beam cross-section properties
+                fst_vt['SubDyn']['NBCPropSets'] = n_circular
+                fst_vt['SubDyn']['PropSetID1'] = iprop_circular
+
+                # Rectangular beam cross-section properties (not yet supported)
+                fst_vt['SubDyn']['NBRPropSets'] = n_rectangular
+                fst_vt['SubDyn']['PropSetID2'] = iprop_rectangular
+
             fst_vt['SubDyn']['MType'] = mtype
             fst_vt['SubDyn']['M_COSMID'] = np.ones( n_member_openfast, dtype=np.int_ ) * -1 #  TODO: verify based on https://openfast.readthedocs.io/en/dev/source/user/subdyn/input_files.html#members
             fst_vt['SubDyn']['M_Spin'] = np.zeros( n_member_openfast, dtype=np.int_ ) #  TODO: no rotation or rectangular members supported yet, see https://openfast.readthedocs.io/en/dev/source/user/subdyn/input_files.html#members
 
 
-            # Circular beam cross-section properties
-            fst_vt['SubDyn']['NBCPropSets'] = n_circular
-            fst_vt['SubDyn']['PropSetID1'] = iprop_circular
 
-            # Rectangular beam cross-section properties (not yet supported)
-            fst_vt['SubDyn']['NBRPropSets'] = n_rectangular
-            fst_vt['SubDyn']['PropSetID2'] = iprop_rectangular
 
             fst_vt['SubDyn']['NCablePropSets'] = 0
             fst_vt['SubDyn']['NRigidPropSets'] = 0
@@ -2059,7 +2070,7 @@ class FASTLoadCases(ExplicitComponent):
 
                 n_member_openfast += 1  # in case this is used after here
                 fst_vt['SubDyn']['NMembers'] = n_member_openfast
-                fst_vt['SubDyn']['MemberID'] += [n_member_openfast]
+                fst_vt['SubDyn']['MemberID'] = np.append(fst_vt['SubDyn']['MemberID'], [n_member_openfast])
 
                 ibase = util.closest_node(joints_xyz, xyz0)
                 fst_vt['SubDyn']['MJointID1'] += [ibase+1]
