@@ -1114,10 +1114,6 @@ class FASTLoadCases(ExplicitComponent):
         fst_vt['ElastoDyn']['TowerBsHt'] = tower_base_height # Height of tower base above ground level [onshore] or MSL [offshore] (meters)
         fst_vt['ElastoDyn']['TowerHt']   = tower_top_height
 
-        # TODO: There is some confusion on PtfmRefzt
-        # DZ: based on the openfast r-tests:
-        #   if this is floating, the z ref. point is 0.  Is this the reference that platform_total_center_of_mass is relative to?
-        #   if fixed bottom, it's the tower base height.
         if modopt['flags']['floating']:
             fst_vt['ElastoDyn']['PtfmMass'] = float(inputs["platform_mass"][0])
             fst_vt['ElastoDyn']['PtfmRIner'] = float(inputs["platform_I_total"][0])
@@ -1273,7 +1269,7 @@ class FASTLoadCases(ExplicitComponent):
         fst_vt['AeroDynBlade']['BlChord']  = inputs['chord']
         fst_vt['AeroDynBlade']['BlAFID']   = np.asarray(range(1,self.n_span+1))
 
-        # TODO: Check these additional values required for MHK, setting them to zero for now
+        # TODO: Check these additional values required for MHK applications, setting them to zero for now
         fst_vt['AeroDynBlade']['BlCb'] = np.zeros(self.n_span)
         fst_vt['AeroDynBlade']['BlCenBn'] = np.zeros(self.n_span)
         fst_vt['AeroDynBlade']['BlCenBt'] = np.zeros(self.n_span)
@@ -1604,7 +1600,7 @@ class FASTLoadCases(ExplicitComponent):
             fst_vt['HydroDyn']['AxCd'] = np.zeros( fst_vt['HydroDyn']['NAxCoef'] )
             fst_vt['HydroDyn']['AxCa'] = np.zeros( fst_vt['HydroDyn']['NAxCoef'] )
             fst_vt['HydroDyn']['AxCp'] = np.ones( fst_vt['HydroDyn']['NAxCoef'] )
-            # TODO: below needs verification
+            # TODO: joint coefficients below need verification (https://openfast.readthedocs.io/en/dev/source/user/hydrodyn/input_files.html#axial-coefficients)
             fst_vt['HydroDyn']['AxFDMod'] = np.zeros( fst_vt['HydroDyn']['NAxCoef'] )
             fst_vt['HydroDyn']['AxVnCOff'] = np.zeros( fst_vt['HydroDyn']['NAxCoef'] )
             fst_vt['HydroDyn']['AxFDLoFSc'] = np.ones( fst_vt['HydroDyn']['NAxCoef'] )
@@ -1663,7 +1659,7 @@ class FASTLoadCases(ExplicitComponent):
 
                 fst_vt['HydroDyn']['PtfmVol0'] = [inputs['platform_displacement'][0]] 
 
-                fst_vt['HydroDyn']['MCoefMod']          = 3 * np.ones( fst_vt['HydroDyn']['NMembers'], dtype=np.int_)  # TODO: should this be the default??
+                fst_vt['HydroDyn']['MCoefMod']          = 3 * np.ones( fst_vt['HydroDyn']['NMembers'], dtype=np.int_)  # Use Member-based coefficients for all members
                 fst_vt['HydroDyn']['NCoefMembersCyl']   = len(idx_circular_member)
                 fst_vt['HydroDyn']['MemberID_HydCCyl']  = imembers[idx_circular_member]
                 fst_vt['HydroDyn']['CylMemberCd1']    = fst_vt['HydroDyn']['CylMemberCdMG1']   = Cd_coarse[N1[idx_circular_member]-1]
@@ -2032,8 +2028,8 @@ class FASTLoadCases(ExplicitComponent):
                 fst_vt['SubDyn']['PropSetID2'] = iprop_rectangular
 
             fst_vt['SubDyn']['MType'] = mtype
-            fst_vt['SubDyn']['M_COSMID'] = np.ones( n_member_openfast, dtype=np.int_ ) * -1 #  TODO: verify based on https://openfast.readthedocs.io/en/dev/source/user/subdyn/input_files.html#members
-            fst_vt['SubDyn']['M_Spin'] = np.zeros( n_member_openfast, dtype=np.int_ ) #  TODO: no rotation or rectangular members supported yet, see https://openfast.readthedocs.io/en/dev/source/user/subdyn/input_files.html#members
+            fst_vt['SubDyn']['M_COSMID'] = np.ones( n_member_openfast, dtype=np.int_ ) * -1 #  Only used for springs: https://openfast.readthedocs.io/en/dev/source/user/subdyn/input_files.html#members
+            fst_vt['SubDyn']['M_Spin'] = np.zeros( n_member_openfast, dtype=np.int_ )  #  Rotation of rectangular members not supported yet, see https://openfast.readthedocs.io/en/dev/source/user/subdyn/input_files.html#members
 
 
             fst_vt['SubDyn']['NCablePropSets'] = 0
@@ -2352,7 +2348,6 @@ class FASTLoadCases(ExplicitComponent):
         modopt = self.options['modeling_options']
 
         # Mandatory output channels to include
-        # TODO: what else is needed here?
         channels_out  = ["TipDxc1", "TipDyc1", "TipDzc1", "TipDxc2", "TipDyc2", "TipDzc2"]
         channels_out += ["RootMxc1", "RootMyc1", "RootMzc1", "RootMxc2", "RootMyc2", "RootMzc2"]
         channels_out += ["TipDxb1", "TipDyb1", "TipDzb1", "TipDxb2", "TipDyb2", "TipDzb2"]
@@ -2648,7 +2643,7 @@ class FASTLoadCases(ExplicitComponent):
             dlc_label = DLCs[i_case]['DLC']
             case_list_i, case_name_i = CaseGen_General(case_inputs, self.FAST_runDirectory, self.FAST_InputFile, filename_ext=f'_DLC{dlc_label}_{i_case}')
             # Add DLC to case names
-            case_name_i = [f'DLC{dlc_label}_{i_case}_{cni}' for cni in case_name_i]   # TODO: discuss case labeling with stakeholders
+            case_name_i = [f'DLC{dlc_label}_{i_case}_{cni}' for cni in case_name_i]
             
 
             # Convert StaticLoad back to float aray
@@ -3389,7 +3384,6 @@ class FASTLoadCases(ExplicitComponent):
             outputs['Std_PtfmPitch'] = np.max(sum_stats['PtfmPitch']['std'])
         else:
             # Let's just average the standard deviation of PtfmPitch for now
-            # TODO: weight based on WS distribution, or something else
             outputs['Std_PtfmPitch'] = np.mean(sum_stats['PtfmPitch']['std'])
 
         outputs['Max_PtfmPitch']  = np.max(sum_stats['PtfmPitch']['max'])
@@ -3488,7 +3482,7 @@ class FASTLoadCases(ExplicitComponent):
                 save_dir = os.path.join(self.FAST_runDirectory,'iteration_'+str(self.of_inumber),'timeseries')
                 pitch_error.to_pickle(os.path.join(save_dir,'pitch_error_'+ str(i_ts) + '.p'))
 
-        # Average over DLCs and return, TODO: weight in future?  only works for a few wind speeds currently
+        # Average over DLCs and return
         outputs['OL2CL_pitch'] = np.mean(rms_pitch_error)
 
 
