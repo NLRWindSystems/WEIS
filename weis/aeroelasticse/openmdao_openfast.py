@@ -2035,8 +2035,6 @@ class FASTLoadCases(ExplicitComponent):
             fst_vt['SubDyn']['M_Spin'] = np.zeros( n_member_openfast, dtype=np.int_ ) #  TODO: no rotation or rectangular members supported yet, see https://openfast.readthedocs.io/en/dev/source/user/subdyn/input_files.html#members
 
 
-
-
             fst_vt['SubDyn']['NCablePropSets'] = 0
             fst_vt['SubDyn']['NRigidPropSets'] = 0
             fst_vt['SubDyn']['NSpringPropSets'] = 0
@@ -2072,7 +2070,7 @@ class FASTLoadCases(ExplicitComponent):
                 fst_vt['SubDyn']['NMembers'] = n_member_openfast
                 fst_vt['SubDyn']['MemberID'] = np.append(fst_vt['SubDyn']['MemberID'], [n_member_openfast])
 
-                ibase = util.closest_node(joints_xyz, xyz0)
+                ibase = util.closest_node(joints_xyz, location)
                 fst_vt['SubDyn']['MJointID1'] += [ibase+1]
                 fst_vt['SubDyn']['MJointID2'] += [n_joints]  # New joint at ballast position
                 fst_vt['SubDyn']['MPropSetID1'] += [iprop_rigid_link]    # ID of rigid link property set
