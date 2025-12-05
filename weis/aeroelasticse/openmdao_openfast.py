@@ -1985,17 +1985,18 @@ class FASTLoadCases(ExplicitComponent):
             fst_vt['SubDyn']['ShearG2'] = G_coarse[idx_rectangular]
             fst_vt['SubDyn']['MatDens2'] = rho_coarse[idx_rectangular]
 
-        # Update the member numbers
-        n_circular = len(idx_circular)
-        n_rectangular = len(idx_rectangular)
-        n_properties = n_circular + n_rectangular
-        i_properties = np.arange( n_properties, dtype=np.int_ ) + 1
-        iprop_circular = i_properties[idx_circular]
-        iprop_rectangular = i_properties[idx_rectangular]
-        iprop_rigid_link = n_properties + 1
 
         # SubDyn inputs- offshore generic
         if modopt['flags']['offshore']:
+            # Update the member numbers
+            n_circular = len(idx_circular)
+            n_rectangular = len(idx_rectangular)
+            n_properties = n_circular + n_rectangular
+            i_properties = np.arange( n_properties, dtype=np.int_ ) + 1
+            iprop_circular = i_properties[idx_circular]
+            iprop_rectangular = i_properties[idx_rectangular]
+            iprop_rigid_link = n_properties + 1
+            
             mgrav = 0.0 if not modopt['flags']['monopile'] else float(inputs['gravity_foundation_mass'])
             n_joints = len(fst_vt['SubDyn']['JointXss'])
             if fst_vt['SubDyn']['SDdeltaT']<=-999.0: fst_vt['SubDyn']['SDdeltaT'] = "DEFAULT"
