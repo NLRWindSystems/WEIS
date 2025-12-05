@@ -424,7 +424,16 @@ class FASTLoadCases(ExplicitComponent):
         else:
             self.FAST_runDirectory = FAST_directory_base
             self.FAST_namingOut = self.FAST_InputFile
-        self.wind_directory = os.path.join(self.FAST_runDirectory, 'wind')
+        
+        # Wind directory
+        if 'wind_directory' in OFmgmt.keys():
+            self.wind_directory = OFmgmt['wind_directory']
+            if not os.path.isabs(self.wind_directory):
+                self.wind_directory =  os.path.join(os.path.dirname(self.options['modeling_options']['fname_input_modeling']),
+                                                 OFmgmt['wind_directory'])
+        else:
+            self.wind_directory = os.path.join(self.FAST_runDirectory, 'wind')
+        
         if not os.path.exists(self.FAST_runDirectory):
             os.makedirs(self.FAST_runDirectory, exist_ok=True)
         if not os.path.exists(self.wind_directory):
@@ -2215,7 +2224,15 @@ class FASTLoadCases(ExplicitComponent):
         if self.FAST_lib_user is not None:
             fastBatch.FAST_lib      = self.FAST_lib_user
 
-        fastBatch.overwrite_outfiles = True  #<--- Debugging only, set to False to prevent OpenFAST from running if the .outb already exists
+        fastBatch.overwrite_outfiles = modopt['General']['openfast_configuration']['overwrite_outputs']
+
+        if not fastBatch.overwrite_outfiles:
+            # Check that existing case_matrix matches current case matrix
+            existing_case_matrix_file = os.path.join(self.FAST_runDirectory,'case_matrix_combined.yaml')
+            if os.path.isfile(existing_case_matrix_file):
+                existing_case_df = load_yaml(existing_case_matrix_file)
+                if not existing_case_df == case_df.to_dict():
+                    raise Exception("FAST run directory case matrix does not match current case matrix and overwrite_outputs is set to false. Different cases will be run.")
 
         # Initialize fatigue channels and setings
         # TODO: Stress Concentration Factor?
