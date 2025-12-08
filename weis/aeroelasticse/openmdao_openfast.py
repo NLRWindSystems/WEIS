@@ -2116,7 +2116,11 @@ class FASTLoadCases(ExplicitComponent):
                     unit_vector = dxyz / vector_length
                     ballast_position = xyz0 + unit_vector * z_pos
 
-                    add_concentrated_mass(m_ballast, inputs[f"member{k}_{kname}:ballast_I_base"], ballast_position, n_joints, n_member_openfast, fst_vt)
+                    # ballast_I_base is "moment of inertia of permanent ballast relative to bottom point (xyz0)"
+                    d = ballast_position - xyz0
+                    I_ss = util.assembleI(inputs[f"member{k}_{kname}:ballast_I_base"]) - m_ballast * (np.dot(d, d) * np.identity(3) - np.outer(d, d))
+
+                    add_concentrated_mass(m_ballast, util.unassembleI(I_ss), ballast_position, n_joints, n_member_openfast, fst_vt)
                     n_joints += 1
                     n_member_openfast += 1 
 
@@ -2125,6 +2129,10 @@ class FASTLoadCases(ExplicitComponent):
                 variable_ballast_inertia = inputs[f"member{k}_{kname}:variable_ballast_I"]
                 variable_ballast_position = inputs[f"member{k}_{kname}:variable_ballast_cg"]
                 if variable_ballast_mass > 0.0:
+
+                    # variable_ballast_I is is relative to the global coordinate frame TODO: come back to this
+                    # d = variable_ballast_position - np.array([0.0, 0.0, 0.0])  # Concentrated mass inertia is about the CoG of the mass, according to Lu
+                    # I_ss = util.assembleI(inputs[f"member{k}_{kname}:variable_ballast_I"]) - variable_ballast_mass * (np.dot(d, d) * np.identity(3) - np.outer(d, d))
 
                     add_concentrated_mass(variable_ballast_mass, variable_ballast_inertia, variable_ballast_position, n_joints, n_member_openfast, fst_vt)
                     n_joints += 1
@@ -2144,6 +2152,10 @@ class FASTLoadCases(ExplicitComponent):
                     vector_length = np.linalg.norm(dxyz)
                     unit_vector = dxyz / vector_length
                     bulkhead_xyz = xyz0 + unit_vector * bulkhead_position
+
+                    # bulkhead_I_base is "moment of inertia of permanent ballast relative to keel point (xyz0)"
+                    d = bulkhead_xyz - xyz0 # SubDyn concentrated mass inertia is about the CoG of the mass, according to Lu
+                    I_ss = util.assembleI(inputs[f"member{k}_{kname}:bulkhead_I_base"]) - bulkhead_mass * (np.dot(d, d) * np.identity(3) - np.outer(d, d))
 
                     add_concentrated_mass(bulkhead_mass, bulkhead_inertia, bulkhead_xyz, n_joints, n_member_openfast, fst_vt)
                     n_joints += 1
