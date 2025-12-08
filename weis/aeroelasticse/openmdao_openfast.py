@@ -286,7 +286,6 @@ class FASTLoadCases(ExplicitComponent):
             self.add_input('theta',             val=np.zeros(n_span), units='deg', desc='twist at airfoil locations')
             self.add_input('rthick',            val=np.zeros(n_span), desc='relative thickness of airfoil distribution')
             self.add_input('ac',                val=np.zeros(n_span), desc='aerodynamic center of airfoil distribution')
-            self.add_input('pitch_axis',        val=np.zeros(n_span), desc='1D array of the chordwise position of the pitch axis (0-LE, 1-TE), defined along blade span.')
             self.add_input('Rhub',              val=0.0, units='m', desc='dimensional radius of hub')
             self.add_input('airfoils_cl',       val=np.zeros((n_span, n_aoa, n_Re)), desc='lift coefficients, spanwise')
             self.add_input('airfoils_cd',       val=np.zeros((n_span, n_aoa, n_Re)), desc='drag coefficients, spanwise')
@@ -490,7 +489,16 @@ class FASTLoadCases(ExplicitComponent):
         else:
             self.FAST_runDirectory = FAST_directory_base
             self.FAST_namingOut = self.FAST_InputFile
-        self.wind_directory = os.path.join(self.FAST_runDirectory, 'wind')
+        
+        # Wind directory
+        if 'wind_directory' in OFmgmt.keys():
+            self.wind_directory = OFmgmt['wind_directory']
+            if not os.path.isabs(self.wind_directory):
+                self.wind_directory =  os.path.join(os.path.dirname(self.options['modeling_options']['fname_input_modeling']),
+                                                 OFmgmt['wind_directory'])
+        else:
+            self.wind_directory = os.path.join(self.FAST_runDirectory, 'wind')
+        
         if not os.path.exists(self.FAST_runDirectory):
             os.makedirs(self.FAST_runDirectory, exist_ok=True)
         if not os.path.exists(self.wind_directory):
@@ -2733,7 +2741,15 @@ class FASTLoadCases(ExplicitComponent):
         if self.FAST_lib_user is not None:
             fastBatch.FAST_lib      = self.FAST_lib_user
 
-        fastBatch.overwrite_outfiles = True  #<--- Debugging only, set to False to prevent OpenFAST from running if the .outb already exists
+        fastBatch.overwrite_outfiles = modopt['General']['openfast_configuration']['overwrite_outputs']
+
+        if not fastBatch.overwrite_outfiles:
+            # Check that existing case_matrix matches current case matrix
+            existing_case_matrix_file = os.path.join(self.FAST_runDirectory,'case_matrix_combined.yaml')
+            if os.path.isfile(existing_case_matrix_file):
+                existing_case_df = load_yaml(existing_case_matrix_file)
+                if not existing_case_df == case_df.to_dict():
+                    raise Exception("FAST run directory case matrix does not match current case matrix and overwrite_outputs is set to false. Different cases will be run.")
 
         # Initialize fatigue channels and setings
         # TODO: Stress Concentration Factor?

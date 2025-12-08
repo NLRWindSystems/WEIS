@@ -447,7 +447,7 @@ class WindPark(om.Group):
                 self.connect("blade.high_level_blade_props.blade_ref_axis", "aeroelastic.ref_axis_blade")
                 self.connect("configuration.rotor_orientation", "aeroelastic.rotor_orientation")
                 self.connect("blade.high_level_blade_props.r_blade",  "aeroelastic.r")
-                self.connect("blade.outer_shape.section_offset_y", "aeroelastic.le_location")
+                self.connect("blade.pa.section_offset_y_param", "aeroelastic.le_location")
                 self.connect("blade.pa.chord_param",            "aeroelastic.chord")
                 self.connect("blade.pa.twist_param",            "aeroelastic.theta")
                 self.connect("blade.interp_airfoils.coord_xy_interp", "aeroelastic.coord_xy_interp")

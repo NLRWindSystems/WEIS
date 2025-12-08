@@ -8,7 +8,6 @@ Primary Contributor: Daniel R. Herber (danielrherber on Github)
 """
 # import inbuilt libraries
 import numpy as np
-from numpy.matlib import repmat
 
 # import DTQPy specific functions
 from weis.dtqpy.utilities.DTQPy_tmultiprod import DTQPy_tmultiprod

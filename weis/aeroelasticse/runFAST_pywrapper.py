@@ -214,7 +214,8 @@ class runFAST_pywrapper(object):
             FAST_Output_txt = os.path.join(wrapper.FAST_directory, wrapper.FAST_InputFile[:-3]+'out')
 
             #check if OpenFAST is set not to overwrite existing output files, TODO: move this further up in the workflow for minor computation savings
-            if self.overwrite_outfiles or (not self.overwrite_outfiles and not (os.path.exists(FAST_Output) or os.path.exists(FAST_Output_txt))):
+            # Note: This will only check for fully completed .outb files
+            if self.overwrite_outfiles or (not self.overwrite_outfiles and not (os.path.exists(FAST_Output))):
                 failed = wrapper.execute()
                 if failed:
                     print('OpenFAST Failed! Please check the run logs.')

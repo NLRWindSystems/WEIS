@@ -7,8 +7,7 @@ Contributor: Athul Krishna Sundarrajan (AthulKrishnaSundarrajan on Github)
 Primary Contributor: Daniel R. Herber (danielrherber on Github)
 """
 
-from numpy.matlib import repmat
-
+import numpy as np
 def DTQPy_getQPIndex(x,xtype,Flag,nt,I_stored):
     if (xtype ==1) or (xtype==2):
         I = I_stored[:,x-1]
@@ -21,6 +20,6 @@ def DTQPy_getQPIndex(x,xtype,Flag,nt,I_stored):
         I = I_stored[0,x-1]
         
     if Flag and (xtype!=1) and (xtype != 2):
-        I = repmat(I,nt,1)
+        I = np.tile(I,(nt,1))
     #breakpoint()
     return I

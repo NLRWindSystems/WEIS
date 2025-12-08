@@ -88,6 +88,13 @@ properties:
                         type: integer
                         default: 1
                         description: Number of parallel OpenFAST runs performed by OpenMDAO. WEIS sets this number once the preMPI keyword argument is set
+                    wind_directory:
+                        type: string
+                        description: Location of previously generated wind inputs
+                    overwrite_outputs:
+                        type: boolean
+                        description: If False, will check for existing .outb file before running OpenFAST.
+                        default: True
             goodman_correction:
                 type: boolean
                 default: False
