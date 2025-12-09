@@ -11,7 +11,7 @@ class TestFrequency(unittest.TestCase):
         ## File management
         run_dir = os.path.dirname( os.path.realpath(__file__) )
         fname_wt_input = os.path.join(run_dir, "..", "..", "examples", "00_setup", "ref_turbines", "IEA-15-240-RWT_VolturnUS-S_rectangular.yaml")
-        fname_modeling_options = os.path.join(run_dir, "..", "..", "examples", "02_generate_openfast_model_for_dlcs" , "iea15_semi_modeling.yaml")
+        fname_modeling_options = os.path.join(run_dir, "..", "..", "examples", "02_generate_openfast_model_for_dlcs" , "iea15_semi_modeling_hybrid.yaml")
         fname_analysis_options = os.path.join(run_dir, "..", "..", "examples", "02_generate_openfast_model_for_dlcs", "iea15_semi_analysis.yaml")
 
         # override the modeling options so that not creating a new yaml file
