@@ -328,7 +328,6 @@ class DLCGenerator(object):
         wind_speeds_indiv = self.get_wind_speeds(options)
         wind_speed, wind_seed = self.get_wind_seeds(options, wind_speeds_indiv)
         wave_seed = self.get_wave_seeds(options, wind_speed)
-        # wind_heading = self.get_wind_heading(options)
         wave_height = self.get_wave_height(options)
         wave_period = self.get_wave_period(options)
         wave_gamma = self.get_wave_gamma(options)
@@ -337,8 +336,6 @@ class DLCGenerator(object):
 
         if len(wind_seed) > 1 and len(wind_seed) != len(wind_speed):
             raise Exception("The vector of wind_seed must have either length=1 or the same length of wind speeds")
-        # if len(wind_heading) > 1 and len(wind_heading) != len(wind_speed):
-        #     raise Exception("The vector of wind_heading must have either length=1 or the same length of wind speeds")
         if len(wave_seed) > 1 and len(wave_seed) != len(wind_speed):
             raise Exception("The vector of wave seeds must have the same length of wind speeds or not defined")
         if len(wave_height) > 1 and len(wave_height) != len(wind_speed):
@@ -489,13 +486,16 @@ class DLCGenerator(object):
             for key in case:
                 setattr(idlc,key,case[key])
 
-            #if dlc_options['label'] == '1.2':
-            #    idlc.probability = probability[i_WaH]
             self.cases.append(idlc)
 
             # AEP DLC: set constant turbulence intensity
             if dlc_options['label'] == 'AEP':
-                idlc.IECturbc = dlc_options['TI']
+                if 'TI' in dlc_options:
+                    idlc.IECturbc = dlc_options['TI']
+                elif 'TI_factor' in dlc_options:
+                    idlc.IECturbc = self.IECturb.NTM(idlc.URef) * dlc_options['TI_factor'] / idlc.URef * 100
+                else:
+                    raise Exception('For AEP DLCs, either TI or TI_factor must be provided in dlc_options')
 
             
     def apply_sea_state(self,met_options,sea_state='normal'):
@@ -706,8 +706,11 @@ class DLCGenerator(object):
         dlc_options['PSF'] = 1.25
         dlc_options['wave_model'] = dlc_options.get('wave_model',2)
 
-        if 'TI_factor' not in dlc_options:
-            raise Exception('A TI_factor must be set for the AEP DLC.')
+        if ('TI_factor' not in dlc_options) and ('TI' not in dlc_options):
+            raise Exception('A TI_factor or TI must be set for the AEP DLC.')
+        
+        if ('TI_factor' in dlc_options) and ('TI' in dlc_options):
+            raise Exception('Only one of TI_factor or TI should be set for the AEP DLC.')
         
         if 'turbulence_class' in dlc_options:
             self.IECturb.Turbulence_Class = dlc_options['turbulence_class']
