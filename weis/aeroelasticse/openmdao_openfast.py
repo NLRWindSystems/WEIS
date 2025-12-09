@@ -342,7 +342,6 @@ class FASTLoadCases(ExplicitComponent):
                         self.add_input(f"member{k}_{kname}:Cd", val=np.zeros(n_height_mem))
                         self.add_output(f"platform_member{k+1}_d", val=np.zeros(n_height_mem), units="m")
                     elif modopt["floating"]["members"]["outer_shape"][k] == "rectangular":
-                        # raise Exception('Rectangular members are not yet supported in OpenFAST')
                         self.add_input(f"member{k}_{kname}:side_length_a", val=np.zeros(n_height_mem), units="m")
                         self.add_input(f"member{k}_{kname}:side_length_b", val=np.zeros(n_height_mem), units="m")
                         self.add_input(f"member{k}_{kname}:Ca", val=np.zeros(n_height_mem))
@@ -1834,15 +1833,6 @@ class FASTLoadCases(ExplicitComponent):
             fst_vt['SubDyn']['MJointID1'] = np.arange( n_member_openfast, dtype=np.int_ ) + 1
             fst_vt['SubDyn']['MJointID2'] = np.arange( n_member_openfast, dtype=np.int_ ) + 2
             n_properties = n_member_openfast
-            # propID1 = copy.deepcopy(N1) 
-            # propID2 = copy.deepcopy(N2)
-            # idx_rectangular_member = []
-            # idx_rigid_member = []
-            # i_properties = np.arange( n_properties, dtype=np.int_ ) + 1
-            # n_circular = n_properties
-            # n_rectangular = 0
-            # iprop_circular = i_properties
-            # iprop_rectangular = np.array([], dtype=np.int_)
             
             # Circular cross-section properties
             fst_vt['SubDyn']['YoungE1'] = inputs['monopile_E'][1:]
@@ -2212,7 +2202,7 @@ class FASTLoadCases(ExplicitComponent):
             fst_vt['MoorDyn']['NConnects'] = n_nodes
             fst_vt['MoorDyn']['Point_ID'] = np.arange(n_nodes)+1
             fst_vt['MoorDyn']['Attachment'] = mooropt["node_type"][:]
-            fst_vt['MoorDyn']['Attachment'] = [a.replace('connect','free') for a in fst_vt['MoorDyn']['Attachment']]
+            fst_vt['MoorDyn']['Attachment'] = [a.replace('connect','free') for a in fst_vt['MoorDyn']['Attachment']]    # MoorDyn uses 'free' for nodes connecting two lines
             fst_vt['MoorDyn']['X'] = inputs['nodes_location_full'][:,0]
             fst_vt['MoorDyn']['Y'] = inputs['nodes_location_full'][:,1]
             fst_vt['MoorDyn']['Z'] = inputs['nodes_location_full'][:,2]
@@ -3196,14 +3186,6 @@ class FASTLoadCases(ExplicitComponent):
 
         # determine which dlc will be used for the powercurve calculations, allows using dlc 1.1 if specific power curve calculations were not run
         sum_stats = self.cruncher.summary_stats
-
-        modopts = self.options['modeling_options']
-        DLCs = [i_dlc['DLC'] for i_dlc in modopts['DLC_driver']['DLCs']]
-        if 'AEP' in DLCs:
-            DLC_label_for_AEP = 'AEP'
-        else:
-            DLC_label_for_AEP = '1.1'
-            logger.warning('WARNING: DLC 1.1 is being used for AEP calculations.  Use the AEP DLC for more accurate wind modeling with constant TI.')
 
         modopts = self.options['modeling_options']
         DLCs = [i_dlc['DLC'] for i_dlc in modopts['DLC_driver']['DLCs']]
