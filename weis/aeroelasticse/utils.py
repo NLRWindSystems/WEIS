@@ -519,6 +519,7 @@ def generate_wind_files(dlc_generator, FAST_namingOut, wind_directory, rotorD, h
 
     Turbulent_Gust = False
     if dlc_generator.cases[i_case].turbulent_wind:
+        wind_file_plexp = dlc_generator.cases[i_case].PLExp
         if dlc_generator.cases[i_case].user_btsfilename:
             wind_file_path_InflowWind = dlc_generator.cases[i_case].user_btsfilename
             wind_file_type = 3
@@ -536,7 +537,6 @@ def generate_wind_files(dlc_generator, FAST_namingOut, wind_directory, rotorD, h
             wind_file_path_InflowWind = os.path.join(wind_directory, turbsim_input_file_name[:-3] + '.bts')
             turbsim_input_file_path = os.path.join(wind_directory, turbsim_input_file_name)
             wind_file_name = turbsim_input_file_path[:-3] + '.bts'
-            wind_file_plexp = dlc_generator.cases[i_case].PLExp
 
             runTS = True
             if os.path.exists(wind_file_name) and os.path.exists(turbsim_input_file_path):
