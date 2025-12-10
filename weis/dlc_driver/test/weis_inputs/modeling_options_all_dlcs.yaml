@@ -157,3 +157,8 @@ DLC_driver:
         - DLC: "freedecay"
           transient_time: 0.0
           initial_platform_roll: 5.0
+        - DLC: "force_excursion"        # surge
+          analysis_time: 1.0
+          transient_time: 0.0
+          excursion_load:
+          - [-4.e6, 0.0, 0.0, 0.0, 0.0, 0.0]

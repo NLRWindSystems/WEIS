@@ -2643,8 +2643,9 @@ class FASTLoadCases(ExplicitComponent):
                     case_inputs[('ServoDyn', 'SStCfiles')]['group'] = 2
                     case_inputs[('ServoDyn', 'SStCfiles')]['vals'] = StC_files
             
-                    # move to ServoDyn so we can use case_matrix to see load applied
-                    case_inputs[('ServoDyn', 'StaticLoad')] = case_inputs.pop(('SStC', 'StaticLoad'), None) 
+                # move to CaseInfo so we can use case_matrix to see load applied
+                case_inputs[('CaseInfo', 'StaticLoad')] = case_inputs.pop(('SStC', 'StaticLoad'), None) 
+
 
             elif ('SStC', 'StepLoad') in case_inputs:
                 # Construct step input matrix
@@ -2706,8 +2707,8 @@ class FASTLoadCases(ExplicitComponent):
 
             # Convert StaticLoad back to float aray
             for case_i in case_list_i:
-                if ('ServoDyn', 'StaticLoad') in case_i:
-                    case_i[('ServoDyn', 'StaticLoad')] = [float(load) for load in case_i[('ServoDyn', 'StaticLoad')]]
+                if ('CaseInfo', 'StaticLoad') in case_i:
+                    case_i[('CaseInfo', 'StaticLoad')] = [float(load) for load in case_i[('CaseInfo', 'StaticLoad')]]
                     case_i[('ServoDyn', 'SStCfiles')] = [case_i[('ServoDyn', 'SStCfiles')]]
             
 
