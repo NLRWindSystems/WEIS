@@ -53,7 +53,7 @@ openfast_input_map = {
     'wave_direction': ("SeaState","WaveDir"),
     'wave_gamma': ("SeaState","WavePkShp"),
     'wave_seed': ("SeaState","WaveSeed1"),
-
+    'wave_kinfile': ("SeaState","WvKinFile"),
     'wave_model': ("SeaState","WaveMod"),
     
     'startup_mode': ("DISCON_in","SU_Mode"),
@@ -792,7 +792,7 @@ class DLCGenerator(object):
         dlc_options['bin_ID']           = np.repeat(np.arange(n_cases), n_seeds)  # bin ID for fatigue cases   
 
         if abs(sum(self.metocean['probability'][:n_cases]) - 1.) > 1.e-3:
-            logger.warning(f'DLC 1.2 Warning: fatigue probabilities only sum to {sum(self.metocean["probability"][:n_cases]):.3f}')
+            logger.warning(f"DLC 1.2 Warning: fatigue probabilities only sum to {sum(self.metocean['probability'][:n_cases]):.3f}")
 
         # DLC-specific: define groups
         # These options should be the same length and we will generate a matrix of all cases
@@ -2148,7 +2148,7 @@ class DLCGenerator(object):
         self.generate_cases(generic_case_inputs,dlc_options)
 
     def generate_userwind(self,dlc_options):
-        # Describe the new design load case
+        # Use user-defined wind file (.bts) 
 
         # Get default options
         dlc_options.update(self.default_options)   
@@ -2174,6 +2174,44 @@ class DLCGenerator(object):
         generic_case_inputs.append(['total_time','transient_time','wake_mod','wave_model'])  # group 0, (usually constants) turbine variables, DT, aero_modeling
         generic_case_inputs.append(['wind_speed','wave_height','wave_period', 'wind_seed', 'wave_seed','user_btsfilename']) # group 1, initial conditions will be added here, define some method that maps wind speed to ICs and add those variables to this group
         generic_case_inputs.append(['yaw_misalign','wind_heading']) # group 2
+
+        # This function does the rest and generates the individual cases for each DLC
+        self.generate_cases(generic_case_inputs,dlc_options)
+    
+    def generate_userwave(self,dlc_options):
+        # Use user-defined wave file in seastate
+
+        # Get default options
+        dlc_options.update(self.default_options)   
+        
+        # Set DLC Specific options:
+        # These three are required
+        dlc_options['label'] = 'userwave'
+        dlc_options['sea_state'] = 'normal'
+        dlc_options['IEC_WindType'] = 'EOG'  # let's make a dummy EOG until we have steady wind input (cheaper than NTM, inflow should be disabled)
+        dlc_options['wind_speed'] = [0]
+        dlc_options['turbine_status'] = 'parked-still'
+        
+        # Disable generator, inflow, and aerodynamics by default
+        dlc_options['generator_dof'] = 'False'
+        dlc_options['rot_speed_initial'] = 0.
+        dlc_options['compute_aerodynamics'] = dlc_options.get('compute_aerodynamics',0)     # Use user input, otherwise disabled
+        dlc_options['compute_inflow'] = dlc_options.get('compute_inflow',0) # Use user input, otherwise disabled
+        dlc_options['compute_control'] = dlc_options.get('compute_control',0) # Use user input, otherwise disabled
+        
+        dlc_options['wave_model'] = 5
+        dlc_options['wave_direction'] = dlc_options.get('wave_direction',0)     # Use user input, otherwise disabled
+        if 'wave_kinfile' not in dlc_options:
+            raise Exception('wave_kinfile must be set for userwave DLC.')
+
+        # DLC-specific: define groups
+        # Groups are dependent variables, the cases are a cross product of the independent groups
+        # The options in each group should have the same length
+        generic_case_inputs = []
+        generic_case_inputs.append(['total_time','transient_time','wake_mod','wave_model'])  # group 0, (usually constants) turbine variables, DT, aero_modeling
+        generic_case_inputs.append(['wind_speed','wave_height','wave_period', 'wind_seed', 'wave_seed']) # group 1, initial conditions will be added here, define some method that maps wind speed to ICs and add those variables to this group
+        generic_case_inputs.append(['wave_kinfile']) 
+        generic_case_inputs.append(['wave_direction']) 
 
         # This function does the rest and generates the individual cases for each DLC
         self.generate_cases(generic_case_inputs,dlc_options)
