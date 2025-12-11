@@ -477,7 +477,8 @@ class DLCGenerator(object):
                 idlc.turbulent_wind = True
                 idlc.RandSeed1 = case['wind_seed']
                 if 'user_btsfilename' in dlc_options:
-                    idlc.user_btsfilename = dlc_options['user_btsfilename']
+                    # update case becuase that's set  below (for key in case:)
+                    case['user_btsfilename'] = os.path.join(os.path.dirname(dlc_options['fname_input_modeling']), case['user_btsfilename'])
                 else:
                     idlc.user_btsfilename = None
             

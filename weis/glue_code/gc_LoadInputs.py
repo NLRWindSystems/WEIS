@@ -234,6 +234,7 @@ class WindTurbineOntologyPythonWEIS(WindTurbineOntologyPython):
         # Generate cases from user inputs
         for i_DLC in range(len(DLCs)):
             DLCopt = DLCs[i_DLC]
+            DLCopt['fname_input_modeling'] = self.modeling_options['fname_input_modeling'] # pass this for relative paths
             dlc_generator.generate(DLCopt['DLC'], DLCopt)
         self.modeling_options['DLC_driver']['n_cases'] = dlc_generator.n_cases
         
