@@ -165,7 +165,7 @@ class WindTurbineOntologyPythonWEIS(WindTurbineOntologyPython):
 
                     
                 # Update RAFT BEM dir
-                self.modeling_options["RAFT"]['BEM_dir'] = bemDir
+                self.modeling_options["RAFT"]['BEM_dir'] = self.modeling_options["OpenFAST"]["HydroDyn"]["PotFile"]
     
 
         # OpenFAST dir
@@ -178,19 +178,6 @@ class WindTurbineOntologyPythonWEIS(WindTurbineOntologyPython):
         if MPI:
             # If running MPI, RAFT won't be able to save designs in parallel
             self.modeling_options["RAFT"]['save_designs'] = False
-        
-        # BEM dir, all levels
-        base_run_dir = os.path.join(mod_opt_dir,self.modeling_options['General']['openfast_configuration']['OF_run_dir'])
-        if MPI:
-            rank    = MPI.COMM_WORLD.Get_rank()
-            bemDir = osp.join(base_run_dir,'rank_%000d'%int(rank),'BEM')
-        else:
-            bemDir = osp.join(base_run_dir,'BEM')
-
-        self.modeling_options["Level1"]['BEM_dir'] = bemDir
-        if MPI:
-            # If running MPI, RAFT won't be able to save designs in parallel
-            self.modeling_options["Level1"]['save_designs'] = False
         
         # RAFT
         if self.modeling_options["flags"]["floating"]:
