@@ -160,10 +160,10 @@ jobs:
             RUN_EXHAUSTIVE: 1
         run: |
           cd examples/01_simulate_own_openfast_model
-          mpiexec -np 2 python dlc_sim_driver.py
+          mpirun -np 2 python dlc_sim_driver.py
           cd ../06_parametric_analysis
-          mpiexec -n 2 python raft_doe_driver.py
-          mpiexec -n 2 --bind-to core python openfast_doe_driver.py
+          mpirun -n 2 python raft_doe_driver.py
+          mpirun -n 2 --bind-to core python openfast_doe_driver.py
           python postprocess_results.py
 
       # Skip these until we figure out MPI and overrides
