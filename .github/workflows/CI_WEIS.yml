@@ -97,11 +97,11 @@ jobs:
           head -n 5 02_generate_openfast_model_for_dlcs/iea15_semi_driver.py   # check that the sed command worked       
 
         
-      # # Run all tests within WEIS, but not computationally expensive examples
-      # - name: Run tests within WEIS
-      #   if: false == contains( matrix.os, 'ubuntu') || contains( github.event_name, 'push')
-      #   run: |
-      #     pytest -p no:warnings --disable-warnings --cov=weis weis
+      # Run all tests within WEIS, but not computationally expensive examples
+      - name: Run tests within WEIS
+        if: false == contains( matrix.os, 'ubuntu') || contains( github.event_name, 'push')
+        run: |
+          pytest -p no:warnings --disable-warnings --cov=weis weis
 
       # # Run long tests in on pull request
       # - name: Run exhaustive
