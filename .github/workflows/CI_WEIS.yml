@@ -69,9 +69,9 @@ jobs:
         run: |
           conda install -c conda-forge -y petsc4py mpi4py pyoptsparse
           sudo apt install -y libglu1-mesa
-          pip install pygmsh>=7.1.17
+          pip install pygmsh==7.1.17
           pip install https://github.com/LHEEA/meshmagick/archive/master.zip
-          pip install trimesh
+          pip install trimesh==4.10.0
           which mpiexec      
       
       - name: Add test packages
