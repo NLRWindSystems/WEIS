@@ -67,26 +67,26 @@ jobs:
       - name: Add dependencies ubuntu specific
         if: contains( matrix.os, 'ubuntu')
         run: |
-          sudo apt install -y libglu1-mesa mpich
-          conda install -c conda-forge -y petsc4py mpi4py pyoptsparse mpich
-          pip install pygmsh==7.1.17
-          pip install https://github.com/LHEEA/meshmagick/archive/master.zip  
+            sudo apt install -y libglu1-mesa
+            conda install -c conda-forge -y petsc4py mpi4py pyoptsparse mpich
+            pip install pygmsh==7.1.17
+            pip install https://github.com/LHEEA/meshmagick/archive/master.zip  
+            which -a mpiexec
+            which -a mpirun
       
       - name: Add test packages
         run: |
-          conda install -y pytest pytest-cov coveralls treon gdown
+            conda install -y pytest pytest-cov coveralls treon gdown
             
       - name: Show custom environment
         run: |
-            which -a mpiexec
-            which -a mpirun
             conda list
             printenv | sort
           
       # Install WEIS
       - name: Install WEIS
         run: |
-          python -m pip install --no-deps -e . -v
+            python -m pip install --no-deps -e . -v
 
       # Debugging session
       #- name: Setup tmate session
