@@ -57,9 +57,10 @@ jobs:
       
       - name: feature branches of other codes
         run: |
-
           conda remove --force openraft
           pip install https://github.com/yqliaohk/RAFT/archive/meshing_update.zip
+          conda remove --force pcrunch
+          pip install https://github.com/nrel/pcrunch/archive/bins_select.zip
 
       # Don't delete after this
 
