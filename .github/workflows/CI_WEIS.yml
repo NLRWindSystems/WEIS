@@ -78,6 +78,8 @@ jobs:
             
       - name: Show custom environment
         run: |
+            which -a mpiexec
+            which -a mpirun
             conda list
             printenv | sort
           
