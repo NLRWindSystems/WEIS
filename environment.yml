@@ -14,7 +14,7 @@ dependencies:
   - openfast>=4.1.0
   - openfast-io>=4.1.0
   - pyopenfast>=4.1.0
-  - openraft>=2.0.2
+  # - openraft>=2.0.2
   - osqp  
   - pcrunch>=2.1.4
   - pip
@@ -33,7 +33,7 @@ dependencies:
     - orbit-nrel
     - smt
     - windIO>=2.0.1
-    #- git+https://github.com/WISDEM/WISDEM.git@develop
+    - git+https://github.com/WISDEM/RAFT.git@dev
 # Needs to be done outside of environment file:
 #  - m2w64-toolchain # [win]
 #  - libpython # [win]

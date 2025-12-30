@@ -55,10 +55,10 @@ jobs:
       
 
       
-      - name: feature branches of other codes
-        run: |
-          conda remove --force openraft
-          pip install https://github.com/yqliaohk/RAFT/archive/meshing_update.zip
+      # - name: feature branches of other codes
+      #   run: |
+      #     conda remove --force openraft
+      #     pip install https://github.com/yqliaohk/RAFT/archive/meshing_update.zip
 
       # Don't delete after this
 
