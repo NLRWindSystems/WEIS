@@ -1991,7 +1991,7 @@ class FASTLoadCases(ExplicitComponent):
             iprop_rectangular = i_properties[idx_rectangular]
             iprop_rigid_link = n_properties + 1
             
-            mgrav = 0.0 if not modopt['flags']['monopile'] else float(inputs['gravity_foundation_mass'])
+            mgrav = 0.0 if not modopt['flags']['monopile'] else inputs['gravity_foundation_mass'][0]
             n_joints = len(fst_vt['SubDyn']['JointXss'])
             if fst_vt['SubDyn']['SDdeltaT']<=-999.0: fst_vt['SubDyn']['SDdeltaT'] = "DEFAULT"
             fst_vt['SubDyn']['GuyanDamp'] = np.vstack( tuple([fst_vt['SubDyn']['GuyanDamp'+str(m+1)] for m in range(6)]) )
