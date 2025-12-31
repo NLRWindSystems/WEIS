@@ -11,6 +11,7 @@ def main():
         "09_floating/nrel5mw-semi_oc4.yaml",
         "09_floating/IEA-15-240-RWT_VolturnUS-S.yaml",
         "09_floating/IEA-22-280-RWT_Floater.yaml",
+        "11_user_custom/IEA-15-240-RWT_VolturnUS-S_user_elastic.yaml",
         "02_reference_turbines/IEA-15-240-RWT.yaml",
         "02_reference_turbines/IEA-22-280-RWT.yaml",
         "02_reference_turbines/IEA-3p4-130-RWT.yaml",
