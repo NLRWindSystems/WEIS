@@ -1,0 +1,133 @@
+general:
+    folder_output: outputs_of_newFix
+    fname_output: stage-3-semisub_of
+
+design_variables:
+    floating:
+        joints:
+            z_coordinate:       # draft
+                - names: [main_keel, col1_keel, col2_keel, col3_keel]
+                  flag: True
+                  lower_bound: -30.0
+                  upper_bound: -12.0
+                # - names: [col1_freeboard, col2_freeboard, col3_freeboard]
+                #   lower_bound: 10.0
+                #   upper_bound: 20.0
+            r_coordinate:
+                - names: [col1_keel, col1_freeboard, col2_keel, col2_freeboard, col3_keel, col3_freeboard]
+                  flag: True
+                  lower_bound: 35.0
+                  upper_bound: 75.0
+        members:
+            groups:
+                - names: [column1, column2, column3]
+                  flag: True
+                  diameter:
+                      lower_bound: 8.0
+                      upper_bound: 16.0
+                      constant: True
+    control:
+        servo:
+            pitch_control:
+                omega:
+                    flag: True
+                    min: 0.025
+                    max: 0.5
+                zeta:
+                    flag: True
+                    min: 0.1
+                    max: 3.0
+                Kp_float:
+                    flag: True
+                    min: -40.0  # -0.25
+                    max: 0
+                ptfm_freq:
+                    flag: True
+                    max: 0.5
+
+
+constraints:
+    tower:
+        height_constraint:
+            flag: False
+            lower_bound: 1.e-2
+            upper_bound: 1.e-2
+        stress:
+            flag: False
+        global_buckling:
+            flag: False
+        shell_buckling:
+            flag: False
+        d_to_t:
+            flag: False
+            lower_bound: 120.0
+            upper_bound: 2000.0
+        taper:
+            flag: False
+            lower_bound: 0.2
+        slope:
+            flag: False
+        frequency_1:
+            flag: False
+            lower_bound: 0.37
+    floating:
+        survival_heel:
+            upper_bound: 0.17453292519943295 # 10 deg
+        metacentric_height:
+            flag: True
+            lower_bound: 15.0
+        pitch_period:
+            flag: True
+            lower_bound: 20. # +/- 10%
+            upper_bound: 80.
+        heave_period:
+            flag: True
+            lower_bound: 16. # +/- 10%
+            upper_bound: 80.
+        fixed_ballast_capacity:
+            flag: True
+        variable_ballast_capacity:
+            flag: True
+        buoyancy:
+            flag: False
+        stress:
+            flag: False
+        global_buckling:
+            flag: False
+        shell_buckling:
+            flag: False
+        mooring_heel:
+            flag: False
+        freeboard_margin:   # keep freeboard from being submerged below water during survival_heel, largest wave
+            flag: True
+        draft_margin:   # keep draft from raising above water line during survival_heel, largest wave
+            flag: True
+        fairlead_depth: # keep fairlead above bottom trough of largest wave
+            flag: True
+    control:
+        Max_PtfmPitch:
+            flag: True
+            max: 6.0
+        Std_PtfmPitch:
+            flag: True
+            max: 1.25  # Same as IEA-15MW with same DLCs
+        nacelle_acceleration:
+            flag: True
+            max: 2.0
+        rotor_overspeed:
+            flag: True
+            min: 0.0
+            max: 0.3
+
+merit_figure: structural_mass
+
+driver:
+    optimization:
+        flag: True         # Flag to enable optimization
+        tol: 1.e-3         # Optimality tolerance
+        max_iter: 120         # Maximum number of iterations (SLSQP)
+        solver: LN_COBYLA       # Optimization solver. Other options are 'SLSQP' - 'CONMIN'
+
+recorder:
+    flag: True              # Flag to activate OpenMDAO recorder
+    file_name: log_opt.sql  # Name of OpenMDAO recorder
