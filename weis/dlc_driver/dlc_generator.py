@@ -331,6 +331,8 @@ class DLCGenerator(object):
         if len(options['probability']) > 0:
             probability = np.array( [float(m) for m in options['probability']] )
         else:
+            probability = np.array([])
+        return probability
 
     def get_metocean(self, options):
         wind_speeds_indiv = self.get_wind_speeds(options)
@@ -340,6 +342,7 @@ class DLCGenerator(object):
         wave_period = self.get_wave_period(options)
         wave_gamma = self.get_wave_gamma(options)
         wave_heading = self.get_wave_heading(options)
+        probability = self.get_probability(options)
 
         if len(wind_seed) > 1 and len(wind_seed) != len(wind_speed):
             raise Exception("The vector of wind_seed must have either length=1 or the same length of wind speeds")
@@ -2188,7 +2191,6 @@ class DLCGenerator(object):
         dlc_options['IEC_WindType'] = 'EOG'  # let's make a dummy EOG until we have steady wind input (cheaper than NTM, inflow should be disabled)
         dlc_options['wind_speed'] = [0]
         dlc_options['turbine_status'] = 'parked-still'
-
         
         # Disable generator, inflow, and aerodynamics by default
         dlc_options['generator_dof'] = 'False'

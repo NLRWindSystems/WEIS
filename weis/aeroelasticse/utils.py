@@ -607,4 +607,5 @@ def generate_wind_files(dlc_generator, FAST_namingOut, wind_directory, rotorD, h
                 wind_file_type = 3
             else:
                 wind_file_type = 2
+
     return wind_file_type, wind_file_plexp, wind_file_path_InflowWind

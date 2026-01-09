@@ -98,6 +98,8 @@ class WindPark(om.Group):
                     dv['start'] = modeling_options['ROSCO'][dv['name']]
                 else:
                     raise Exception(f"The DISCON design variable {dv['name']} does not have a defined start, nor is it defined in the modeling options.")
+                
+            tune_rosco_ivc.add_output(f'discon:{dv["name"]}', val=dv['start'], units=ivc_units, desc=ivc_desc)
 
 
         # optional inputs - not connected right now!!
