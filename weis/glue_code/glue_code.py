@@ -467,7 +467,7 @@ class WindPark(om.Group):
                 self.connect("blade.high_level_blade_props.blade_ref_axis", "aeroelastic.ref_axis_blade")
                 self.connect("configuration.rotor_orientation", "aeroelastic.rotor_orientation")
                 self.connect("blade.high_level_blade_props.r_blade",  "aeroelastic.r")
-                self.connect("blade.outer_shape.section_offset_y", "aeroelastic.le_location")
+                self.connect("blade.pa.section_offset_y_param", "aeroelastic.le_location")
                 self.connect("blade.pa.chord_param",            "aeroelastic.chord")
                 self.connect("blade.pa.twist_param",            "aeroelastic.theta")
                 self.connect("blade.interp_airfoils.coord_xy_interp", "aeroelastic.coord_xy_interp")
@@ -568,6 +568,18 @@ class WindPark(om.Group):
                         idx = modeling_options["floating"]["members"]["name2idx"][kname]
                         self.connect(f"floating.memgrp{idx}.s", f"aeroelastic.member{k}_{kname}:s")
                         self.connect(f"floatingse.member{k}_{kname}.wall_thickness", f"aeroelastic.member{k}_{kname}:wall_thickness")
+                        self.connect(f"floatingse.member{k}_{kname}.rho", f"aeroelastic.member{k}_{kname}:rho")
+                        self.connect(f"floatingse.member{k}_{kname}.E", f"aeroelastic.member{k}_{kname}:E")
+                        self.connect(f"floatingse.member{k}_{kname}.G", f"aeroelastic.member{k}_{kname}:G")
+                        self.connect(f"floatingse.member{k}_{kname}.ballast_z_cg", f"aeroelastic.member{k}_{kname}:ballast_z_cg")
+                        self.connect(f"floatingse.member{k}_{kname}.ballast_mass", f"aeroelastic.member{k}_{kname}:ballast_mass")
+                        self.connect(f"floatingse.member{k}_{kname}.ballast_I_base", f"aeroelastic.member{k}_{kname}:ballast_I_base")
+                        self.connect(f"floatingse.member{k}_{kname}:variable_ballast_cg", f"aeroelastic.member{k}_{kname}:variable_ballast_cg")
+                        self.connect(f"floatingse.member{k}_{kname}:variable_ballast_mass", f"aeroelastic.member{k}_{kname}:variable_ballast_mass")
+                        self.connect(f"floatingse.member{k}_{kname}:variable_ballast_I", f"aeroelastic.member{k}_{kname}:variable_ballast_I")
+                        self.connect(f"floatingse.member{k}_{kname}.bulkhead_mass", f"aeroelastic.member{k}_{kname}:bulkhead_mass")
+                        self.connect(f"floatingse.member{k}_{kname}.bulkhead_z_cg", f"aeroelastic.member{k}_{kname}:bulkhead_z_cg")
+                        self.connect(f"floatingse.member{k}_{kname}.bulkhead_I_base", f"aeroelastic.member{k}_{kname}:bulkhead_I_base")
 
                         # Member coefficients
                         if modeling_options['floating']['members']['outer_shape'][k] == "circular":

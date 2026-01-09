@@ -30,7 +30,10 @@ def test_initial_loading_callbacks():
     geom_3d_names = ['15MW', '3.4MW', '22MW']
 
     output_view, output_colors = initial_loading(nClicks, geom_3d_names, wt_options_by_names)
-    num_geometries = len([v for gname in geom_3d_names for v in list(wt_options_by_names[gname]['components'].keys()) if v != 'mooring']) + 1     # 1 is for axis geometry and remove duplicated field for 'floating_platform' and 'mooring'. (We just render them into a single mesh..)
+
+    # Loop through 3 input sets and count number of geometries that are visualized.
+    # Yaw is not visualized and mooring is visualized together with floating_platform, so we remove those two from the count.
+    num_geometries = len([v for gname in geom_3d_names for v in list(wt_options_by_names[gname]['components'].keys()) if v not in ['yaw','mooring']]) + 1     # 1 is for axis geometry and remove duplicated field for 'floating_platform' and 'mooring'. (We just render them into a single mesh..)
 
     assert len(output_view.children) == num_geometries and len(output_colors) == len(geom_3d_names)
 

@@ -14,14 +14,15 @@ dependencies:
   - openfast>=4.1.0
   - openfast-io>=4.1.0
   - pyopenfast>=4.1.0
-  - openraft>=2.0.2
+  # - openraft>=2.0.2
   - osqp  
-  - pcrunch>=2.1.3
+  - pcrunch>=2.1.4
   - pip
   - pyhams>=1.3
   #- pyoptsparse
   - rosco>=2.10.1
-  - wisdem>=4.0.0
+  - trimesh
+  - wisdem>=4.0.4
   - pip:
     - control
     - dash-bootstrap-components
@@ -32,7 +33,7 @@ dependencies:
     - orbit-nrel
     - smt
     - windIO>=2.0.1
-    #- git+https://github.com/WISDEM/WISDEM.git@develop
+    - git+https://github.com/WISDEM/RAFT.git@dev
 # Needs to be done outside of environment file:
 #  - m2w64-toolchain # [win]
 #  - libpython # [win]

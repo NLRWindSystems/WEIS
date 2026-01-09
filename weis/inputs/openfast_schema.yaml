@@ -28,7 +28,7 @@ properties:
                         description: Error level when simulation should abort (string) {'WARNING', 'SEVERE', 'FATAL'}
                     DT:
                         type: number
-                        default: 0.025
+                        default: 0.0125
                         minimum: 0.0
                         maximum: 10.0
                         unit: s

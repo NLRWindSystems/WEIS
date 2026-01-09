@@ -1,5 +1,4 @@
 import numpy as np
-import numpy.matlib as ml
 import matplotlib.pyplot as plt 
 import math
 from weis.ss_fitting.invfreqs import invfreqs
