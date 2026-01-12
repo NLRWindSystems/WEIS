@@ -3,7 +3,8 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import openmdao.api as om
-
+import pandas as pd
+import pickle
 
 # TODO:
 # 1. Add structural plots for the blade!
@@ -214,3 +215,98 @@ def plot_rotor_comparison(baseline_turb, optimized_turb):
 
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     # plt.savefig("plots/blade_geometry.png", dpi=300)
+
+def plot_weis_summary(data, y_params=None):
+    """
+    Create nx2 scatter plots of WEIS summary data using absolute values
+    
+    Parameters:
+    data : pandas.DataFrame
+        WEIS summary statistics dataframe with MultiIndex columns
+    y_params : list of tuples, optional
+        List of (parameter_name, statistic) tuples for y-axis parameters
+        If None, uses default set of 4 parameters
+    """
+    # Create a copy to avoid modifying original data
+    df = data.copy()
+    
+    # Extract DLC case from index - fix the extraction method
+    dlc_cases = []
+    for idx in df.index:
+        match = pd.Series([idx]).str.extract(r'(DLC\d+\.\d+)')[0].iloc[0]
+        dlc_cases.append(match)
+    
+    df['DLC_Case'] = dlc_cases
+    
+    # Define the parameters to plot (using absolute values - no normalization)
+    x_param = ('Wind1VelX', 'mean')
+    
+    # Use provided y_params or default set
+    if y_params is None:
+        y_params = [
+            ('GenSpeed', 'mean'),
+            ('RootMyb1', 'max'),
+            ('TwrBsAxMxyt', 'median'),
+            ('PtfmPitch', 'max')
+        ]
+    
+    # Calculate number of rows needed for nx2 layout
+    n_plots = len(y_params)
+    n_rows = (n_plots + 1) // 2  # Ceiling division
+    
+    # Create figure with nx2 subplots and shared x-axis
+    fig, axes = plt.subplots(n_rows, 2, figsize=(15, 6*n_rows), sharex=True)
+    
+    # Handle case where we only have one row
+    if n_rows == 1:
+        axes = axes.reshape(1, -1)
+    
+    # Get unique DLC cases for color coding
+    unique_dlcs = df['DLC_Case'].dropna().unique()
+    colors = plt.cm.Set1(np.linspace(0, 1, len(unique_dlcs)))
+    color_map = dict(zip(unique_dlcs, colors))
+    
+    print(f"Found DLC cases: {unique_dlcs}")
+    
+    # Create each subplot
+    for i, y_param in enumerate(y_params):
+        row = i // 2
+        col = i % 2
+        ax = axes[row, col]
+        
+        # print(f"  Y-axis {i+1} ({y_param}): {df[y_param].min():.4f} to {df[y_param].max():.4f}")
+        
+        # Plot each DLC case with different color
+        for j, dlc in enumerate(unique_dlcs):
+            mask = df['DLC_Case'] == dlc
+            subset = df[mask]
+            
+            # Use absolute values directly - no normalization, no alpha
+            x_vals = subset[x_param].values
+            y_vals = subset[y_param].values
+            
+            ax.scatter(x_vals, y_vals, 
+                      color=colors[j], label=dlc, s=50)
+        
+        # Set labels and title
+        ax.set_ylabel(f'{y_param[0]} ({y_param[1]})')
+        ax.set_title(f'{y_param[0]} ({y_param[1]}) vs {x_param[0]} ({x_param[1]})')
+        ax.grid(True, alpha=0.3)
+        
+        # Add legend only to subplot (0,0) - top left
+        if row == 0 and col == 0:
+            ax.legend(title='DLC Cases')
+        
+        # Let matplotlib handle the scaling automatically
+        ax.autoscale()
+    
+    # Hide any unused subplots
+    if n_plots % 2 == 1:  # If odd number of plots
+        axes[-1, -1].set_visible(False)
+    
+    # Set x-label only on bottom row
+    for col in range(2):
+        if n_rows > 0:
+            axes[-1, col].set_xlabel(f'{x_param[0]} ({x_param[1]})')
+    
+    plt.tight_layout()
