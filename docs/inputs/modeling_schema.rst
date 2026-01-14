@@ -92,7 +92,7 @@ DLC Driver
 Finally, the ``DLC_Driver`` section of the modeling options is where users specify metocean conditions and the list of design load case (DLCs) to be simulated.
 A user can specify multiple cases of the same DLC.
 A more detailed documentation of the ``DLC_Driver`` can be found here: :ref:`section-dlc_driver`.
-The full set of DLCs that can be simulated can be seen in `the modeling options of this unit test <https://github.com/WISDEM/WEIS/blob/86a5df1b8792a3bf036642d1b2bd3557ace7f555/weis/dlc_driver/test/weis_inputs/modeling_options_all_dlcs.yaml#L66>`_.
+The full set of DLCs that can be simulated can be seen in `the modeling options of this unit test <https://github.com/NLRWindSystems/WEIS/blob/86a5df1b8792a3bf036642d1b2bd3557ace7f555/weis/dlc_driver/test/weis_inputs/modeling_options_all_dlcs.yaml#L66>`_.
 
 
 Detailed modeling option descriptions

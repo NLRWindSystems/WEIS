@@ -576,7 +576,7 @@ def update_dlc_plot(x_chan_option, y_chan_option, x_channel, y_channel):
 def plot_dlc(cm, stats, x_chan_option, y_chan_option, x_channel, y_channels):
     '''
     Function from:
-    https://github.com/WISDEM/WEIS/blob/main/examples/16_postprocessing/rev_DLCs_WEIS.ipynb
+    https://github.com/NLRWindSystems/WEIS/blob/main/examples/16_postprocessing/rev_DLCs_WEIS.ipynb
 
     Plot user specified stats option for each DLC over user specified channels
     '''

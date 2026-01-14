@@ -13,7 +13,7 @@ A full description of the inputs can be found in the :ref:`inputs-documentation`
   :width: 500
   :alt: Stack of software tools contained in WEIS
 
-WEIS is `"glued" <https://github.com/WISDEM/WEIS/blob/master/weis/glue_code/glue_code.py>`_ together using `openmdao <https://openmdao.org/>`_ components and groups.
+WEIS is `"glued" <https://github.com/NLRWindSystems/WEIS/blob/master/weis/glue_code/glue_code.py>`_ together using `openmdao <https://openmdao.org/>`_ components and groups.
 
 WEIS works best by starting with pre-existing examples, which are described here: :ref:`section-weis_examples`.
 
