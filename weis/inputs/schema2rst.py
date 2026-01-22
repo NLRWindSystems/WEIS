@@ -128,7 +128,7 @@ if __name__ == '__main__':
     docs_dir = os.path.realpath(os.path.join(this_dir,'../../docs/inputs'))
 
     # Merge schemas, write combined schema yamls here
-    # Following https://github.com/WISDEM/WISDEM/blob/master/docs/schema/README
+    # Following https://github.com/NLRWindSystems/WISDEM/blob/master/docs/schema/README
 
     modeling_schema = sch.get_modeling_schema()
     modeling_schema['definitions'] = copy.deepcopy(modeling_schema['properties'])

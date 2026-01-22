@@ -30,7 +30,7 @@ The list of WISDEM examples is often a good starting point.
 
 RAFT 
 -------
-`RAFT <https://github.com/WISDEM/RAFT>`_ (Response Amplitudes of Floating Turbines) is an open-source Python-based software for frequency-domain analysis of floating platforms. The software includes quasi-static mooring reactions, strip-theory and potential-flow hydrodynamics (first and second order), blade element momentum aerodynamics, and linear turbine control in a way that avoids any time-domain preprocessing. RAFT constitutes the "Level 1" of modeling fidelity in the WEIS toolset for floating platform controls co-design, providing rapid evaluation (in the order of seconds) of the coupled responses of the system.
+`RAFT <https://github.com/NLRWindSystems/RAFT>`_ (Response Amplitudes of Floating Turbines) is an open-source Python-based software for frequency-domain analysis of floating platforms. The software includes quasi-static mooring reactions, strip-theory and potential-flow hydrodynamics (first and second order), blade element momentum aerodynamics, and linear turbine control in a way that avoids any time-domain preprocessing. RAFT constitutes the "Level 1" of modeling fidelity in the WEIS toolset for floating platform controls co-design, providing rapid evaluation (in the order of seconds) of the coupled responses of the system.
 
 As a frequency-domain code, RAFT solves for the steady state response of the system assuming linearity. In the frequency domain, time-varying quantities (such as external loads and system responses) are modeled as a linear superposition of a mean and a Fourier series of complex amplitudes. Under these assumptions, RAFT can compute:
 
@@ -43,7 +43,7 @@ For a more detailed description of RAFT, see `https://openraft.readthedocs.io/ <
 
 Using RAFT through WEIS
 ~~~~~~~~~~~~~~~~
-A RAFT model requires information about the floating platform, turbine, mooring system, site, environmental conditions, and numerical settings. For a standalone RAFT model (i.e., to be run outside of WEIS), these information are usually provided by a `yaml` file, as illustrated by the `examples <https://github.com/WISDEM/RAFT/tree/master/examples>`_ available in the RAFT GitHub repo.
+A RAFT model requires information about the floating platform, turbine, mooring system, site, environmental conditions, and numerical settings. For a standalone RAFT model (i.e., to be run outside of WEIS), these information are usually provided by a `yaml` file, as illustrated by the `examples <https://github.com/NLRWindSystems/RAFT/tree/master/examples>`_ available in the RAFT GitHub repo.
 
 When used through WEIS, RAFT receives the necessary data directly from WEIS. The platform, turbine, and site information are specified in the `geometry file`, from which RAFT uses only a subset of the data. RAFT specific inputs are provided in the `RAFT` section of the `modeling file`, as described in :ref:`modeling-options`. The RAFT-specific part of the schema that describes the modeling options is given below:
 

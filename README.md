@@ -1,13 +1,13 @@
 # WEIS
 
-[![Coverage Status](https://coveralls.io/repos/github/WISDEM/WEIS/badge.svg?branch=develop)](https://coveralls.io/github/WISDEM/WEIS?branch=develop)
-[![Actions Status](https://github.com/WISDEM/WEIS/workflows/CI_WEIS/badge.svg?branch=develop)](https://github.com/WISDEM/WEIS/actions)
+[![Coverage Status](https://coveralls.io/repos/github/NLRWindSystems/WEIS/badge.svg?branch=develop)](https://coveralls.io/github/NLRWindSystems/WEIS?branch=develop)
+[![Actions Status](https://github.com/NLRWindSystems/WEIS/workflows/CI_WEIS/badge.svg?branch=develop)](https://github.com/NLRWindSystems/WEIS/actions)
 [![Documentation Status](https://readthedocs.org/projects/weis/badge/?version=develop)](https://weis.readthedocs.io/en/develop/?badge=develop)
 [![DOI](https://zenodo.org/badge/289320573.svg)](https://zenodo.org/badge/latestdoi/289320573)
 
-WEIS, Wind Energy with Integrated Servo-control, performs multifidelity co-design of wind turbines. WEIS is a framework that combines multiple NREL-developed tools to enable design optimization of floating offshore wind turbines.
+WEIS, Wind Energy with Integrated Servo-control, performs multifidelity co-design of wind turbines. WEIS is a framework that combines multiple NLR-developed tools to enable design optimization of floating offshore wind turbines.
 
-Author: [NREL WISDEM & OpenFAST & Control Teams](mailto:systems.engineering@nrel.gov)
+Author: [NLR Wind Systems & OpenFAST & Control Teams](mailto:systems.engineering@nrel.gov)
 
 ## Part of the WETO Stack
 
@@ -24,7 +24,7 @@ See local documentation in the `docs`-directory or access the online version at 
 ## Packages
 
 WEIS integrates in a unique workflow four models:
-* [WISDEM](https://github.com/WISDEM/WISDEM) is a set of models for assessing overall wind plant cost of energy (COE).
+* [WISDEM](https://github.com/NLRWindSystems/WISDEM) is a set of models for assessing overall wind plant cost of energy (COE).
 * [OpenFAST](https://github.com/OpenFAST/openfast) is the community model for wind turbine simulation to be developed and used by research laboratories, academia, and industry.
 * [TurbSim](https://www.nrel.gov/docs/fy09osti/46198.pdf) is a stochastic, full-field, turbulent-wind simulator.
 * [ROSCO](https://github.com/NREL/ROSCO) provides an open, modular and fully adaptable baseline wind turbine controller to the scientific community.
@@ -56,7 +56,7 @@ The installation instructions below use the environment name, "weis-env," but an
 
         conda config --add channels conda-forge
         conda install git
-        git clone https://github.com/WISDEM/WEIS.git
+        git clone https://github.com/NLRWindSystems/WEIS.git
         cd WEIS
         git checkout branch_name                         # (Only if you want to switch branches, say "develop")
         conda env create --name weis-env -f environment.yml
@@ -82,4 +82,4 @@ If you plan to contribute code to WEIS, please first consult the [developer guid
 
 ## Feedback
 
-For software issues please use <https://github.com/WISDEM/WEIS/issues>.  
+For software issues please use <https://github.com/NLRWindSystems/WEIS/issues>.  
