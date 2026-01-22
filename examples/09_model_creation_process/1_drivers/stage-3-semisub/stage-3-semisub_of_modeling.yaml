@@ -110,7 +110,7 @@ RAFT:
     save_designs: True
 ROSCO:
     flag: True
-    tuning_yaml: ../../2_models/iea22_rosco.yaml
+    tuning_yaml: ../../2_models/iea20_rosco.yaml
 
 DLC_driver:
     metocean_conditions:
