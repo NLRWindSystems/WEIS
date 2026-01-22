@@ -1,5 +1,5 @@
 general:
-    folder_output: outputs_of_newFix
+    folder_output: outputs_of
     fname_output: stage-3-semisub_of
 
 design_variables:

@@ -113,8 +113,8 @@ constraints:
             flag: False
             max: 1.25  # Same as IEA-15MW with same DLCs
         nacelle_acceleration:
-            flag: False
-            max: 0.4
+            flag: True
+            max: 2.0
 
 merit_figure: structural_mass
 
