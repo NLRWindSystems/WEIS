@@ -1,0 +1,99 @@
+general:
+    folder_output:  outputs/
+    fname_output: stage-1-aeroStruct-aero_analysis
+
+design_variables:
+ 
+    blade:
+        aero_shape:
+            twist:
+                flag: False # Flag to optimize the twist
+                inverse: True # Flag to determine twist from a desired angle of attack
+                inverse_target: 'max_efficiency' # Twist generates angles of attack # corresponding to 'max_efficiency' or 'stall_margin'
+                n_opt: 10 # Number of control points along blade span. During inverse design, # twist is smoothened with a spline with these
+                max_decrease: 0.08722222222222221 # Maximum decrease for the twist in [rad] at the n_opt locations. Only used if flag is set to True
+                max_increase: 0.08722222222222221 # Maximum increase for the twist in [rad] at the n_opt locations. Only used if flag is set to True
+                index_start: 2 # Lock the first two DVs from blade root
+                index_end: 10 # All DVs close to blade tip are active
+
+            chord:
+                flag: True # Flag to optimize the chord
+                n_opt: 10 # Number of control points along blade span
+                max_decrease: 0.4 # Minimum multiplicative gain on existing chord at the n_opt locations
+                max_increase: 1.5 # Maximum multiplicative gain on existing chord at the n_opt locations
+                index_start: 1 # Lock the first DV from blade root
+                index_end: 9 # All DVs close to blade tip are active
+            af_positions:
+                flag: True
+                af_start: 4
+        structure:
+            - layer_name: spar_cap_ss
+              n_opt: 8               # Number of control points along blade span
+              max_decrease: 0.2      # Maximum nondimensional decrease at the n_opt locations
+              max_increase: 5.       # Maximum nondimensional increase at the n_opt locations
+              index_start: 1         # Lock the first DV from blade root
+              index_end: 7           # The last DV at blade tip is locked
+            - layer_name: spar_cap_ps
+              n_opt: 8               # Number of control points along blade span
+              max_decrease: 0.2      # Maximum nondimensional decrease at the n_opt locations
+              max_increase: 5.       # Maximum nondimensional increase at the n_opt locations
+              index_start: 1         # Lock the first DV from blade root
+              index_end: 7           # The last DV at blade tip is locked
+            - layer_name: te_reinforcement_ss
+              n_opt: 8               # Number of control points along blade span
+              max_decrease: 0.2      # Maximum nondimensional decrease at the n_opt locations
+              max_increase: 5.       # Maximum nondimensional increase at the n_opt locations
+              index_start: 1         # Lock the first DV from blade root
+              index_end: 7           # The last DV at blade tip is locked
+            - layer_name: te_reinforcement_ps
+              n_opt: 8               # Number of control points along blade span
+              max_decrease: 0.2      # Maximum nondimensional decrease at the n_opt locations
+              max_increase: 5.       # Maximum nondimensional increase at the n_opt locations
+              index_start: 1         # Lock the first DV from blade root
+              index_end: 7           # The last DV at blade tip is locked
+
+# figure of merit
+merit_figure: LCOE
+
+constraints:
+    blade:
+        stall:
+            flag: False # Constraint on minimum stall margin
+            margin: 0.12 # Value of minimum stall margin in [rad]
+        chord:
+            flag: True # Constraint max chord to its default value (4.75 m)
+            max: 8. # Max chord value
+        chord_slope:
+            flag: True # Constraint to enforce monothonically decreasing chord after max chord
+        root_circle_diameter:
+            flag: False # Constraint for the minimum blade root circle diameter
+            max_ratio: 1.2 # The recommended value can be up to 20% larger than the actual
+        moment_coefficient:
+            flag: False # Constraint on maximum blade root flapwise moment coefficient
+            max: 0.20 # Lowering this value will lead to low induction rotors
+        strains_spar_cap_ss:
+            flag: True         # Flag to impose constraints on maximum strains (absolute value) in the spar cap on the blade suction side
+            max:    3500.e-6   # Value of maximum strains [-]
+            index_start: 1     # Do not enforce constraint at the first station from blade root of the n_opt from spar_cap_ss
+            index_end: 7       # Do not enforce constraint at the last station at blade tip of the n_opt from spar_cap_ss
+        strains_spar_cap_ps:
+            flag: True         # Flag to impose constraints on maximum strains (absolute value) in the spar cap on the blade pressure side
+            max:    3500.e-6   # Value of maximum strains [-]
+            index_start: 1     # Do not enforce constraint at the first station from blade root of the n_opt from spar_cap_ps
+            index_end: 7       # Do not enforce constraint at the last station at blade tip of the n_opt from spar_cap_ps      
+        tip_deflection:
+            flag: True
+            margin: 1.4175
+
+driver:
+    optimization:
+        flag: True          # Flag to enable optimization
+        tol: 1.e-6          # Optimality tolerance
+        max_iter: 1 #000 #1      # Set 1000 for full optimizations, 1 for workshop demo
+        solver: LN_COBYLA  # Use SLSQP in real runs       # Optimization solver. Other options are 'SLSQP' - 'CONMIN'
+        step_size: 1.e-3    # Step size for finite differencing
+        form: central       # Finite differencing mode, either forward or central
+
+recorder:
+    flag: True              # Flag to activate OpenMDAO recorder
+    file_name: log_opt.sql  # Name of OpenMDAO recorder
