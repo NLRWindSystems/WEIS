@@ -156,7 +156,7 @@ jobs:
       - name: Test model creation notebooks and drivers
         if: contains( matrix.os, 'ubuntu') && contains( github.event_name, 'pull_request')
         run: |
-          cd examples/09_model_creation_process
+          cd examples/11_model_creation_process
           treon 0_notebooks/chapter1.ipynb
           treon 0_notebooks/chapter2.ipynb
           treon 0_notebooks/chapter3.ipynb
