@@ -129,7 +129,8 @@ jobs:
         run: |
           cd examples/09_model_creation_process
           treon 0_notebooks/chapter1.ipynb
-          treon iea22_ptfm_driver.ipynb
+          treon 0_notebooks/chapter2.ipynb
+          treon 0_notebooks/chapter3.ipynb
 
       # Run parallel script calling OpenFAST
       - name: Run parallel cases
