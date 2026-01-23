@@ -26,6 +26,14 @@ extra_scripts = [
     "05_control_optimization/tmd_opt_driver",
     "18_user_custom_setup/weis_driver_umaine_semi",
     "18_user_custom_setup/variable_overrides_driver",
+    "09_model_creation_process/1_drivers/stage-0-baseline/stage-0-baseline_driver",
+    "09_model_creation_process/1_drivers/stage-1-aeroStruct/stage-1-aeroStruct_nonOptimized",
+    "09_model_creation_process/1_drivers/stage-1-aeroStruct/stage-1-aeroStruct_driver",
+    "09_model_creation_process/1_drivers/stage-2-controller/stage-2-controller_driver",
+    "09_model_creation_process/1_drivers/stage-3-semisub/stage-3-semisub_raft_driver",
+    "09_model_creation_process/1_drivers/stage-3-semisub/stage-3-semisub_of_driver",
+    "09_model_creation_process/1_drivers/stage-3.5-semisubCCD/stage-3.5-semisub_of_driver",
+    "09_model_creation_process/1_drivers/stage-4-dlcs/stage-4-dlcs_driver",
     # "08_potential_flow_modeling/openfast_potmod_driver",   #skip this one for now
 ]
 
@@ -70,7 +78,7 @@ class TestExamples(unittest.TestCase):
                 except:
                     self.assertEqual(s, "Success")
 
-    @unittest.skipUnless("RUN_EXHAUSTIVE" in os.environ, "exhaustive on pull request only")
+    # @unittest.skipUnless("RUN_EXHAUSTIVE" in os.environ, "exhaustive on pull request only")
     def test_extra_scripts(self):
         for ks,s in enumerate(extra_scripts):
             with self.subTest(f"Running: {s}", i=ks):
