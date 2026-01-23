@@ -110,7 +110,7 @@ OpenFAST: # Options for WEIS fidelity level 3 = nonlinear time domain
 
 ROSCO:
     flag: True
-    tuning_yaml: ../../2_models/iea20_semisub_rosco.yaml
+    tuning_yaml: ../../2_models/iea20_rosco.yaml
 
 DLC_driver:
     metocean_conditions:
