@@ -999,7 +999,6 @@ properties:
                             uniqueItems: false
                     wave_height_fatigue:
                         type: array
-                        description: Array of Hs for each fatigue bin
                         default: [1.10, 1.18, 1.32, 1.54, 1.84, 2.19, 2.60, 3.06, 3.62, 4.03, 4.52]
                         items:
                             type: number

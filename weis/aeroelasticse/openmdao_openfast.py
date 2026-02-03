@@ -470,6 +470,26 @@ class FASTLoadCases(ExplicitComponent):
             self.add_input('TMD_stiffness',    val=np.zeros(n_TMDs), units='N/m',        desc='TMD Stiffnes')
             self.add_input('TMD_damping',      val=np.zeros(n_TMDs), units='N/(m/s)',    desc='TMD Damping')
 
+        # Generic DISCON params
+        if not self.options['modeling_options']['ROSCO']['flag']:
+            # If the ROSCO flag were on, the DISCON params would have gone there
+
+            discon_dvs = self.options['opt_options']['design_variables']['control']['discon']
+            for dv in discon_dvs:
+                ivc_units = None
+                if 'units' in dv:
+                    ivc_units = dv['units']
+
+                ivc_desc = None
+                if 'description' in dv:
+                    ivc_desc = dv['description']
+
+                self.add_input(f'discon:{dv["name"]}', val=dv['start'], units=ivc_units, desc=ivc_desc)
+                
+
+        # DLC options
+        n_ws_aep = np.max([1,modopt['DLC_driver']['n_ws_aep']])
+
         # OpenFAST options
         OFmgmt = modopt['General']['openfast_configuration']
         self.model_only = OFmgmt['model_only']
@@ -724,7 +744,13 @@ class FASTLoadCases(ExplicitComponent):
                 fst_vt['HydroDyn']['AddF0'] = [[F0] for F0 in fst_vt['HydroDyn']['AddF0']]
 
             if modopt['ROSCO']['flag']:
+                # This is usually populated in tune_rosco if the ROSCO flag is true
                 fst_vt['DISCON_in'] = modopt['General']['openfast_configuration']['fst_vt']['DISCON_in']
+            else:
+                # If we're not tuning ROSCO and the DVs are direct inputs to the DISCON
+                discon_dvs = self.options['opt_options']['design_variables']['control']['discon']
+                for dv in discon_dvs:
+                    fst_vt['DISCON_in'][dv['name']] = inputs[f'discon:{dv["name"]}']
 
         #  Allow user-defined OpenFAST options to override WISDEM-generated ones
         #  Re-load modeling options without defaults to learn only what needs to change, has already been validated when first loaded
@@ -3248,6 +3274,14 @@ class FASTLoadCases(ExplicitComponent):
 
         # determine which dlc will be used for the powercurve calculations, allows using dlc 1.1 if specific power curve calculations were not run
         sum_stats = self.cruncher.summary_stats
+
+        modopts = self.options['modeling_options']
+        DLCs = [i_dlc['DLC'] for i_dlc in modopts['DLC_driver']['DLCs']]
+        if 'AEP' in DLCs:
+            DLC_label_for_AEP = 'AEP'
+        else:
+            DLC_label_for_AEP = '1.1'
+            logger.warning('WARNING: DLC 1.1 is being used for AEP calculations.  Use the AEP DLC for more accurate wind modeling with constant TI.')
 
         modopts = self.options['modeling_options']
         DLCs = [i_dlc['DLC'] for i_dlc in modopts['DLC_driver']['DLCs']]

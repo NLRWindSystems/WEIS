@@ -193,10 +193,11 @@ class WindTurbineOntologyPythonWEIS(WindTurbineOntologyPython):
             self.modeling_options["RAFT"]["model_potential"] = [False]*1000
             
         # ROSCO
-        self.modeling_options['ROSCO']['flag'] = (self.modeling_options['RAFT']['flag'] or
-                                                  self.modeling_options['OpenFAST_Linear']['flag'] or
-                                                  self.modeling_options['OpenFAST']['flag'])
+        if (not self.modeling_options['ROSCO']['flag']) and (not self.modeling_options["Level3"]["from_openfast"]):
+            raise Exception('ROSCO flag must be enabled if we are not providing a pre-made OpenFAST input with a ROSCO DISCON')
         
+        # TODO: Some RAFT/Level1 configurations will require ROSCO, perhaps all
+
         if self.modeling_options['ROSCO']['tuning_yaml'] != 'none':  # default is empty
             # Make path absolute if not, relative to modeling options input
             if not osp.isabs(self.modeling_options['ROSCO']['tuning_yaml']):
@@ -305,14 +306,6 @@ class WindTurbineOntologyPythonWEIS(WindTurbineOntologyPython):
         '''
         # Likely outdated
         if self.modeling_options['flags']['control']:
-            self.wt_init['control']['pitch']['omega_pc'] = wt_opt['tune_rosco_ivc.omega_pc']
-            self.wt_init['control']['pitch']['zeta_pc']  = wt_opt['tune_rosco_ivc.zeta_pc']
-            self.wt_init['control']['torque']['omega_vs'] = float(wt_opt['tune_rosco_ivc.omega_vs'])
-            self.wt_init['control']['torque']['zeta_vs']  = float(wt_opt['tune_rosco_ivc.zeta_vs'])
-            self.wt_init['control']['pitch']['Kp_float']  = float(wt_opt['tune_rosco_ivc.Kp_float'])
-            self.wt_init['control']['pitch']['ptfm_freq']  = float(wt_opt['tune_rosco_ivc.ptfm_freq'])
-            self.wt_init['control']['IPC']['IPC_Ki_1P'] = float(wt_opt['tune_rosco_ivc.IPC_Kp1p'])
-            self.wt_init['control']['IPC']['IPC_Kp_1P'] = float(wt_opt['tune_rosco_ivc.IPC_Ki1p'])
             if self.modeling_options['ROSCO']['Flp_Mode'] > 0:
                 self.wt_init['control']['dac']['flp_kp_norm']= float(wt_opt['tune_rosco_ivc.flp_kp_norm'])
                 self.wt_init['control']['dac']['flp_tau'] = float(wt_opt['tune_rosco_ivc.flp_tau'])
