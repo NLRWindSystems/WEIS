@@ -13,7 +13,7 @@ DOE driver settings.
 import os
 from weis import weis_main
 
-TEST_RUN = True 
+TEST_RUN = False  # Set to True for quick testing 
 
 ## File management
 run_dir                = os.path.dirname( os.path.realpath(__file__) ) + os.sep
