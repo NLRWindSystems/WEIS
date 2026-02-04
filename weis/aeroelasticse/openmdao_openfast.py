@@ -1099,6 +1099,7 @@ class FASTLoadCases(ExplicitComponent):
         # Masses and inertias from DriveSE
         fst_vt['ElastoDyn']['HubMass']   = inputs['hub_system_mass'][0]
         fst_vt['ElastoDyn']['HubIner']   = inputs['hub_system_I'][0]
+        fst_vt['ElastoDyn']['HubIner_Teeter'] = 0. # No teetering hub in DriveSE yet
         fst_vt['ElastoDyn']['HubCM']     = inputs['hub_system_cm'][0] # k*inputs['overhang'][0] - inputs['hub_system_cm'][0], but we need to solve the circular dependency in DriveSE first
         fst_vt['ElastoDyn']['NacMass']   = inputs['above_yaw_mass'][0]
         fst_vt['ElastoDyn']['YawBrMass'] = inputs['yaw_mass'][0]

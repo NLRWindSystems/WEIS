@@ -1,0 +1,5 @@
+The notebooks in `0_notebooks` will walk through the model creation process, describe the important inputs, and display outputs of WEIS runs.
+
+Actual WEIS runs (and inputs) are contained within `1_drivers`.
+
+Models created along the way are in `2_models`.
