@@ -519,21 +519,6 @@ def generate_wind_files(dlc_generator, FAST_namingOut, wind_directory, rotorD, h
 
     Turbulent_Gust = False
     if dlc_generator.cases[i_case].turbulent_wind:
-        # If IEC_WindType is Turbulent-<Gust>, create a temporary NTM turbulent file to be used to add turbulence to gust later
-        Turbulent_Gust = False
-        if dlc_generator.cases[i_case].IEC_WindType.split('-')[0] == 'Turbulent':
-            Turbulent_Gust = True
-            actualwindtype = dlc_generator.cases[i_case].IEC_WindType
-            dlc_generator.cases[i_case].IEC_WindType = 'NTM'
-
-        # Write out turbsim input file
-        turbsim_input_file_name = FAST_namingOut + '_' + dlc_generator.cases[i_case].IEC_WindType + (
-                                dlc_generator.cases[i_case].IECturbc + 
-                                '_U%1.6f'%dlc_generator.cases[i_case].URef +
-                                '_Seed%1.1f'%dlc_generator.cases[i_case].RandSeed1) + '.in'
-        wind_file_path_InflowWind = os.path.join(wind_directory, turbsim_input_file_name[:-3] + '.bts')
-        turbsim_input_file_path = os.path.join(wind_directory, turbsim_input_file_name)
-        wind_file_name = turbsim_input_file_path[:-3] + '.bts'
         wind_file_plexp = dlc_generator.cases[i_case].PLExp
         if dlc_generator.cases[i_case].user_btsfilename:
             wind_file_path_InflowWind = dlc_generator.cases[i_case].user_btsfilename
@@ -547,6 +532,7 @@ def generate_wind_files(dlc_generator, FAST_namingOut, wind_directory, rotorD, h
 
             # Write out turbsim input file
             turbsim_input_file_name = FAST_namingOut + '_' + dlc_generator.cases[i_case].IEC_WindType + (
+                                    dlc_generator.cases[i_case].IECturbc + 
                                     '_U%1.6f'%dlc_generator.cases[i_case].URef +
                                     '_Seed%1.1f'%dlc_generator.cases[i_case].RandSeed1) + '.in'
             wind_file_path_InflowWind = os.path.join(wind_directory, turbsim_input_file_name[:-3] + '.bts')
