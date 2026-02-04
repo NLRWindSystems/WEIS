@@ -79,7 +79,7 @@ class TestExamples(unittest.TestCase):
                 except:
                     self.assertEqual(s, "Success")
 
-    # @unittest.skipUnless("RUN_EXHAUSTIVE" in os.environ, "exhaustive on pull request only")
+    @unittest.skipUnless("RUN_EXHAUSTIVE" in os.environ, "exhaustive on pull request only")
     def test_extra_scripts(self):
         for ks,s in enumerate(extra_scripts):
             with self.subTest(f"Running: {s}", i=ks):
