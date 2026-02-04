@@ -413,10 +413,7 @@ class runFAST_pywrapper_batch(object):
             for j, case_data in enumerate(case_data_all[idx_s:idx_e]):
                 rank_j = sub_ranks[j]
                 data_out = comm.recv(source=rank_j, tag=1)
-                # output.append(data_out)
                 self.cruncher.add_output(data_out)
-
-        # for iout in output:
 
         return self.cruncher
 
