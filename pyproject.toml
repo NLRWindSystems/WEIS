@@ -51,12 +51,12 @@ dependencies = [
   "openpyxl",
   "openraft",
   "osqp",
-  "pcrunch",
+  "pcrunch>=2.1.5",
   "pyhams",
-  "rosco",
+  "rosco>=2.10.1",
   "scipy",
   "smt",
-  "wisdem",
+  "wisdem>4.0.4",
 ]
 
 # List additional groups of dependencies here (e.g. development

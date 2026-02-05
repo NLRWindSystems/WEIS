@@ -2861,6 +2861,7 @@ class FASTLoadCases(ExplicitComponent):
             lss_fatigue = FatigueParams(load2stress=1.0,
                                         dnv_name='B1',
                                         dnv_type='air',
+                                        units='kPa',
                                         ultimate_stress=1e-3*inputs['lss_ultstress'],
                                         S_intercept=1e-3*inputs['lss_wohlerA'])
             for s in ['Ax','Sh']:
@@ -2886,6 +2887,7 @@ class FASTLoadCases(ExplicitComponent):
             tower_fatigue_base = FatigueParams(load2stress=1.0,
                                                dnv_name='D',
                                                dnv_type='air',
+                                               units='kPa',
                                                ultimate_stress=1e-3*inputs['tower_ultstress'][0],
                                                S_intercept=1e-3*inputs['tower_wohlerA'][0])
             for s in ['Ax','Sh']:
@@ -2905,6 +2907,7 @@ class FASTLoadCases(ExplicitComponent):
                 monopile_fatigue_base = FatigueParams(load2stress=1.0,
                                                       dnv_name='D',
                                                       dnv_type='sea',
+                                                      units='Pa',
                                                       ultimate_stress=inputs['monopile_ultstress'][0],
                                                       S_intercept=inputs['monopile_wohlerA'][0])
                 for s in ['Ax','Sh']:
