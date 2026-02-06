@@ -26,10 +26,6 @@ build:
     pre_build:
       - pwd
       - ls
-      - conda remove --force wisdem
-      - pip install https://github.com/NLRWindSystems/WISDEM/archive/develop.zip
-      - conda remove --force openraft
-      - pip install https://github.com/NLRWindSystems/RAFT/archive/dev.zip
       - pip install -e .
       - python -c "import weis.inputs.validation as vd; vd.wisval.write_yaml(vd.get_geometry_schema(), vd.fschema_geom)"
       - python -c "import weis.inputs.validation as vd; vd.wisval.write_yaml(vd.get_modeling_schema(), vd.fschema_model)"
