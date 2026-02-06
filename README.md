@@ -28,6 +28,7 @@ WEIS integrates in a unique workflow four models:
 * [OpenFAST](https://github.com/OpenFAST/openfast) is the community model for wind turbine simulation to be developed and used by research laboratories, academia, and industry.
 * [TurbSim](https://www.nrel.gov/docs/fy09osti/46198.pdf) is a stochastic, full-field, turbulent-wind simulator.
 * [ROSCO](https://github.com/NREL/ROSCO) provides an open, modular and fully adaptable baseline wind turbine controller to the scientific community.
+* [RAFT](https://github.com/NLRWindSystems/RAFT) is a tool for assessing the performance of floating offshore wind turbines in the frequency domain. RAFT is designed to be computationally efficient while still capturing the essential physics of floating offshore wind turbine dynamics, making it a valuable tool for preliminary design and optimization studies.
 
 In addition, three external libraries are added:
 * [pCrunch](https://github.com/NREL/pCrunch) is a collection of tools to ease the process of parsing large amounts of OpenFAST output data and conduct loads analysis.
