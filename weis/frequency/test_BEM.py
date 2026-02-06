@@ -11,7 +11,7 @@ class TestFrequency(unittest.TestCase):
         ## File management
         run_dir = os.path.dirname( os.path.realpath(__file__) )
         fname_wt_input = os.path.join(run_dir, "..", "..", "examples", "00_setup", "ref_turbines", "IEA-15-240-RWT_VolturnUS-S_rectangular.yaml")
-        fname_modeling_options = os.path.join(run_dir, "..", "..", "examples", "02_generate_openfast_model_for_dlcs" , "iea15_semi_modeling.yaml")
+        fname_modeling_options = os.path.join(run_dir, "..", "..", "examples", "02_generate_openfast_model_for_dlcs" , "iea15_semi_modeling_hybrid.yaml")
         fname_analysis_options = os.path.join(run_dir, "..", "..", "examples", "02_generate_openfast_model_for_dlcs", "iea15_semi_analysis.yaml")
 
         # override the modeling options so that not creating a new yaml file
@@ -20,11 +20,13 @@ class TestFrequency(unittest.TestCase):
         modeling_override["OpenFAST"]["flag"] = False
         modeling_override["RAFT"] = {}
         modeling_override["RAFT"]["flag"] = True
-        modeling_override["RAFT"]["potential_model_override"] = 1
-        #modeling_override["RAFT"]["potential_bem_members"] = ["main_column", "column1", "column2", "column3", "Y_pontoon_lower1", "Y_pontoon_lower2", "Y_pontoon_lower3"]
-        modeling_override["RAFT"]["intersection_mesh"] = 0
-        modeling_override["RAFT"]["characteristic_length_min"] = 3
-        modeling_override["RAFT"]["characteristic_length_max"] = 7
+        modeling_override["General"] = {}
+        modeling_override["General"]["potential_flow_modeling"] = {}
+        modeling_override["General"]["potential_flow_modeling"]["bem_method"] = 0 #This needs to be 0 (or 2) to actually test BEM, use 0 because we don't want to mesh the upper pontoon
+        modeling_override["General"]["potential_flow_modeling"]["bem_members"] = ["main_column", "column1", "column2", "column3", "Y_pontoon_lower1", "Y_pontoon_lower2", "Y_pontoon_lower3"]
+        modeling_override["RAFT"]["intersection_mesh"] = 1
+        modeling_override["RAFT"]["characteristic_length_min"] = 1
+        modeling_override["RAFT"]["characteristic_length_max"] = 5
         modeling_override["RAFT"]["plot_designs"] = True
         modeling_override["RAFT"]["save_designs"] = True
 

@@ -736,6 +736,8 @@ components:
            -  name: spar
               joint1: spar_keel
               joint2: spar_freeboard
+              Ca: 1.0
+              Cd: 1.0
               outer_shape:
                   shape: circular
                   outer_diameter:
@@ -766,6 +768,8 @@ components:
            -  name: fairlead_leg1
               joint1: fairlead1
               joint2: fairlead_attach
+              Ca: &Ca_fair 1.0
+              Cd: &Cd_fair 1.0
               outer_shape: &id003
                   shape: circular
                   outer_diameter:
@@ -781,11 +785,15 @@ components:
            -  name: fairlead_leg2
               joint1: fairlead2
               joint2: fairlead_attach
+              Ca: *Ca_fair
+              Cd: *Cd_fair
               outer_shape: *id003
               structure: *id004
            -  name: fairlead_leg3
               joint1: fairlead3
               joint2: fairlead_attach
+              Ca: *Ca_fair
+              Cd: *Cd_fair
               outer_shape: *id003
               structure: *id004
     mooring:

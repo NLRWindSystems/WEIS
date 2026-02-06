@@ -7,7 +7,7 @@ assembly:
     rotor_orientation: Upwind
     number_of_blades: 3
     hub_height: 150.0
-    rotor_diameter: 241.94
+    rotor_diameter: 241.35064632
     rated_power: 15000000.0
     lifetime: 25.0
 components:
@@ -664,10 +664,10 @@ components:
     hub:
         diameter: 7.94
         cone_angle: 4.0
-        elastic_properties_mb:
-            system_mass: 69360.0
-            system_inertia: [973520.0, 619970.0, 619970.0]
-            system_center_mass: [0, 0, 0]
+        elastic_properties:
+            mass: 69360.0
+            inertia: [973520.0, 619970.0, 619970.0, 0.0, 0.0, 0.0]
+            location: [0, 0, 0]
     drivetrain:
         outer_shape:
             uptilt: 6.0
@@ -679,35 +679,24 @@ components:
         gearbox:
             gear_ratio: 1.0
             efficiency: 1.0
-        elastic_properties_mb:
-            system_mass: 675175.0
-            yaw_mass: 0
-            system_inertia: [9912933.0, 10862815.0, 10360761.0]
-            system_inertia_tt: [9912933.0, 10862815.0, 10360761.0]
-            system_center_mass: [-4.528, -0.14, 4.098]
+        elastic_properties:
+            mass: 675175.0
+            inertia: [9912933.0, 10862815.0, 10360761.0, 0.0, 0.0, 0.0]
+            inertia_tt: [9912933.0, 10862815.0, 10360761.0]
+            location: [-4.528, -0.14, 4.098]
             spring_constant: 0.
             damping_coefficient: 0.
         generator:
-            elastic_properties_mb:
-                system_mass: 69360.0
+            elastic_properties:
+                mass: 69360.0
                 rotor_inertia: [9912933.0, 10862815.0, 10360761.0]
-    nacelle:
-        drivetrain:
-            uptilt: 0.10471975511966002
-            distance_tt_hub: 5.614100000000008
-            overhang: 12.032
-            gear_ratio: 1
-            gearbox_efficiency: 1.0
-        elastic_properties_mb:
-            system_mass: 675175.0
-            yaw_mass: 0
-            system_inertia: [9912933.0, 10862815.0, 10360761.0]
-            system_inertia_tt: [9912933.0, 10862815.0, 10360761.0]
-            system_center_mass: [-4.528, -0.14, 4.098]
-        generator:
-            elastic_properties_mb:
-                system_mass: 69360.0
-                rotor_inertia: [9912933.0, 10862815.0, 10360761.0]
+                inertia: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+                location: [0.0, 0.0, 0.0]
+    yaw:
+        elastic_properties:
+            mass: 0.0
+            inertia: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            location: [0.0, 0.0, 0.0]
     tower:
         outer_shape:
             outer_diameter:
@@ -971,7 +960,7 @@ components:
               unstretched_length: 850.0
         line_types:
            -  name: main
-              diameter: 0.333
+              diameter: 0.185
               type: chain
               transverse_added_mass: 1.0
               tangential_added_mass: 0.0

@@ -136,7 +136,7 @@ text files near seamlessly.
 How to request doc creation
 ---------------------------
 If you think the docs should be modified or expanded, create an issue on the GitHub documentation repository.
-Do this by going to the `WEIS repo <https://github.com/WISDEM/WEIS/>`__ then click on Issues on the lefthand side of the page.
+Do this by going to the `WEIS repo <https://github.com/NLRWindSystems/WEIS/>`__ then click on Issues on the lefthand side of the page.
 There you can see current requests for doc additions as well as adding your own.
 Feel free to add any issue for any type of doc and members of the WEIS development team can determine how to approach it.
 Assign someone or a few people to the issue who you think would be a good fit for that doc.

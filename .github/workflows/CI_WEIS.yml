@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "macOS-13", "macOS-latest", "windows-latest"] # mac13 is intel, mac-14 arm
+        os: ["ubuntu-latest", "macOS-14", "windows-latest"] # mac13 is intel, mac-14 arm
         python-version: ["3.11","3.12","3.13"]
         
     steps:
@@ -40,19 +40,42 @@ jobs:
       #  run: |
       #    conda install -y -c intel intel-openmp mkl
 
+      # Enable the next entries to use feature branches of dependencies for CI testing
+
+      # - name: Add dependencies ubuntu specific
+      #   if: false == contains( matrix.os, 'windows')
+      #   run: |
+      #     conda install -y compilers
+
+      # - name: Add dependencies windows specific
+      #   if: contains( matrix.os, 'windows')
+      #   run: |
+      #     conda install -y gfortran libpython
+      #     pip install --no-deps control
+      
+
+      
+      # - name: feature branches of other codes
+      #   run: |
+      #     conda remove --force openraft
+      #     pip install https://github.com/yqliaohk/RAFT/archive/meshing_update.zip
+
+      # Don't delete after this
+
       
       - name: Add dependencies ubuntu specific
         if: contains( matrix.os, 'ubuntu')
         run: |
-          conda install -y petsc4py mpi4py pyoptsparse
-          sudo apt install -y libglu1-mesa
-          pip install pygmsh>=7.1.17
-          pip install https://github.com/LHEEA/meshmagick/archive/master.zip
-          pip install trimesh        
+            sudo apt install -y libglu1-mesa
+            conda install -c conda-forge -y petsc4py mpi4py pyoptsparse mpich
+            pip install pygmsh==7.1.17
+            pip install https://github.com/LHEEA/meshmagick/archive/master.zip  
+            which -a mpiexec
+            which -a mpirun
       
       - name: Add test packages
         run: |
-          conda install -y pytest pytest-cov coveralls treon gdown
+            conda install -y pytest pytest-cov coveralls treon gdown
             
       - name: Show custom environment
         run: |
@@ -62,7 +85,7 @@ jobs:
       # Install WEIS
       - name: Install WEIS
         run: |
-          python -m pip install --no-deps -e . -v
+            python -m pip install --no-deps -e . -v
 
       # Debugging session
       #- name: Setup tmate session
@@ -123,6 +146,20 @@ jobs:
           treon rev_DLCs_WEIS.ipynb
           treon rev_Opt.ipynb
           treon rev_WEIS_CSV.ipynb
+
+      - name: Test preprocessing notebooks
+        if: contains( matrix.os, 'ubuntu') && contains( github.event_name, 'pull_request')
+        run: |
+          cd examples/09_preprocessing/fatigue
+          treon Fatigue_Setup.ipynb
+      
+      - name: Test model creation notebooks and drivers
+        if: contains( matrix.os, 'ubuntu') && contains( github.event_name, 'pull_request')
+        run: |
+          cd examples/11_model_creation_process
+          treon 0_notebooks/chapter1.ipynb
+          treon 0_notebooks/chapter2.ipynb
+          treon 0_notebooks/chapter3.ipynb
 
       # Run parallel script calling OpenFAST
       - name: Run parallel cases

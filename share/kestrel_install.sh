@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script to install WEIS on Kestrel for a developer with best practices
 # To use the script; go to the desired location and run:
-# wget https://raw.githubusercontent.com/WISDEM/WEIS/develop/share/kestrel_install.sh -O kestrel_install.sh
+# wget https://raw.githubusercontent.com/NLRWindSystems/WEIS/develop/share/kestrel_install.sh -O kestrel_install.sh
 # chmod +xrw kestrel_install.sh
 # ./kestrel_install.sh -h
 
@@ -37,11 +37,11 @@ Cray=false
 ### !!!! Avoid changes below this line !!!! ###
 
 # Default repo URLs
-default_weis_repo="https://www.github.com/WISDEM/WEIS"
+default_weis_repo="https://www.github.com/NLRWindSystems/WEIS"
 default_openfast_repo="https://www.github.com/OpenFAST/openfast"
 default_rosco_repo="https://www.github.com/NREL/ROSCO"
-default_wisdem_repo="https://www.github.com/WISDEM/WISDEM"
-default_raft_repo="https://www.github.com/WISDEM/RAFT"
+default_wisdem_repo="https://www.github.com/NLRWindSystems/WISDEM"
+default_raft_repo="https://www.github.com/NLRWindSystems/RAFT"
 
 # Main function to install WEIS
 main() {

@@ -13,15 +13,16 @@ DOE driver settings.
 import os
 from weis import weis_main
 
-TEST_RUN = False  # Not yet compatible with MPI
+TEST_RUN = False  # Set to True for quick testing 
 
 ## File management
 run_dir                = os.path.dirname( os.path.realpath(__file__) ) + os.sep
 fname_wt_input         = os.path.join(run_dir, "..", "00_setup", "ref_turbines", "IEA-15-240-RWT_VolturnUS-S.yaml")
-fname_modeling_options = os.path.join(run_dir, "..", "02_generate_openfast_model_for_dlcs", "iea15_semi_modeling.yaml")
+fname_modeling_options = os.path.join(run_dir, "..", "02_generate_openfast_model_for_dlcs", "iea15_semi_modeling_strip.yaml")
 fname_analysis_options = os.path.join(run_dir, "openfast_doe_analysis.yaml")
 
 wt_opt, modeling_options, opt_options = weis_main(fname_wt_input,
                                                   fname_modeling_options,
                                                   fname_analysis_options,
+                                                  test_run=TEST_RUN,
                                                   )

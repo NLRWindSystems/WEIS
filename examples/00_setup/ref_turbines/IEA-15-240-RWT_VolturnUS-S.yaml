@@ -7,7 +7,7 @@ assembly:
     rotor_orientation: Upwind
     number_of_blades: 3
     hub_height: 150.0
-    rotor_diameter: 241.94
+    rotor_diameter: 241.35064632
     rated_power: 15000000.0
     lifetime: 25.0
 components:
@@ -730,7 +730,7 @@ components:
             u_allow_pcent: 8.5
             y_allow_pcent: 1.0
             z_allow_deg: 0.05
-            sigma: 60.e+3
+            sigma: 60000.0
             h_0: 0.05
             C_Cu: 4.786
             C_Fe: 0.556
@@ -804,7 +804,7 @@ components:
            -  name: main_column
               joint1: main_keel
               joint2: main_freeboard
-              Ca: 1.0 # These coefficients can be defined as one constant scalar (here) or an array that defines different sections along the member (see column 1 below)
+              Ca: 1.0
               Cd: 0.8
               outer_shape:
                   shape: circular
@@ -1395,7 +1395,7 @@ control:
         Vout: 25.0
         maxTS: 95.0
     pitch:
-        ps_percent: 0.8
+        ps_percent: 1.0
         max_pitch: 89.95437383553924
         max_pitch_rate: 2.0
         min_pitch: 0.0

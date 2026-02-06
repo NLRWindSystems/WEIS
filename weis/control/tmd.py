@@ -124,7 +124,7 @@ class TMDs(ExplicitComponent):
 
                     # mass
                     if 'mass' in tmd_group:
-                        outputs['mass'][i_TMD] = inputs[f'group_{i_group}_mass']
+                        outputs['mass'][i_TMD] = inputs[f'group_{i_group}_mass'][0]
                         if 'const_omega' in tmd_group['mass'] and tmd_group['mass']['const_omega']:
                             outputs['stiffness'][i_TMD] = omega**2 * outputs['mass'][i_TMD]
                         if 'const_zeta' in tmd_group['mass'] and tmd_group['mass']['const_zeta']:
@@ -132,20 +132,20 @@ class TMDs(ExplicitComponent):
 
                     # stiffness:
                     if 'stiffness' in tmd_group:
-                        outputs['stiffness'][i_TMD] = inputs[f'group_{i_group}_stiffness']
+                        outputs['stiffness'][i_TMD] = inputs[f'group_{i_group}_stiffness'][0]
                     
                     if 'natural_frequency' in tmd_group:
-                        outputs['stiffness'][i_TMD] = inputs[f'group_{i_group}_natural_frequency']**2 * outputs['mass'][i_TMD]
+                        outputs['stiffness'][i_TMD] = inputs[f'group_{i_group}_natural_frequency'][0]**2 * outputs['mass'][i_TMD]
                         if 'const_zeta' in tmd_group['natural_frequency'] and tmd_group['natural_frequency']['const_zeta']:
-                            outputs['damping'][i_TMD] = 2 * inputs[f'group_{i_group}_natural_frequency'] * zeta * outputs['mass'][i_TMD]
+                            outputs['damping'][i_TMD] = 2 * inputs[f'group_{i_group}_natural_frequency'][0] * zeta * outputs['mass'][i_TMD]
 
                     # damping:
                     if 'damping' in tmd_group:
-                        outputs['damping'][i_TMD] = inputs[f'group_{i_group}_damping']
+                        outputs['damping'][i_TMD] = inputs[f'group_{i_group}_damping'][0]
                     
                     if 'damping_ratio' in tmd_group:
                         omega   = np.sqrt(outputs['stiffness'][i_TMD]/outputs['mass'][i_TMD])  # recalculate in case stiffness has changed
-                        outputs['damping'][i_TMD] = 2 * inputs[f'group_{i_group}_damping_ratio'] * omega * outputs['mass'][i_TMD]
+                        outputs['damping'][i_TMD] = 2 * inputs[f'group_{i_group}_damping_ratio'][0] * omega * outputs['mass'][i_TMD]
 
             # print('here')  # to check mapping
 
