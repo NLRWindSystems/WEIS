@@ -775,7 +775,7 @@ class FASTLoadCases(ExplicitComponent):
             self.write_FAST(fst_vt)
         else:
             # Write OF model and run
-            case_list, case_name, dlc_generator  = self.run_FAST(inputs, discrete_inputs, fst_vt)
+            dlc_generator  = self.run_FAST(inputs, discrete_inputs, fst_vt)
 
             # Set up linear turbine model
             if modopt['OpenFAST_Linear']['flag']:
@@ -842,7 +842,7 @@ class FASTLoadCases(ExplicitComponent):
                 if modopt['OpenFAST_Linear']['simulation']['flag'] or modopt['OpenFAST_Linear']['DTQP']['flag']:
                     # Extract disturbance(s)
                     level2_disturbance = []
-                    for case in case_list:
+                    for case in self.case_list:
                         ts_file     = TurbSimFile(case[('InflowWind','FileName_BTS')])
                         ts_file.compute_rot_avg(fst_vt['ElastoDyn']['TipRad'])
                         u_h         = ts_file['rot_avg'][0,:]
@@ -898,7 +898,7 @@ class FASTLoadCases(ExplicitComponent):
                     )
 
             # Post process regardless of level
-            self.post_process(case_list, dlc_generator, inputs, discrete_inputs, outputs, discrete_outputs)
+            self.post_process(dlc_generator, inputs, discrete_inputs, outputs, discrete_outputs)
             
             # Save AEP value to linear pickle file
             if modopt['OpenFAST_Linear']['flag']:
@@ -2696,8 +2696,8 @@ class FASTLoadCases(ExplicitComponent):
                 case_inputs[('ServoDyn', 'StepEnd')]    = case_inputs.pop(('SStC', 'StepEnd'), None) 
                     
         # Parameteric inputs
-        case_name = []
-        case_list = []
+        self.case_name = []
+        self.case_list = []
         for i_case, case_inputs in enumerate(dlc_generator.openfast_case_inputs):
             # Generate case list for DLC i
             dlc_label = DLCs[i_case]['DLC']
@@ -2715,11 +2715,11 @@ class FASTLoadCases(ExplicitComponent):
 
 
             # Extend lists of cases
-            case_list.extend(case_list_i)
-            case_name.extend(case_name_i)
+            self.case_list.extend(case_list_i)
+            self.case_name.extend(case_name_i)
 
         # Apply wind files to case_list (this info will be in combined case matrix, but not individual DLCs)
-        for i_case, case_i in enumerate(case_list):  # i_case is index, case_i is case dictionary
+        for i_case, case_i in enumerate(self.case_list):  # i_case is index, case_i is case dictionary
             case_i[('InflowWind','WindType')] = WindFile_type[i_case]
             case_i[('InflowWind','PLExp')] = WindFile_plexp[i_case]
             case_i[('InflowWind','FileName_Uni')] = WindFile_name[i_case]
@@ -2733,11 +2733,11 @@ class FASTLoadCases(ExplicitComponent):
 
 
         # Merge various cases into single case matrix
-        case_df = pd.DataFrame(case_list)
-        case_df.index = case_name
+        case_df = pd.DataFrame(self.case_list)
+        case_df.index = self.case_name
         # Add case name and dlc label to front for readability
         case_df.insert(0,'DLC',dlc_label)
-        case_df.insert(0,'case_name',case_name)
+        case_df.insert(0,'case_name',self.case_name)
         text_table = case_df.to_string(index=False)
 
         # Write the text table to a yaml, text file
@@ -2749,7 +2749,7 @@ class FASTLoadCases(ExplicitComponent):
         channels= self.output_channels(fst_vt)
 
         # Delete the extra case_inputs because they don't play nicely with aeroelasticse
-        for case in case_list:
+        for case in self.case_list:
             for key in list(case):
                 if key[0] in ['DLC','TurbSim','CaseInfo']:
                     del case[key]
@@ -2776,8 +2776,8 @@ class FASTLoadCases(ExplicitComponent):
         else:
             fastBatch                           = fastwrap.runFAST_pywrapper_batch()
             fastBatch.FAST_runDirectory         = self.FAST_runDirectory
-            fastBatch.case_list                 = case_list
-            fastBatch.case_name_list            = case_name     
+            fastBatch.case_list                 = self.case_list
+            fastBatch.case_name_list            = self.case_name     
             fastBatch.use_exe                   = modopt['General']['openfast_configuration']['use_exe']
         
         fastBatch.channels          = channels
@@ -2951,13 +2951,13 @@ class FASTLoadCases(ExplicitComponent):
         self.of_inumber = self.of_inumber + 1
         sys.stdout.flush()
 
-        return case_list, case_name, dlc_generator
+        return dlc_generator
 
-    def post_process(self, case_list, dlc_generator, inputs, discrete_inputs, outputs, discrete_outputs):
+    def post_process(self, dlc_generator, inputs, discrete_inputs, outputs, discrete_outputs):
         modopt = self.options['modeling_options']
 
         # Analysis
-        comp_aero = any([cl[('Fst', 'CompAero')] for cl in case_list if ('Fst','CompAero') in cl]) or bool(self.fst_vt['Fst']['CompAero'])   # do any sims have required AeroDyn channels?
+        comp_aero = any([cl[('Fst', 'CompAero')] for cl in self.case_list if ('Fst','CompAero') in cl]) or bool(self.fst_vt['Fst']['CompAero'])   # do any sims have required AeroDyn channels?
         if self.options['modeling_options']['flags']['blade'] and comp_aero:
             self.get_blade_loading(inputs, outputs)
             
@@ -2969,7 +2969,7 @@ class FASTLoadCases(ExplicitComponent):
             self.get_monopile_loading(inputs, outputs)
 
         # If DLC 1.1 not used, calculate_AEP will just compute average power of simulations
-        self.calculate_AEP(case_list, dlc_generator, discrete_inputs, outputs)
+        self.calculate_AEP(dlc_generator, discrete_inputs, outputs)
 
         self.get_weighted_DELs(dlc_generator, inputs, discrete_inputs, outputs)
         
@@ -3238,7 +3238,7 @@ class FASTLoadCases(ExplicitComponent):
         outputs['monopile_maxMy_Mz'] = 1e-3*spline_Mz(z)
 
 
-    def calculate_AEP(self, case_list, dlc_generator, discrete_inputs, outputs):
+    def calculate_AEP(self, dlc_generator, discrete_inputs, outputs):
         """
         Calculates annual energy production of the relevant DLCs in `case_list`.
 
@@ -3649,7 +3649,7 @@ class FASTLoadCases(ExplicitComponent):
 
         # Save each timeseries as a pickled dataframe
         for i_ts in range(self.cruncher.noutputs):
-            self.cruncher.outputs[i_ts].save( os.path.join(save_dir,f'{self.FAST_namingOut}_{i_ts}.p'))
+            self.cruncher.outputs[i_ts].save( os.path.join(save_dir,f'{self.case_name[i_ts]}.p'))
 
     def save_iterations(self, discrete_outputs):
         '''
