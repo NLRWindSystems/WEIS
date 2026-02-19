@@ -92,6 +92,8 @@ class WindPark(om.Group):
         tune_rosco_ivc.add_output('twr_freq',         val=3.2, units='rps',     desc='Tower natural frequency')
         tune_rosco_ivc.add_output('ptfm_freq',        val=0.2, units='rad/s',     desc='Platform natural frequency')
         tune_rosco_ivc.add_output('Kp_float',         val=0.0, units='s',         desc='Floating feedback gain')
+        tune_rosco_ivc.add_output('max_pitch_rate',   val=0.0, units='rad/s',     desc='Maximum pitch rate')
+        tune_rosco_ivc.add_output('max_torque_rate',  val=0.0, units='N*m/s',     desc='Maximum generator torque rate')
 
         self.add_subsystem("tune_rosco_ivc",tune_rosco_ivc)
 
@@ -174,8 +176,8 @@ class WindPark(om.Group):
                 self.connect("rotorse.rp.powercurve.rated_efficiency", "sse_tune.tune_rosco.generator_efficiency")
                 self.connect("tower_grid.height",               "sse_tune.tune_rosco.TowerHt")
                 self.connect("drivetrain.gearbox_efficiency",      "sse_tune.tune_rosco.gearbox_efficiency")
-                self.connect("control.max_pitch_rate" ,         "sse_tune.tune_rosco.max_pitch_rate")
-                self.connect("control.max_torque_rate" ,        "sse_tune.tune_rosco.max_torque_rate")
+                self.connect("tune_rosco_ivc.max_pitch_rate" ,         "sse_tune.tune_rosco.max_pitch_rate")
+                self.connect("tune_rosco_ivc.max_torque_rate" ,        "sse_tune.tune_rosco.max_torque_rate")
 
             else:       # reading openfast model using ROSCO toolbox via rosco_turbine
                 self.connect("rosco_turbine.v_rated"            ,   ["sse_tune.tune_rosco.v_rated"])
@@ -190,8 +192,8 @@ class WindPark(om.Group):
                 self.connect("rosco_turbine.rated_power",           "sse_tune.rated_power")
                 self.connect("rosco_turbine.v_min" ,                "sse_tune.v_min")
                 self.connect("rosco_turbine.v_max" ,                "sse_tune.v_max")
-                self.connect("rosco_turbine.max_pitch_rate" ,       "sse_tune.tune_rosco.max_pitch_rate")
-                self.connect("rosco_turbine.max_torque_rate" ,      "sse_tune.tune_rosco.max_torque_rate")
+                self.connect("tune_rosco_ivc.max_pitch_rate" ,       "sse_tune.tune_rosco.max_pitch_rate")
+                self.connect("tune_rosco_ivc.max_torque_rate" ,      "sse_tune.tune_rosco.max_torque_rate")
                 self.connect("rosco_turbine.omega_min",             "sse_tune.omega_min")
                 self.connect("rosco_turbine.tsr_operational",       "sse_tune.tsr_operational")
 
@@ -474,7 +476,7 @@ class WindPark(om.Group):
                 self.connect("drivese.generator_rotor_I",       "aeroelastic.GenIner", src_indices=[0])
                 self.connect("drivetrain.gear_ratio",              "aeroelastic.gearbox_ratio")
                 self.connect("rotorse.rp.powercurve.rated_efficiency",  "aeroelastic.generator_efficiency")
-                self.connect("control.max_pitch_rate" ,         "aeroelastic.max_pitch_rate")
+                self.connect("tune_rosco_ivc.max_pitch_rate" ,         "aeroelastic.max_pitch_rate")
                 self.connect("drivetrain.gearbox_efficiency",      "aeroelastic.gearbox_efficiency")
                 self.connect("drivetrain.uptilt",                  "aeroelastic.tilt")
                 self.connect("drivetrain.overhang",                "aeroelastic.overhang")
@@ -607,7 +609,6 @@ class WindPark(om.Group):
                 self.connect("rotorse.wt_class.V_extreme50", "aeroelastic.V_extreme50")
                 self.connect("rotorse.wt_class.V_mean", "aeroelastic.V_mean_iec")
                 self.connect("configuration.rated_power", "aeroelastic.control_ratedPower")
-                self.connect("control.max_TS", "aeroelastic.control_maxTS")
                 self.connect("control.maxOmega", "aeroelastic.control_maxOmega")
                 self.connect("sse_tune.aeroperf_tables.pitch_vector","aeroelastic.pitch_vector")
                 self.connect("sse_tune.aeroperf_tables.tsr_vector", "aeroelastic.tsr_vector")
