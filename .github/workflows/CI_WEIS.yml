@@ -58,7 +58,7 @@ jobs:
       - name: feature branches of other codes
         run: |
           conda remove --force wisdem
-          pip install https://https://github.com/NLRWindSystems/WISDEM/archive/develop.zip
+          pip install https://github.com/NLRWindSystems/WISDEM/archive/develop.zip
 
       # Don't delete after this
 
