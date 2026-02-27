@@ -10,6 +10,8 @@ assembly:
     rotor_diameter: 241.35064632
     rated_power: 15000000.0
     lifetime: 25.0
+    cut_in_wind_speed: 3.0
+    cut_out_wind_speed: 25.0
 components:
     blade:
         reference_axis:

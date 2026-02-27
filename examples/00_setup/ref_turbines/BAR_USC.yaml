@@ -10,6 +10,8 @@ assembly:
     hub_height: 140.0
     rated_power: 5000000.0
     lifetime: 25.0
+    cut_in_wind_speed: 4.0
+    cut_out_wind_speed: 25.0
 components:
     blade:
         reference_axis:
