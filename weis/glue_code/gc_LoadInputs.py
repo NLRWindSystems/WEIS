@@ -214,8 +214,8 @@ class WindTurbineOntologyPythonWEIS(WindTurbineOntologyPython):
         # Compute the number of DLCs that will be run
         DLCs = self.modeling_options['DLC_driver']['DLCs']
         # Initialize the DLC generator
-        cut_in = self.wt_init['control']['supervisory']['Vin']
-        cut_out = self.wt_init['control']['supervisory']['Vout']
+        cut_in = self.wt_init['assembly']['cut_in_wind_speed']
+        cut_out = self.wt_init['assembly']['cut_out_wind_speed']
         metocean = self.modeling_options['DLC_driver']['metocean_conditions']
         dlc_driver_options = self.modeling_options['DLC_driver']
         dlc_generator = DLCGenerator(cut_in, cut_out, dlc_driver_options=dlc_driver_options, metocean=metocean)
