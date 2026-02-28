@@ -75,7 +75,7 @@ jobs:
       
       - name: Add test packages
         run: |
-            conda install -y pytest pytest-cov coveralls treon gdown
+            conda install -y pytest pytest-cov coveralls treon
             
       - name: Show custom environment
         run: |
