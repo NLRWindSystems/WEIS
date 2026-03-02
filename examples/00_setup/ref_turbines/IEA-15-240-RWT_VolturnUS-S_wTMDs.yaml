@@ -1425,3 +1425,34 @@ control:
     yaw_rate: 0.49847328176381617
     max_allowable_blade_tip_speed: 95.0
     peak_thrust_shaving: 1.0
+TMDs:
+   -  name: ptfm_TMD1
+      component: column1
+      location: [-51.75, 0, 0.0]
+      mass: 750000.0
+      stiffness: 2000000.0
+      damping: 2800
+      natural_frequency: 0.2
+      damping_ratio: 0.5
+      Z_DOF: true
+      preload_spring: true
+   -  name: ptfm_TMD2
+      component: column2
+      location: [25.875, 44.8168, 0.0]
+      mass: 750000.0
+      stiffness: 2000000.0
+      damping: 2800
+      natural_frequency: 0.2
+      damping_ratio: 0.5
+      Z_DOF: true
+      preload_spring: true
+   -  name: ptfm_TMD3
+      component: column3
+      location: [25.875, -44.8168, 0.0]
+      mass: 750000.0
+      stiffness: 2000000.0
+      damping: 2800
+      natural_frequency: 0.2
+      damping_ratio: 0.5
+      Z_DOF: true
+      preload_spring: true
