@@ -15,8 +15,12 @@ from openmdao.api import ExplicitComponent, Group
 from wisdem.ccblade.ccblade import CCAirfoil, CCBlade
 from wisdem.inputs import load_yaml
 import yaml, os
+import logging
 
 weis_dir = os.path.realpath(os.path.join(os.path.dirname(__file__),'../..'))
+
+logger = logging.getLogger("wisdem/weis")
+
 
 class ServoSE_ROSCO(Group):
     def initialize(self):
@@ -262,9 +266,14 @@ class TuneROSCO(ExplicitComponent):
         WISDEM_turbine.max_pitch_rate   = float(inputs['max_pitch_rate'][0])
         WISDEM_turbine.min_pitch_rate   = -float(inputs['max_pitch_rate'][0])
         WISDEM_turbine.TSR_operational  = float(inputs['tsr_operational'][0])
-        WISDEM_turbine.max_torque_rate  = float(inputs['max_torque_rate'][0])
         WISDEM_turbine.TowerHt          = float(inputs['TowerHt'][0])
         WISDEM_turbine.bld_edgewise_freq = float(inputs['edge_freq'][0]) * 2 * np.pi
+
+        if inputs['max_torque_rate'][0] > 0:
+            WISDEM_turbine.max_torque_rate  = float(inputs['max_torque_rate'][0])
+        else:
+            logger.warning("No max_torque_rate defined.  It's being set to 1/4 of the rated torque per second")
+            WISDEM_turbine.max_torque_rate  = WISDEM_turbine.rated_torque / 4  
         
         # Floating Feedback Filters
         if self.controller_params['Fl_Mode']:
