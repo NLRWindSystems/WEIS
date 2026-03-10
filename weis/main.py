@@ -26,7 +26,7 @@ def set_modopt_procs(modeling_options,modeling_override):
     mpi_modeling_override['General']['openfast_configuration']['nOFp'] = modeling_options['General']['openfast_configuration']['nOFp']
 
     modeling_override = recursive_merge(modeling_override, mpi_modeling_override)
-    return mpi_modeling_override
+    return modeling_override
 
 def recursive_merge(dict1, dict2):
     for key, value in dict2.items():

@@ -38,7 +38,7 @@ To make changes in WISDEM, first conda uninstall it::
 
 Clone the WISDEM repository::
 
-  git clone https://github.com/WISDEM/WISDEM.git
+  git clone https://github.com/NLRWindSystems/WISDEM.git
 
 and follow the installation instructions of that repository, **while staying within the conda environment used to install weis.**
 Since most dependencies will already be installed for each module, you can likely simply navigate to the desired repository and::
@@ -54,7 +54,7 @@ These tests should be a balance between minimizing computational cost and maximi
 This ensures continued functionality of WEIS while keeping development time short.
 
 Any Python file with :code:`test` in its name within the :code:`weis` package directory is tested with each commit to WEIS.
-This is done through GitHub Actions and you can see the automated testing progress on the GitHub repo under the :code:`Actions` tab, `located here <https://github.com/WISDEM/WEIS/actions>`_.
+This is done through GitHub Actions and you can see the automated testing progress on the GitHub repo under the :code:`Actions` tab, `located here <https://github.com/NLRWindSystems/WEIS/actions>`_.
 If any test fails, this information is passed on to GitHub and a red X will be shown next to the commit.
 Otherwise, if all tests pass, a green check mark appears to signify the code changes are valid.
 

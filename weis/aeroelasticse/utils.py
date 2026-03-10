@@ -532,6 +532,7 @@ def generate_wind_files(dlc_generator, FAST_namingOut, wind_directory, rotorD, h
 
             # Write out turbsim input file
             turbsim_input_file_name = FAST_namingOut + '_' + dlc_generator.cases[i_case].IEC_WindType + (
+                                    dlc_generator.cases[i_case].IECturbc + 
                                     '_U%1.6f'%dlc_generator.cases[i_case].URef +
                                     '_Seed%1.1f'%dlc_generator.cases[i_case].RandSeed1) + '.in'
             wind_file_path_InflowWind = os.path.join(wind_directory, turbsim_input_file_name[:-3] + '.bts')

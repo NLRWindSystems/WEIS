@@ -22,8 +22,8 @@ sys.path.insert(0, os.path.abspath('./_exts'))
 # -- Project information -----------------------------------------------------
 
 project = 'WEIS'
-copyright = '2020, NREL WEIS Team'
-author = 'NREL WEIS Team'
+copyright = '2020, NLR WEIS Team'
+author = 'NLR WEIS Team'
 
 # The full version, including alpha/beta/rc tags
 release = '2.0'

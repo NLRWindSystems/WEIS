@@ -6,7 +6,7 @@ WEIS is a framework that combines multiple NREL-developed tools to enable design
 
 Important Links:
 
-- `Source Code Repository <https://github.com/WISDEM/WEIS>`_ 
+- `Source Code Repository <https://github.com/NLRWindSystems/WEIS>`_ 
 
 .. This images is a placeholder, feel free to replace. -JPJ
 .. .. figure:: /images/WEIS.png

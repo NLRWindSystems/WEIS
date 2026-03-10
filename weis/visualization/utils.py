@@ -114,7 +114,7 @@ def dict_to_html(data, out_html_list, level):
 def read_cm(cm_file):
     """
     Function originally from:
-    https://github.com/WISDEM/WEIS/blob/main/examples/16_postprocessing/rev_DLCs_WEIS.ipynb
+    https://github.com/NLRWindSystems/WEIS/blob/main/examples/16_postprocessing/rev_DLCs_WEIS.ipynb
 
     Parameters
     __________
@@ -139,7 +139,7 @@ def read_cm(cm_file):
 def parse_contents(data):
     """
     Function from:
-    https://github.com/WISDEM/WEIS/blob/main/examples/09_design_of_experiments/postprocess_results.py
+    https://github.com/NLRWindSystems/WEIS/blob/main/examples/09_design_of_experiments/postprocess_results.py
     """
     collected_data = {}
     for key in data.keys():

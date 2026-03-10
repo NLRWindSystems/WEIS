@@ -57,8 +57,8 @@ jobs:
       
       # - name: feature branches of other codes
       #   run: |
-      #     conda remove --force openraft
-      #     pip install https://github.com/yqliaohk/RAFT/archive/meshing_update.zip
+      #     conda remove --force wisdem
+      #     pip install https://github.com/NLRWindSystems/WISDEM/archive/develop.zip
 
       # Don't delete after this
 
@@ -75,7 +75,7 @@ jobs:
       
       - name: Add test packages
         run: |
-            conda install -y pytest pytest-cov coveralls treon gdown
+            conda install -y pytest pytest-cov coveralls treon
             
       - name: Show custom environment
         run: |
@@ -152,6 +152,14 @@ jobs:
         run: |
           cd examples/09_preprocessing/fatigue
           treon Fatigue_Setup.ipynb
+      
+      - name: Test model creation notebooks and drivers
+        if: contains( matrix.os, 'ubuntu') && contains( github.event_name, 'pull_request')
+        run: |
+          cd examples/11_model_creation_process
+          treon 0_notebooks/chapter1.ipynb
+          treon 0_notebooks/chapter2.ipynb
+          treon 0_notebooks/chapter3.ipynb
 
       # Run parallel script calling OpenFAST
       - name: Run parallel cases

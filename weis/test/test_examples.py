@@ -27,6 +27,14 @@ extra_scripts = [
     "05_control_optimization/tmd_opt_driver",
     "10_user_custom_setup/user_elastic_driver",
     "10_user_custom_setup/variable_overrides_driver",
+    "11_model_creation_process/1_drivers/stage-0-baseline/stage-0-baseline_driver",
+    "11_model_creation_process/1_drivers/stage-1-aeroStruct/stage-1-aeroStruct_nonOptimized",
+    "11_model_creation_process/1_drivers/stage-1-aeroStruct/stage-1-aeroStruct_driver",
+    "11_model_creation_process/1_drivers/stage-2-controller/stage-2-controller_driver",
+    "11_model_creation_process/1_drivers/stage-3-semisub/stage-3-semisub_raft_driver",
+    "11_model_creation_process/1_drivers/stage-3-semisub/stage-3-semisub_of_driver",
+    "11_model_creation_process/1_drivers/stage-3.5-semisubCCD/stage-3.5-semisub_of_driver",
+    "11_model_creation_process/1_drivers/stage-4-dlcs/stage-4-dlcs_driver",
     # "08_potential_flow_modeling/openfast_potmod_driver",   #skip this one for now
 ]
 

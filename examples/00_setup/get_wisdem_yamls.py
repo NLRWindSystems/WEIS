@@ -22,7 +22,7 @@ def main():
 
     for wisdem_ex in wisdem_ref_turbs:
 
-        raw_url = f"https://raw.githubusercontent.com/WISDEM/WISDEM/master/examples/{wisdem_ex}"
+        raw_url = f"https://raw.githubusercontent.com/NLRWindSystems/WISDEM/master/examples/{wisdem_ex}"
 
         fname = wisdem_ex.split('/')[-1]
         local_path = os.path.join(setup_dir, "ref_turbines", fname)

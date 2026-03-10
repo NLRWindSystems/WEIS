@@ -10,6 +10,8 @@ assembly:
     hub_height: 140.0
     rated_power: 5000000.0
     lifetime: 25.0
+    cut_in_wind_speed: 4.0
+    cut_out_wind_speed: 25.0
 components:
     blade:
         reference_axis:
@@ -1324,18 +1326,14 @@ materials:
       Xy: 1650000000.0
       unit_cost: 2
 control:
-    supervisory:
-        Vin: 4.0
-        Vout: 25.0
-        maxTS: 85.0
-    pitch:
-        ps_percent: 0.8
-        max_pitch: 89.95437383553924
-        max_pitch_rate: 1.9989860852342056
-        min_pitch: 0.0
-    torque:
-        tsr: 10.5
-        max_torque_rate: 4500000.0
-        VS_minspd: 0.0
-        VS_maxspd: 19.098593171027442
-comments: BAR-USC - Upwind segmented design - Spar caps with industry baseline CFRP - last updated on April 23rd 2021 by Pietro Bortolotti
+    min_rotor_speed: 0.
+    max_rotor_speed: 7.885576712533701
+    optimal_tsr: 10.5
+    min_pitch_table:
+        wind_speed: [4.0, 25.0]
+        min_pitch: [0.0, 0.0]
+    min_pitch_limit: 0.0
+    max_pitch_limit: 90.
+    max_pitch_rate: 2.0
+    peak_thrust_shaving: 0.8
+    max_allowable_blade_tip_speed: 85.0

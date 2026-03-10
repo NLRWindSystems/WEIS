@@ -48,7 +48,7 @@ Standard Installation (Linux, macOS, Windows)
 
       conda config --add channels conda-forge
       conda install git
-      git clone https://github.com/WISDEM/WEIS.git
+      git clone https://github.com/NLRWindSystems/WEIS.git
       cd WEIS
       git checkout branch_name                         # (Only if you want to switch branches, say "develop")
       conda env create --name weis-env -f environment.yml
@@ -81,7 +81,7 @@ Installation on Kestrel (DOE HPC System)
 
       conda config --add channels conda-forge
       conda install git
-      git clone https://github.com/WISDEM/WEIS.git
+      git clone https://github.com/NLRWindSystems/WEIS.git
       cd WEIS
       git checkout branch_name                         # (Only if you want to switch branches, say "develop")
       conda env create --name weis-env -f environment.yml

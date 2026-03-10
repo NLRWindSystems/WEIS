@@ -4,7 +4,7 @@ Running WEIS
 The WEIS Driver
 ----------------
 
-The WEIS driver is the top level script that runs the WEIS software. See examples in `the examples folder <https://github.com/WISDEM/WEIS/tree/main/examples>`_ for how to set up and run WEIS. The WEIS driver takes three input files, see :ref:`inputs-documentation` for more details on the input files.The options in the input files can be overridden by providing them as options to WEIS driver. 
+The WEIS driver is the top level script that runs the WEIS software. See examples in `the examples folder <https://github.com/NLRWindSystems/WEIS/tree/main/examples>`_ for how to set up and run WEIS. The WEIS driver takes three input files, see :ref:`inputs-documentation` for more details on the input files.The options in the input files can be overridden by providing them as options to WEIS driver. 
 This allows you to change the inputs and options without modifying the input files, which is useful for debugging and parametric studies. See example below:
 
 .. literalinclude:: ../weis/test/test_overrides_driver.py
@@ -27,7 +27,7 @@ Running WEIS in parallel
 
 WEIS can be run sequentially on a single processor. WEIS can also be parallelized to handle larger problems in a timely manner.
 
-The parallelization of WEIS leverages the [MPI library](https://mpi4py.readthedocs.io/en/stable/). To run WEIS in parallel, make sure that your WEIS environment includes the library mpi4py as discussed in the README.md at the root level of this repo, or on the `WEIS GitHub page <https://github.com/WISDEM/WEIS/>`_.
+The parallelization of WEIS leverages the [MPI library](https://mpi4py.readthedocs.io/en/stable/). To run WEIS in parallel, make sure that your WEIS environment includes the library mpi4py as discussed in the README.md at the root level of this repo, or on the `WEIS GitHub page <https://github.com/NLRWindSystems/WEIS/>`_.
 
 When mpi4py is available, running WEIS in parallel is as simple as executing this command:
 
@@ -47,7 +47,7 @@ Parallelization in WEIS happens at two levels:
 * The second level is triggered when multiple OpenFAST runs are specified. These are executed in parallel.
 The two levels of parallelization are integrated and can co-exist as long as sufficient computational resources are available.
 
-Based on the number of processors available, WEIS allocates the processors to either handle the finite differences or the OpenFAST calls. The allocation is performed by running WEIS twice. The two calls happen in the script `main.py <https://github.com/WISDEM/WEIS/blob/develop/weis/main.py>`_. The first call to WEIS is performed by passing the keyword argument `preMPI` set to True. Here, WEIS sets up the OpenMDAO problem and returns the number of design variables and OpenFAST calls. The two integers are stored among the `modeling_options`. The second call of WEIS allocates the processors based on these two numbers. Note that advanced users can ask WEIS to return some print statements describing the problem size and the allocation of the resources given the number of processors. To do so, users need to set the `maxnP` keyword argument.
+Based on the number of processors available, WEIS allocates the processors to either handle the finite differences or the OpenFAST calls. The allocation is performed by running WEIS twice. The two calls happen in the script `main.py <https://github.com/NLRWindSystems/WEIS/blob/develop/weis/main.py>`_. The first call to WEIS is performed by passing the keyword argument `preMPI` set to True. Here, WEIS sets up the OpenMDAO problem and returns the number of design variables and OpenFAST calls. The two integers are stored among the `modeling_options`. The second call of WEIS allocates the processors based on these two numbers. Note that advanced users can ask WEIS to return some print statements describing the problem size and the allocation of the resources given the number of processors. To do so, users need to set the `maxnP` keyword argument.
 
 .. code-block:: bash
   _, modeling_options, _ = run_weis(fname_wt_input,

@@ -34,7 +34,7 @@ We created a bash script which installs all of the related libraries with a sing
 
 .. code-block:: console
 
-   wget https://raw.githubusercontent.com/WISDEM/WEIS/main/share/kestrel_install.sh -O kestrel_install.sh
+   wget https://raw.githubusercontent.com/NLRWindSystems/WEIS/main/share/kestrel_install.sh -O kestrel_install.sh
    bash kestrel_install.sh -p [conda_env_path] -raft -wisdem
    # For example: bash kestrel_install.sh -p env/weis-env -raft -wisdem
 
@@ -225,7 +225,7 @@ WEIS Inputs
 To visualize WEIS inputs files, import them on the home page. 
 Enter the file path, a label name, and file type and click ``Add`` button, then confirm if the file has been successfully loaded under ``Result`` table.
 Three types of inputs - modeling, analysis, and geometry - exist, but we only support geometry yaml files for now. For better understanding, please refer to :doc:`WEIS Inputs <inputs/yaml_inputs>`.
-The app has been tested with three sample geometry yaml files - ``3.4MW``, ``15MW``, ``22MW`` from `examples/00_setup/ref_turbines <https://github.com/WISDEM/WEIS/tree/main/examples/00_setup/ref_turbines>`_ .
+The app has been tested with three sample geometry yaml files - ``3.4MW``, ``15MW``, ``22MW`` from `examples/00_setup/ref_turbines <https://github.com/NLRWindSystems/WEIS/tree/main/examples/00_setup/ref_turbines>`_ .
 
 .. image:: images/viz/WEIS_Inputs/home.png
 

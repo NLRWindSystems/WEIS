@@ -1,0 +1,3 @@
+general:
+    folder_output: outputs_nonOpti
+    fname_output: stage-1-aeroStruct-NonOptimized

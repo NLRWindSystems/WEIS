@@ -4,17 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "weis"
-version = "2.0"
+version = "2.1"
 description = 'Wind Energy with Integrated Servo-control'
 readme = "README.md"
 requires-python = ">=3.9"
 license = {text = "Apache-2.0"}
 keywords = ["wind", "turbine", "mdao", "design", "optimization"]
 authors = [
-  {name = "NREL WISDEM Team", email = "systems.engineering@nrel.gov" }
+  {name = "NLR Wind Systems Team", email = "systems.engineering@nrel.gov" }
 ]
 maintainers = [
-  {name = "NREL WISDEM Team", email = "systems.engineering@nrel.gov" }
+  {name = "NLR Wind Systems Team", email = "systems.engineering@nrel.gov" }
 ]
 classifiers = [  # Optional
   # How mature is this project? Common values are
@@ -51,12 +51,12 @@ dependencies = [
   "openpyxl",
   "openraft",
   "osqp",
-  "pcrunch",
+  "pcrunch>=2.1.5",
   "pyhams",
-  "rosco",
+  "rosco>=2.10.1",
   "scipy",
   "smt",
-  "wisdem",
+  "wisdem>4.0.4",
 ]
 
 # List additional groups of dependencies here (e.g. development
@@ -91,7 +91,7 @@ docs = ["sphinx",
 # maintainers, and where to support the project financially. The key is
 # what's used to render the link text on PyPI.
 [project.urls]  # Optional
-"Homepage" = "https://github.com/WISDEM/WEIS"
+"Homepage" = "https://github.com/NLRWindSystems/WEIS"
 "Documentation" = "https://weis.readthedocs.io"
 
 [project.scripts]

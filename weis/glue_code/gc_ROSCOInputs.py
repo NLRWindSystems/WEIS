@@ -1,4 +1,6 @@
-def assign_ROSCO_values(wt_opt, modeling_options, opt_options):
+import numpy as np
+
+def assign_ROSCO_values(wt_opt, wt_init, modeling_options, opt_options):
 
     rosco_init_options = modeling_options["ROSCO"]
 
