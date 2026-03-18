@@ -15,6 +15,7 @@ dependencies:
   - openfast-io==4.2
   - pyopenfast==4.2
   - openraft>=2.0.3
+  - openmdao==3.42
   - osqp  
   - pcrunch>=2.1.5
   - pip
