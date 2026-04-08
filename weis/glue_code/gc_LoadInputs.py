@@ -70,7 +70,10 @@ class WindTurbineOntologyPythonWEIS(WindTurbineOntologyPython):
         # OpenFAST prefixes
         if self.modeling_options['General']['openfast_configuration']['OF_run_fst'] in ['','None','NONE','none']:
             self.modeling_options['General']['openfast_configuration']['OF_run_fst'] = 'weis_job'
-            
+        
+        # make the folder_output relative to the input, if it's a relative path
+        self.analysis_options['general']['folder_output'] = os.path.join(ana_opt_dir,self.analysis_options['general']['folder_output'])
+
         if self.modeling_options['General']['openfast_configuration']['OF_run_dir'] in ['','None','NONE','none']:
             self.modeling_options['General']['openfast_configuration']['OF_run_dir'] = osp.join(
                 ana_opt_dir,        # If it's a relative path, will be relative to analysis folder_output directory
