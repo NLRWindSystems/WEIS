@@ -1117,6 +1117,12 @@ class FASTLoadCases(ExplicitComponent):
         fst_vt['ElastoDyn']['TipMass(1)'] = 0.
         fst_vt['ElastoDyn']['TipMass(2)'] = 0.
         fst_vt['ElastoDyn']['TipMass(3)'] = 0.
+        fst_vt['ElastoDyn']['PBrIner(1)'] = 0.
+        fst_vt['ElastoDyn']['PBrIner(2)'] = 0.
+        fst_vt['ElastoDyn']['PBrIner(3)'] = 0.
+        fst_vt['ElastoDyn']['BlPIner(1)'] = 0.
+        fst_vt['ElastoDyn']['BlPIner(2)'] = 0.
+        fst_vt['ElastoDyn']['BlPIner(3)'] = 0.
 
         tower_base_height = max(float(inputs['tower_base_height'][0]), float(inputs["platform_total_center_of_mass"][2]))
         fst_vt['ElastoDyn']['TowerBsHt'] = tower_base_height # Height of tower base above ground level [onshore] or MSL [offshore] (meters)
@@ -1135,6 +1141,8 @@ class FASTLoadCases(ExplicitComponent):
             fst_vt['ElastoDyn']['PtfmCMxt'] = float(inputs["platform_total_center_of_mass"][0])
             fst_vt['ElastoDyn']['PtfmCMyt'] = float(inputs["platform_total_center_of_mass"][1])
             fst_vt['ElastoDyn']['PtfmCMzt'] = float(inputs["platform_total_center_of_mass"][2])
+            fst_vt['ElastoDyn']['PtfmRefxt'] = 0. # Downwind distance from the ground level [onshore] or MSL [offshore] to the platform reference point (meters)
+            fst_vt['ElastoDyn']['PtfmRefyt'] = 0. # Lateral distance from the ground level [onshore] or MSL [offshore] to the platform reference point (meters)
             fst_vt['ElastoDyn']['PtfmRefzt'] = 0. # Vertical distance from the ground level [onshore] or MSL [offshore] to the platform reference point (meters)
 
         else:
@@ -1151,6 +1159,8 @@ class FASTLoadCases(ExplicitComponent):
             fst_vt['ElastoDyn']['PtfmCMxt'] = 0.
             fst_vt['ElastoDyn']['PtfmCMyt'] = 0.
             fst_vt['ElastoDyn']['PtfmCMzt'] = float(inputs['tower_base_height'][0])
+            fst_vt['ElastoDyn']['PtfmRefxt'] = 0. # Downwind distance from the ground level [onshore] or MSL [offshore] to the platform reference point (meters)
+            fst_vt['ElastoDyn']['PtfmRefyt'] = 0. # Lateral distance from the ground level [onshore] or MSL [offshore] to the platform reference point (meters)
             fst_vt['ElastoDyn']['PtfmRefzt'] = tower_base_height # Vertical distance from the ground level [onshore] or MSL [offshore] to the platform reference point (meters)
 
 

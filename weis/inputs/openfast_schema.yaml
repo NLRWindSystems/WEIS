@@ -1108,6 +1108,10 @@ properties:
                         type: boolean
                         default: True
                         description: First edgewise blade mode DOF (flag)
+                    PitchDOF:
+                        type: boolean
+                        default: True
+                        description: Blade pitch DOF (flag)
                     TeetDOF:
                         type: boolean
                         default: False
@@ -1779,9 +1783,9 @@ properties:
                 properties:
                     damp_type:
                         type: integer
-                        enum: [0, 1]
+                        enum: [0, 1, 2]
                         default: 1
-                        description: Damping type, 0 no damping; 1 damped
+                        description: Damping type, 0 no damping; 1 stiffness proportional damping; 2 modal damping
                     mu1:
                         type: number
                         minimum: 0.0
@@ -1818,6 +1822,16 @@ properties:
                         maximum: 1.
                         default: 1.e-4
                         description: Stiffness proportional damping coefficient in torsional direction (around z). mu6 is often assumed equal to mu3.
+                    n_modes:
+                        type: integer
+                        minimum: 0
+                        maximum: 100
+                        default: 6
+                        description: Number of modal damping coefficients (-). Only used when damp_type=2
+                    zeta:
+                        type: array
+                        default: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+                        description: Modal damping coefficients (-). Only used when damp_type=2
             HydroDyn: &ofhydrodyn
                 type: object
                 default: {}
