@@ -12,9 +12,9 @@ dependencies:
   - nlopt
   - numpydoc
   - numpy
-  - openfast==4.2
-  - openfast-io==4.2
-  - pyopenfast==4.2
+  - openfast==5.0.0
+  - openfast-io==5.0.0
+  - pyopenfast==5.0.0
   - openraft>=2.0.3
   - openmdao==3.42
   - osqp  
@@ -34,7 +34,7 @@ dependencies:
     - dearpygui
     - orbit-nrel
     - smt
-    - windIO>=2.0.1
+    - windIO>=2.1.1
     - wombat>=0.13.1
     # - git+https://github.com/NLRWindSystems/RAFT.git@dev
 # Needs to be done outside of environment file:
