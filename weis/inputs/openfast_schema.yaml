@@ -2036,6 +2036,12 @@ properties:
                             type: number
                             minItems: 1
                         description: The yt offset of the center of buoyancy (COB) from the platform reference point (meters) [only used when PotMod=1]
+                    NAddDOF:
+                        type: integer
+                        minimum: 0
+                        maximum: 6
+                        default: 0
+                        description: Number of additional generalized DOF of each WAMIT body (-) [1 to NBody] [>=0; =0 if NBody>1; only used when PotMod=1]
                     MnDrift:
                         type: integer
                         enum: [0, 7, 8, 9, 10, 11, 12]
@@ -2113,6 +2119,11 @@ properties:
                         enum: [0, 2]
                         default: 0
                         description: 'Method of computing distributed added-mass force. (0: Only and always on nodes below SWL at the undisplaced position. 2: Up to the instantaneous free surface) [overwrite to 0 when WaveMod = 0 or 6 or when WaveStMod = 0 in SeaState]'
+                    HstMod:
+                        type: integer
+                        enum: [0, 1]
+                        default: 1
+                        description: 'Method of computing hydrostatic loads. (0: Up to the still water level. 1: Up to the instantaneous free surface) [overwrite to 0 when WaveStMod = 0 in SeaState]'
                     NMOutputs:
                         type: integer
                         minimum: 0
