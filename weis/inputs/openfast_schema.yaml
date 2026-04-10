@@ -33,6 +33,11 @@ properties:
                         maximum: 10.0
                         unit: s
                         description: Integration time step (s)
+                    ModCoupling:
+                        type: integer
+                        enum: [1,2,3]
+                        default: 3
+                        description: Module coupling method (switch) {1=loose; 2=tight with fixed Jacobian updates (DT_UJac); 3=tight with automatic Jacobian updates} 
                     InterpOrder:
                         type: string
                         enum: ['1','2', linear, Linear, LINEAR, quadratic, Quadratic, QUADRATIC]
@@ -44,6 +49,24 @@ properties:
                         minimum: 0
                         maximum: 10
                         description: Number of correction iterations (-) {0=explicit calculation, i.e., no corrections}
+                    RhoInf:
+                        type: number
+                        default: 0.0
+                        minimum: 0.0
+                        maximum: 1.0
+                        description: Numerical damping parameter for tight coupling generalized-alpha integrator (-)
+                    ConvTol:
+                        type: number
+                        default: 1e-4
+                        minimum: 0.0
+                        maximum: 1e-2
+                        description: Convergence iteration error tolerance for tight coupling generalized alpha integrator (-)
+                    MaxConvIter:
+                        type: integer
+                        default: 6
+                        minimum: 1
+                        maximum: 100
+                        description: Maximum number of convergence iterations for tight coupling generalized alpha integrator (-)
                     DT_UJac:
                         type: number
                         default: 99999.0
@@ -57,6 +80,12 @@ properties:
                         minimum: 0.0
                         maximum: 1e9
                         description: Scaling factor used in Jacobians (-)
+                    NRotors:
+                        type: integer
+                        default: 1
+                        minimum: 1
+                        maximum: 10
+                        description: Number of rotors in turbine (-)
                     CompElast:
                         type: integer
                         enum: [0,1,2]
@@ -1079,6 +1108,18 @@ properties:
                         # minimum: 0.
                         # maximum: 10.
                         description: Turbulence buoyancy coefficient
+                    TwrCp:
+                        type: number
+                        default: 0.0
+                        # minimum: 0.
+                        # maximum: 10.
+                        description: Tower dynamic pressure coefficient
+                    TwrCa:
+                        type: number
+                        default: 0.0
+                        # minimum: 0.
+                        # maximum: 10.
+                        description: Tower added mass coefficient
                     SumPrint: *sumprint
             ElastoDyn: &ofelastodyn
                 type: object
@@ -2331,19 +2372,82 @@ properties:
                         unit: s
                         minimum: 0.
                         description: Time to enable active pitch control (s) [unused when PCMode=0]
-                    TPitManS1:
+                    PitNeut(1):
+                        type: number
+                        unit: deg
+                        default: 0.
+                        minimum: -180
+                        maximum: +180
+                        description: Blade 1 neutral pitch position--pitch spring moment is zero at this pitch (degrees)
+                    PitNeut(2):
+                        type: number
+                        unit: deg
+                        default: 0.
+                        minimum: -180
+                        maximum: +180
+                        description: Blade 2 neutral pitch position--pitch spring moment is zero at this pitch (degrees)
+                    PitNeut(3):
+                        type: number
+                        unit: deg
+                        default: 0.
+                        minimum: -180
+                        maximum: +180
+                        description: Blade 3 neutral pitch position--pitch spring moment is zero at this pitch (degrees)
+                    PitSpr(1):
+                        type: number
+                        unit: N-m/rad
+                        default: 0.
+                        minimum: 0.
+                        maximum: 1000.
+                        description: Blade 1 pitch spring constant (N-m/rad)
+                    PitSpr(2):
+                        type: number
+                        unit: N-m/rad
+                        default: 0.
+                        minimum: 0.
+                        maximum: 1000.
+                        description: Blade 2 pitch spring constant (N-m/rad)
+                    PitSpr(3):
+                        type: number
+                        unit: N-m/rad
+                        default: 0.
+                        minimum: 0.
+                        maximum: 1000.
+                        description: Blade 3 pitch spring constant (N-m/rad)
+                    PitDamp(1):
+                        type: number
+                        unit: N-m/(rad/s)
+                        default: 0.
+                        minimum: 0.
+                        maximum: 1000.
+                        description: Blade 1 pitch damping constant (N-m/(rad/s))
+                    PitDamp(2):
+                        type: number
+                        unit: N-m/(rad/s)
+                        default: 0.
+                        minimum: 0.
+                        maximum: 1000.
+                        description: Blade 2 pitch damping constant (N-m/(rad/s))
+                    PitDamp(3):
+                        type: number
+                        unit: N-m/(rad/s)
+                        default: 0.
+                        minimum: 0.
+                        maximum: 1000.
+                        description: Blade 3 pitch damping constant (N-m/(rad/s))
+                    TPitManS(1):
                         type: number
                         minimum: 0.
                         unit: s
                         default: 99999.
                         description: Time to start override pitch maneuver for blade 1 and end standard pitch control (s)
-                    TPitManS2:
+                    TPitManS(2):
                         type: number
                         minimum: 0.
                         unit: s
                         default: 99999.
                         description: Time to start override pitch maneuver for blade 2 and end standard pitch control (s)
-                    TPitManS3:
+                    TPitManS(3):
                         type: number
                         minimum: 0.
                         unit: s

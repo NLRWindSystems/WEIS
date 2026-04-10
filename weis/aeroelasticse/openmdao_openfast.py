@@ -745,6 +745,10 @@ class FASTLoadCases(ExplicitComponent):
             fst_vt['AeroDyn']['TwrTI'] = [fst_vt['AeroDyn']['TwrTI']] * len(fst_vt['AeroDyn']['TwrElev'])
         if not hasattr(fst_vt['AeroDyn']['TwrCb'],'__len__'):
             fst_vt['AeroDyn']['TwrCb'] = [fst_vt['AeroDyn']['TwrCb']] * len(fst_vt['AeroDyn']['TwrElev'])
+        if not hasattr(fst_vt['AeroDyn']['TwrCp'],'__len__'):
+            fst_vt['AeroDyn']['TwrCp'] = [fst_vt['AeroDyn']['TwrCp']] * len(fst_vt['AeroDyn']['TwrElev'])
+        if not hasattr(fst_vt['AeroDyn']['TwrCa'],'__len__'):
+            fst_vt['AeroDyn']['TwrCa'] = [fst_vt['AeroDyn']['TwrCa']] * len(fst_vt['AeroDyn']['TwrElev'])
         
         # Apply modeling overrides for faster testing
         if modopt['General']['test_mode']:
@@ -1295,6 +1299,17 @@ class FASTLoadCases(ExplicitComponent):
         fst_vt['AeroDynBlade']['BlTwist']  = inputs['theta']
         fst_vt['AeroDynBlade']['BlChord']  = inputs['chord']
         fst_vt['AeroDynBlade']['BlAFID']   = np.asarray(range(1,self.n_span+1))
+
+        # AeroDyn inputs listed starting in OpenFAST v5.0.0
+        fst_vt['AeroDynBlade']['t_c'] = np.zeros_like(r)
+        fst_vt['AeroDynBlade']['BlCb'] = np.zeros_like(r)
+        fst_vt['AeroDynBlade']['BlCenBn'] = np.zeros_like(r)
+        fst_vt['AeroDynBlade']['BlCenBt'] = np.zeros_like(r)
+        fst_vt['AeroDynBlade']['BlCpn'] = np.zeros_like(r)
+        fst_vt['AeroDynBlade']['BlCpt'] = np.zeros_like(r)
+        fst_vt['AeroDynBlade']['BlCan'] = np.zeros_like(r)
+        fst_vt['AeroDynBlade']['BlCat'] = np.zeros_like(r)
+        fst_vt['AeroDynBlade']['BlCam'] = np.zeros_like(r)
 
         # TODO: Check these additional values required for MHK applications, setting them to zero for now
         fst_vt['AeroDynBlade']['BlCb'] = np.zeros(self.n_span)
