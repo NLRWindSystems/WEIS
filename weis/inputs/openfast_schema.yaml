@@ -131,11 +131,23 @@ properties:
                         enum: [0,1,2]
                         default: 0
                         description: Compute ice loads (switch) {0=None; 1=IceFloe; 2=IceDyn}
+                    CompSoil:
+                        type: integer
+                        enum: [0,1]
+                        default: 0
+                        description: Compute soil-structural dynamics (switch) {0=None; 1=SoilDyn}
                     MHK:
                         type: integer
                         enum: [0,1,2]
                         default: 0
                         description: MHK turbine type (switch) {0=Not an MHK turbine; 1=Fixed MHK turbine; 2=Floating MHK turbine}
+                    MirrorRotor:
+                        type: array
+                        description: List of flags to reverse rotor rotation direction [1 to NRotors] {false=Normal, true=Mirror}
+                        default: [False]
+                        items:
+                            type: boolean
+                            uniqueItems: False
                     Gravity:
                         type: number
                         default: 9.81
@@ -225,6 +237,10 @@ properties:
                         type: string
                         default: none
                         description: Name of file containing ice input parameters (quoted string)
+                    SoilFile:
+                        type: string
+                        default: none
+                        description: Name of the file containing the SoilDyn input parameters (quoted string)
                     SumPrint: &sumprint
                         type: boolean
                         default: False
@@ -1151,7 +1167,7 @@ properties:
                         description: First edgewise blade mode DOF (flag)
                     PitchDOF:
                         type: boolean
-                        default: True
+                        default: False
                         description: Blade pitch DOF (flag)
                     TeetDOF:
                         type: boolean
