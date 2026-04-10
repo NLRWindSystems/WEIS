@@ -2940,6 +2940,11 @@ properties:
                         enum: [0, 1, 2, 3]
                         default: 0
                         description: Model for stretching incident wave kinematics to instantaneous free surface {0 = none=no stretching, 1 = vertical stretching, 2 = extrapolation stretching, 3 = Wheeler stretching} (switch) [unused when WaveMod=0 or when PotMod/=0]
+                    WvCrntMod:
+                        type: integer
+                        enum: [0, 1, 2]
+                        default: 0
+                        description: 'Combined wave-current modeling option {0: simple superposition, 1: include Doppler effect, 2: include both Doppler effect and wave amplitude/spectrum scaling} (switch) [unused when WaveMod=0 or WaveMod=6. Also unused when there is no current from SeaState (CurrMod=0) or from InflowWind if MHK.]'
                     WaveTMax:
                         type: number
                         default: 3600

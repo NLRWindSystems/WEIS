@@ -1247,7 +1247,6 @@ class FASTLoadCases(ExplicitComponent):
         fst_vt['ElastoDynBlade']['BlFract']    = (inputs['r']-inputs['Rhub'])/(inputs['Rtip']-inputs['Rhub'])
         fst_vt['ElastoDynBlade']['BlFract'][0] = 0.
         fst_vt['ElastoDynBlade']['BlFract'][-1]= 1.
-        fst_vt['ElastoDynBlade']['PitchAxis']  = inputs['le_location'] / inputs['chord']
         fst_vt['ElastoDynBlade']['StrcTwst']   = inputs['theta'] # to do: structural twist is not nessessarily (nor likely to be) the same as aero twist
         fst_vt['ElastoDynBlade']['BMassDen']   = inputs['blade:rhoA']
         fst_vt['ElastoDynBlade']['FlpStff']    = inputs['blade:EIyy']
@@ -2666,7 +2665,8 @@ class FASTLoadCases(ExplicitComponent):
                     StC_files.append(StC_filename)
 
                     # Write StC Input, add filename to case_inputs
-
+                    stc_writer.fst_vt['Fst'] = {}
+                    stc_writer.fst_vt['Fst']['ServoFile'] = fst_vt['Fst']['ServoFile']
                     stc_writer.write_StC(StC_i,StC_filename)
 
                     # Add StC file to case_inputs
