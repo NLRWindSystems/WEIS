@@ -263,7 +263,7 @@ class WindPark(om.Group):
             
             # Peak shaving DV should also influence rotor power in WISDEM
             if not modeling_options['OpenFAST']['from_openfast']:
-                self.connect(f'tune_rosco_ivc.ps_percent', "rotorse.rp.powercurve.ps_percent")
+                self.connect(f'tune_rosco_ivc.ps_percent', "rotorse.rp.powercurve.peak_thrust_shaving")
 
             # Connect generic ivc/dvs
             for dv in rosco_tuning_dvs:
