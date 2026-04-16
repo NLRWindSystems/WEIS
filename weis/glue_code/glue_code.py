@@ -119,6 +119,8 @@ class WindPark(om.Group):
         if "ps_percent" not in rosco_tuning_dv_names:
             tune_rosco_ivc.add_output("ps_percent", val=modeling_options["ROSCO"]["ps_percent"],  desc="Peak shaving fraction [0-1], {default = 1.0}")
 
+        tune_rosco_ivc.add_output('max_pitch_rate',   val=0.0, units='rad/s',     desc='Maximum pitch rate')
+        tune_rosco_ivc.add_output('max_torque_rate',  val=0.0, units='N*m/s',     desc='Maximum generator torque rate')
         # TODO: check whether these are needed
         #tune_rosco_ivc.add_output('sd_maxpit',        val=0.0, units='rad',       desc='Maximum blade pitch angle to initiate shutdown [rad], {default = bld pitch at v_max}')
         #tune_rosco_ivc.add_output('sd_cornerfreq',    val=0.0, units='rad/s',     desc='Cutoff Frequency for first order low-pass filter for blade pitch angle [rad/s], {default = 0.41888 ~ time constant of 15s}')
@@ -127,8 +129,6 @@ class WindPark(om.Group):
         #tune_rosco_ivc.add_output('twr_freq',         val=3.2, units='rps',     desc='Tower natural frequency')
         #tune_rosco_ivc.add_output('ptfm_freq',        val=0.2, units='rad/s',     desc='Platform natural frequency')
         #tune_rosco_ivc.add_output('Kp_float',         val=0.0, units='s',         desc='Floating feedback gain')
-        #tune_rosco_ivc.add_output('max_pitch_rate',   val=0.0, units='rad/s',     desc='Maximum pitch rate')
-        #tune_rosco_ivc.add_output('max_torque_rate',  val=0.0, units='N*m/s',     desc='Maximum generator torque rate')
 
         self.add_subsystem("tune_rosco_ivc",tune_rosco_ivc)
 
