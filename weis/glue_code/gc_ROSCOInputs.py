@@ -4,11 +4,11 @@ def assign_ROSCO_values(wt_opt, wt_init, modeling_options, opt_options):
 
     rosco_init_options = modeling_options["ROSCO"]
 
+    # Control inputs from windio schema (not used in WISDEM)
+    wt_opt["tune_rosco_ivc.max_pitch_rate"] = np.radians(wt_init["control"]["max_pitch_rate"])  # windio schema is in deg/s, ROSCO uses rad/s
 
-    # Robust controller tuning
-    if opt_options['design_variables']['control']['servo']['pitch_control']['stability_margin']['flag']:
-        wt_opt['tune_rosco_ivc.stability_margin'] = rosco_init_options['linmodel_tuning']['stability_margin']
-        wt_opt['tune_rosco_ivc.omega_pc_max'] = rosco_init_options['linmodel_tuning']['omega_pc']['max']        
+    if "max_torque_rate" in wt_init["control"]:
+        wt_opt["tune_rosco_ivc.max_torque_rate"] = wt_init["control"]["max_torque_rate"]
     
     # Generic input variables
     rosco_tuning_dvs = opt_options['design_variables']['control']['rosco_tuning']

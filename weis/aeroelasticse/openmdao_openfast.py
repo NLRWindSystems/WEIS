@@ -1226,9 +1226,18 @@ class FASTLoadCases(ExplicitComponent):
                 if not np.any(inputs[f'{fass}_modes'][idir,:]):
                     logger.warning(f'WARNING: {fass} tower shape coefficients are zero which will cause errors in using ElastoDyn')
         fst_vt['ElastoDynTower']['TwFAM1Sh'] = inputs['fore_aft_modes'][0, :]  / np.sum(inputs['fore_aft_modes'][0, :])
-        fst_vt['ElastoDynTower']['TwFAM2Sh'] = inputs['fore_aft_modes'][1, :]  / np.sum(inputs['fore_aft_modes'][1, :])
         fst_vt['ElastoDynTower']['TwSSM1Sh'] = inputs['side_side_modes'][0, :] / np.sum(inputs['side_side_modes'][0, :])
+        
+        # Since the 2nd tower modes are sometimes problematic, if the DOF is not enabled, let's give it a safe, dummy value that won't cause errors in ElastoDyn
+        fst_vt['ElastoDynTower']['TwFAM2Sh'] = inputs['fore_aft_modes'][1, :]  / np.sum(inputs['fore_aft_modes'][1, :])
+        if not fst_vt['ElastoDyn']['TwFADOF2']:
+            fst_vt['ElastoDynTower']['TwFAM2Sh'] = np.zeros_like(inputs['fore_aft_modes'][1, :])
+            fst_vt['ElastoDynTower']['TwFAM2Sh'][0] = 1.0
+        
         fst_vt['ElastoDynTower']['TwSSM2Sh'] = inputs['side_side_modes'][1, :] / np.sum(inputs['side_side_modes'][1, :])
+        if not fst_vt['ElastoDyn']['TwSSDOF2']:
+            fst_vt['ElastoDynTower']['TwSSM2Sh'] = np.zeros_like(inputs['side_side_modes'][1, :])
+            fst_vt['ElastoDynTower']['TwSSM2Sh'][0] = 1.0
         
         # Calculate yaw stiffness of tower (springs in series) and use in servodyn as yaw spring constant
         k_tow_tor = inputs['tor_stff'] / np.diff(inputs['tower_z'])
