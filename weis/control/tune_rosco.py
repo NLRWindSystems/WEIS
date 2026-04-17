@@ -97,7 +97,7 @@ class TuneROSCO(ExplicitComponent):
         self.add_input('generator_efficiency', val=1.0,                  desc='Generator efficiency')
         self.add_input('TowerHt',           val=1.0,        units='m',              desc='Tower height')
         # Optional params
-        optional_params = [
+        self.optional_params = [
             'max_pitch',
             'min_pitch',
             'vs_minspd',
@@ -106,7 +106,7 @@ class TuneROSCO(ExplicitComponent):
             'ps_percent',
         ]
 
-        for param in optional_params:
+        for param in self.optional_params:
             if param in rosco_init_options:
                 self.add_input(param, val=rosco_init_options[param], desc='')
 
@@ -179,6 +179,8 @@ class TuneROSCO(ExplicitComponent):
             if 'desc' in dv:
                 ivc_desc = dv['desc']
 
+            if dv['name'] in self.optional_params:
+                continue    # these are added as optional parameters above, so skip them here
             self.add_input(dv['name'], val=dv['start'], units=ivc_units, desc=ivc_desc)
 
         # Generic DISCON inputs
@@ -242,16 +244,7 @@ class TuneROSCO(ExplicitComponent):
             rosco_init_options['omega_flp'] = 0.0
             rosco_init_options['zeta_flp']  = 0.0
 
-        # Optional parameters
-        optional_params = [
-            'max_pitch',
-            'min_pitch',
-            'vs_minspd',
-            'ss_vsgain',
-            'ss_pcgain',
-            'ps_percent',
-        ]
-        for param in optional_params:
+        for param in self.optional_params:
             if param in rosco_init_options:
                 rosco_init_options[param] = float(inputs[param][0])
 
@@ -269,7 +262,10 @@ class TuneROSCO(ExplicitComponent):
         # Generic inputs
         rosco_tuning_dvs = self.opt_options['design_variables']['control']['rosco_tuning']
         for dv in rosco_tuning_dvs:
-            rosco_init_options[dv['name']] = inputs[dv['name']]
+            if len(inputs[dv['name']]) > 1:
+                rosco_init_options[dv['name']] = inputs[dv['name']]
+            else:
+                rosco_init_options[dv['name']] = float(inputs[dv['name']][0])
 
         # Generic DISCON Inputs
         discon_dvs = self.opt_options['design_variables']['control']['discon']
