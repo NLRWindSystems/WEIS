@@ -600,7 +600,7 @@ def toggle(click, is_open):
 def store_dataframes(var_files):
     dfs = {}
     for _, file_path in var_files.items():
-        df = pd.read_csv(file_path, skiprows=[0,1,2,3,4,5,7], sep='\s+')
+        df = pd.read_csv(file_path, skiprows=[0,1,2,3,4,5,7], sep=r'\s')
         dfs[file_path] = df.to_dict('records')
     
     return dfs
