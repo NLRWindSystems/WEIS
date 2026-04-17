@@ -82,7 +82,14 @@ def set_modopt_test_runs(fname_input_modeling, modeling_override, analysis_overr
 
 
 def weis_main(fname_wt_input, fname_modeling_options, fname_analysis_options,
-              geometry_override={}, modeling_override={}, analysis_override={}, test_run = False):
+              geometry_override=None, modeling_override=None, analysis_override=None, test_run = False):
+
+    if geometry_override is None:
+        geometry_override = {}
+    if modeling_override is None:
+        modeling_override = {}
+    if analysis_override is None:
+        analysis_override = {}
 
     tt = time.time()
     maxnP = get_max_procs()
