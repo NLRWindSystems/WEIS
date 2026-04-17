@@ -108,9 +108,9 @@ constraints:
     control:
         Max_PtfmPitch:
             flag: True
-            max: 6.0
+            max: 7.0
         Std_PtfmPitch:
-            flag: True
+            flag: False
             max: 1.25  # Same as IEA-15MW with same DLCs
         nacelle_acceleration:
             flag: True
