@@ -55,10 +55,10 @@ jobs:
       
 
       
-      # - name: feature branches of other codes
-      #   run: |
-      #     conda remove --force wisdem
-      #     pip install https://github.com/NLRWindSystems/WISDEM/archive/develop.zip
+      - name: feature branches of other codes
+        run: |
+          conda remove --force wisdem
+          pip install https://github.com/dzalkind/WISDEM/archive/nsga2_again.zip
 
       # Don't delete after this
 
