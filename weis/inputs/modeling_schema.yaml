@@ -1113,6 +1113,10 @@ properties:
                 type: string
                 description: yaml file to tune the ROSCO controller, only used for control-only optimizations using an OpenFAST model.  Absolute path or relative to modeling input.
                 default: none
+            flag:
+                type: boolean
+                default: True
+                description: Whether or not to use ROSCO for control modeling and optimization.  If False, WEIS will attempt to use a pre-defined DISCON, but this functionality has known gaps. If True, the ROSCO controller will be built and tuned using the tuning_yaml input.
 
     OL2CL:
         type: object
