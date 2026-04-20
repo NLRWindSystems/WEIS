@@ -77,6 +77,10 @@ The installation instructions below use the environment name, "weis-env," but an
 
 For Windows users, we recommend installing `git` and the `m264` packages in separate environments as some of the libraries appear to conflict such that WISDEM cannot be successfully built from source.  The `git` package is best installed in the `base` environment.
 
+For macOS users (Apple Silicon), if you encounter an `AttributeError: partially initialized module 'polars'` error, it is caused by a conflict between the `polars` and `polars-lts-cpu` packages installed by a dependency (`wombat`). Run the following after installation to resolve it:
+
+        pip uninstall -y polars-lts-cpu
+
 ## Developer guide
 
 If you plan to contribute code to WEIS, please first consult the [developer guide](https://weis.readthedocs.io/en/latest/how_to_contribute_code.html).
