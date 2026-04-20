@@ -25,9 +25,6 @@ dependencies:
   - rosco>=2.10.1
   - trimesh
   - wisdem>=4.1
-  - compilers # not win
-  - petsc4py # not win
-  - mpi4py # not win
   - pip:
     - control
     - dash-bootstrap-components
