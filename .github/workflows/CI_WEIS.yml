@@ -23,6 +23,7 @@ jobs:
       - uses: actions/checkout@v5
     
       - name: Install conda/mamba
+        timeout-minutes: 30
         uses: conda-incubator/setup-miniconda@v3
         # https://github.com/marketplace/actions/setup-miniconda
         with:
@@ -44,15 +45,21 @@ jobs:
 
       # Enable the next entries to use feature branches of dependencies for CI testing
 
+      - name: Debug solver - check problem packages
+        run: |
+          mamba search openfast --channel conda-forge | tail -5
+          mamba search wisdem --channel conda-forge | tail -5
+          mamba install --dry-run --file environment.yml -y --verbose 2>&1 | tail -50 || true
+
       - name: Add dependencies ubuntu specific
         if: false == contains( matrix.os, 'windows')
         run: |
-          conda install -y compilers
+          mamba install -y --no-update-deps compilers
 
       - name: Add dependencies windows specific
         if: contains( matrix.os, 'windows')
         run: |
-          conda install -y gfortran libpython
+          mamba install -y --no-update-deps gfortran libpython
           pip install --no-deps control
       
 
@@ -73,7 +80,7 @@ jobs:
         if: contains( matrix.os, 'ubuntu')
         run: |
             sudo apt install -y libglu1-mesa
-            conda install -c conda-forge -y petsc4py mpi4py pyoptsparse mpich
+            mamba install -c conda-forge -y --no-update-deps petsc4py mpi4py pyoptsparse mpich
             pip install pygmsh==7.1.17
             pip install https://github.com/LHEEA/meshmagick/archive/master.zip  
             which -a mpiexec
@@ -81,7 +88,7 @@ jobs:
       
       - name: Add test packages
         run: |
-            conda install -y pytest pytest-cov coveralls treon
+            mamba install -y --no-update-deps pytest pytest-cov coveralls treon
             
       - name: Show custom environment
         run: |
