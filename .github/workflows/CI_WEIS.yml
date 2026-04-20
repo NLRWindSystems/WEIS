@@ -64,7 +64,11 @@ jobs:
 
       # Don't delete after this
 
-      
+      - name: Fix polars on macOS (remove polars-lts-cpu conflict)
+        if: contains( matrix.os, 'macOS')
+        run: |
+          pip uninstall -y polars-lts-cpu || true
+
       - name: Add dependencies ubuntu specific
         if: contains( matrix.os, 'ubuntu')
         run: |
