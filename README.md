@@ -70,7 +70,7 @@ The installation instructions below use the environment name, "weis-env," but an
 
 3. If you are on Kestrel, first load some modules and then install:
         
-        module load intel-oneapi-compilers intel-oneapi-mpi intel-oneapi-mkl conda
+        module load intel-oneapi-compilers intel-oneapi-mpi intel-oneapi-mkl
         pip install --no-deps -e . -v
 
 **NOTE:** To use WEIS again after installation is complete, you will always need to activate the conda environment first with `conda activate weis-env` (or `source activate weis-env`). On Kestrel, make sure to reload the necessary modules
