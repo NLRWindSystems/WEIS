@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "macOS-14", "windows-latest"] # mac13 is intel, mac-14 arm
+        os: ["ubuntu-latest"] #, "macOS-14", "windows-latest"] # mac13 is intel, mac-14 arm
         python-version: ["3.12","3.13","3.14"]
         
     steps:
@@ -50,7 +50,7 @@ jobs:
       # - name: Add dependencies windows specific
       #   if: contains( matrix.os, 'windows')
       #   run: |
-      #     conda install -y gfortran libpython
+      #     conda install -y gfortran gcc 
       #     pip install --no-deps control
       
 
@@ -67,7 +67,7 @@ jobs:
         if: contains( matrix.os, 'ubuntu')
         run: |
             sudo apt install -y libglu1-mesa
-            conda install -c conda-forge -y petsc4py mpi4py pyoptsparse mpich
+            conda install -y petsc4py mpi4py pyoptsparse openmpi
             pip install pygmsh==7.1.17
             pip install https://github.com/LHEEA/meshmagick/archive/master.zip  
             which -a mpiexec
