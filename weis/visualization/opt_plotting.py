@@ -244,35 +244,3 @@ def plot_convergence(data, vars_to_plot, title_prefix, bounds=None,
     plt.close(fig)
     return fig
 
-
-def plot_tradeoff(sweep_values, metric_values, xlabel, ylabel, title,
-                  save_path=None):
-    """Plot a single trade-off curve from a parameter sweep.
-
-    Parameters
-    ----------
-    sweep_values : array-like
-        The independent variable (e.g. constraint limit values).
-    metric_values : array-like
-        The dependent variable (e.g. final objective or constraint).
-    xlabel, ylabel, title : str
-        Axis labels and figure title.
-    save_path : str, optional
-        If given, the figure is saved to this path.
-
-    Returns
-    -------
-    fig : matplotlib.figure.Figure
-    """
-    fig, ax = plt.subplots(figsize=(7, 4))
-    ax.plot(sweep_values, metric_values, marker="o", ms=7)
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-    ax.set_title(title)
-    ax.grid(True)
-    plt.tight_layout()
-    if save_path:
-        fig.savefig(save_path, dpi=150, bbox_inches="tight")
-    plt.close(fig)
-    return fig
-
