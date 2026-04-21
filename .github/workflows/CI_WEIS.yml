@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest"] #, "macOS-14", "windows-latest"] # mac13 is intel, mac-14 arm
+        os: ["ubuntu-latest", "macOS-14", "windows-latest"] # mac13 is intel, mac-14 arm
         python-version: ["3.12","3.13","3.14"]
         
     steps:
@@ -62,7 +62,7 @@ jobs:
 
       # Don't delete after this
 
-      
+      # Note- could add mpich through conda, but takes forever to resolve the environment in testing
       - name: Add dependencies ubuntu specific
         if: contains( matrix.os, 'ubuntu')
         run: |
