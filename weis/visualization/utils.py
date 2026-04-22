@@ -183,6 +183,132 @@ def load_vars_file(fn_vars):
     return vars
 
 
+def load_problem_vars_yaml(fn_vars):
+    """
+    Load upper/lower bounds from a problem_vars.yaml file written by WEIS.
+
+    Parameters
+    ----------
+    fn_vars : str
+        Path to the problem_vars.yaml file.
+
+    Returns
+    -------
+    bounds : dict
+        ``{var_name: {"lower": float | None, "upper": float | None}}``
+        Values whose magnitude exceeds 1e28 are treated as unconstrained
+        (returned as ``None``).
+    """
+    INF = 1e28
+    bounds = {}
+    if not os.path.isfile(fn_vars):
+        return bounds
+    with open(fn_vars) as f:
+        pv = yaml.safe_load(f)
+    for section in ("design_vars", "constraints"):
+        for entry in pv.get(section, []):
+            meta = entry[1]  # each entry is [name_str, meta_dict]
+            name = meta["name"]
+            lo = meta.get("lower", None)
+            hi = meta.get("upper", None)
+            bounds[name] = {
+                "lower": float(lo) if lo not in (None, "", "''") and abs(float(lo)) < INF else None,
+                "upper": float(hi) if hi not in (None, "", "''") and abs(float(hi)) < INF else None,
+            }
+    return bounds
+
+
+def load_bounds_from_analysis_yaml(analysis_yaml_path):
+    """
+    Build a bounds dict from a WEIS/WISDEM analysis_options.yaml file.
+
+    Maps common tower design variable and constraint entries to their
+    OpenMDAO variable names so that bound lines can be drawn on
+    convergence plots.
+
+    Parameters
+    ----------
+    analysis_yaml_path : str
+        Path to the analysis_options.yaml file.
+
+    Returns
+    -------
+    bounds : dict
+        ``{om_var_name: {"lower": float | None, "upper": float | None}}``
+    """
+    bounds = {}
+    if not os.path.isfile(analysis_yaml_path):
+        return bounds
+    with open(analysis_yaml_path) as f:
+        opts = yaml.safe_load(f)
+
+    # --- Design variable bounds ---
+    dv = opts.get("design_variables", {}).get("tower", {})
+    if dv.get("layer_thickness", {}).get("flag"):
+        bounds["tower.layer_thickness"] = {
+            "lower": dv["layer_thickness"].get("lower_bound"),
+            "upper": dv["layer_thickness"].get("upper_bound"),
+        }
+    if dv.get("outer_diameter", {}).get("flag"):
+        bounds["tower.diameter"] = {
+            "lower": dv["outer_diameter"].get("lower_bound"),
+            "upper": dv["outer_diameter"].get("upper_bound"),
+        }
+
+    # --- Constraint bounds ---
+    tc = opts.get("constraints", {}).get("tower", {})
+
+    # Normalized constraints (upper = 1.0)
+    for yaml_key, om_name in [
+        ("stress",           "towerse.post.constr_stress"),
+        ("global_buckling",  "towerse.post.constr_global_buckling"),
+        ("shell_buckling",   "towerse.post.constr_shell_buckling"),
+        ("slope",            "towerse.slope"),
+        ("thickness_slope",  "towerse.thickness_slope"),
+    ]:
+        if tc.get(yaml_key, {}).get("flag"):
+            bounds[om_name] = {"lower": None, "upper": 1.0}
+
+    # d_to_t has explicit lower/upper
+    if tc.get("d_to_t", {}).get("flag"):
+        bounds["towerse.constr_d_to_t"] = {
+            "lower": tc["d_to_t"].get("lower_bound"),
+            "upper": tc["d_to_t"].get("upper_bound"),
+        }
+
+    # taper has explicit lower
+    if tc.get("taper", {}).get("flag"):
+        bounds["towerse.constr_taper"] = {
+            "lower": tc["taper"].get("lower_bound"),
+            "upper": None,
+        }
+
+    # frequency_1 has lower/upper
+    if tc.get("frequency_1", {}).get("flag"):
+        bounds["floatingse.structural_frequencies"] = {
+            "lower": tc["frequency_1"].get("lower_bound"),
+            "upper": tc["frequency_1"].get("upper_bound"),
+        }
+
+    # --- Floating platform constraints ---
+    fc = opts.get("constraints", {}).get("floating", {})
+    for yaml_key, om_name in [
+        ("Max_PtfmPitch",  "raft.Max_PtfmPitch"),
+        ("Mean_PtfmPitch", "raft.Mean_PtfmPitch"),
+        ("max_nac_accel",  "raft.max_nac_accel"),
+        ("heave_period",   "raft.heave_period"),
+        ("pitch_period",   "raft.pitch_period"),
+    ]:
+        entry = fc.get(yaml_key, {})
+        if entry.get("flag"):
+            bounds[om_name] = {
+                "lower": entry.get("lower_bound"),
+                "upper": entry.get("upper_bound"),
+            }
+
+    return bounds
+
+
 def compare_om_data(
     dataOM_1,
     dataOM_2,
