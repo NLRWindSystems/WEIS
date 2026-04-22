@@ -73,7 +73,7 @@ constraints:
             lower_bound: 0.37
     floating:
         survival_heel:
-            upper_bound: 0.17453292519943295 # 10 deg
+            upper_bound: 10.0 # deg
         metacentric_height:
             flag: False
             lower_bound: 15.0

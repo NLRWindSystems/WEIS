@@ -5,6 +5,8 @@ channels:
 dependencies:
   - bs4
   - dash
+  - dash-bootstrap-components
+  - dash-mantine-components
   - dill
   - jsonmerge
   - mat4py
@@ -16,20 +18,19 @@ dependencies:
   - openfast-io==4.2
   - pyopenfast==4.2
   - openraft>=2.0.3
-  - openmdao==3.42
+  - openmdao
   - osqp
   - pcrunch>=2.1.5
   - pip
   - pyhams>=1.3
   - pyvista
   #- pyoptsparse
+  - pyvista
   - rosco>=2.10.1
   - trimesh
   - wisdem>=4.2
   - pip:
     - control
-    - dash-bootstrap-components
-    - dash-mantine-components
     - dash-vtk
     - dearpygui
     - smt
