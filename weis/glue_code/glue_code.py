@@ -971,10 +971,18 @@ class WindPark(om.Group):
                     self.connect("rosco_turbine.hub_height", "aeroelastic.hub_height")
                     self.connect("rosco_turbine.twr_freq", "sse_tune.tune_rosco.twr_freq")
                 else:
-                    # TODO: how should we make these connections? We should be able to fill with assembly info or something
-                    # R and hub height for wind file generation, but the user can input GridWidth, etc. from modeling options
-                    # v_rated is an input to the dlc generator, but the user can also input the DLC 1.4, 1.5 inputs to the modeling options
+                    # No ROSCO tuning: use assembly-level inputs for hub_height and Rtip
                     # Tower frequency can be ignored
+                    self.connect("high_level_tower_props.hub_height", "aeroelastic.hub_height")
+
+                    # blade subsystem not available in from_openfast path, derive Rtip from assembly rotor_diameter
+                    self.add_subsystem("rtip_calc", om.ExecComp("Rtip = rotor_diameter / 2.0",
+                                                                 Rtip={"units": "m"},
+                                                                 rotor_diameter={"units": "m"}))
+                    self.connect("configuration.rotor_diameter_user", "rtip_calc.rotor_diameter")
+                    self.connect("rtip_calc.Rtip", "aeroelastic.Rtip")
+                    # v_rated is an input to the dlc generator, but the user can also input the DLC 1.4, 1.5 wind speds in the modeling options
+
 
                     # Generic DISCON DVs
                     for dv in discon_dvs:

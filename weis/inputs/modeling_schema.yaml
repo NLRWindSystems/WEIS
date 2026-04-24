@@ -1103,6 +1103,11 @@ properties:
                 type: object
                 default: {}
                 description: Users can add to the openfast_input_map of the DLC driver here, with key value pairs
+            rated_wind_speed:
+                type: number
+                unit: m/s
+                default: 11.4
+                description: Rated wind speed, used to define wind speed in some DLCs. This input is only used if the user is not using WISDEM to create a model or the ROSCO tuning yaml.
 
     ROSCO:
         type: object

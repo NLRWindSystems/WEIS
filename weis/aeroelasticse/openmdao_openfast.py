@@ -123,7 +123,7 @@ class FASTLoadCases(ExplicitComponent):
         # Environmental Conditions needed regardless of where model comes from
         self.add_input('V_cutin', val=0.0, units='m/s', desc='Minimum wind speed where turbine operates (cut-in)')
         self.add_input('V_cutout', val=0.0, units='m/s', desc='Maximum wind speed where turbine operates (cut-out)')
-        self.add_input('Vrated', val=0.0, units='m/s', desc='rated wind speed')
+        self.add_input('Vrated', val=np.nan, units='m/s', desc='rated wind speed')
         self.add_input('hub_height', val=0.0, units='m', desc='hub height')
         self.add_discrete_input('turbulence_class', val='A', desc='IEC turbulence class')
         self.add_discrete_input('turbine_class', val='I', desc='IEC turbine class')
@@ -2502,7 +2502,6 @@ class FASTLoadCases(ExplicitComponent):
         # Initialize the DLC generator
         cut_in = float(inputs['V_cutin'][0])
         cut_out = float(inputs['V_cutout'][0])
-        rated = float(inputs['Vrated'][0])
         ws_class = discrete_inputs['turbine_class']
         wt_class = discrete_inputs['turbulence_class']
         hub_height = float(inputs['hub_height'][0])
@@ -2511,6 +2510,13 @@ class FASTLoadCases(ExplicitComponent):
         fix_wind_seeds = modopt['DLC_driver']['fix_wind_seeds']
         fix_wave_seeds = modopt['DLC_driver']['fix_wave_seeds']
         metocean = modopt['DLC_driver']['metocean_conditions']
+        
+        # Handle inputs that may not be defined by the WISDEM model or ROSCO tuning yaml, but are needed for the regulation trajectory and DLC generation.
+        if np.isnan(inputs['Vrated'][0]):
+            logger.warning(f"Rated wind speed is not defined by the WISDEM model or the ROSCO tuning yaml. Setting to the modeling option input of {modopt['DLC_driver']['rated_wind_speed']} m/s.")
+            rated = modopt['DLC_driver']['rated_wind_speed']
+        else:
+            rated = float(inputs['Vrated'][0])
         
         # Set initial rotor speed and pitch if the WT operates in this DLC and available,
         # otherwise set pitch to 90 deg and rotor speed to 0 rpm when not operating
