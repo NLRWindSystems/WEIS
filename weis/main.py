@@ -91,6 +91,10 @@ def weis_main(fname_wt_input, fname_modeling_options, fname_analysis_options,
     if analysis_override is None:
         analysis_override = {}
 
+    # Allow environment variable to override test_run (for CI without modifying source files)
+    if not test_run and os.environ.get('WEIS_TEST_RUN', '').lower() in ('1', 'true'):
+        test_run = True
+
     tt = time.time()
     maxnP = get_max_procs()
 
