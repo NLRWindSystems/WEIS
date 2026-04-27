@@ -31,7 +31,6 @@ from openfast_io.turbsim_file   import TurbSimFile
 from weis.aeroelasticse.utils import OLAFParams, generate_wind_files
 from rosco.toolbox import control_interface as ROSCO_ci
 from pCrunch import AeroelasticOutput, FatigueParams
-from weis.control.dtqp_wrapper          import dtqp_wrapper
 from openfast_io.StC_defaults        import default_StC_vt
 from weis.aeroelasticse.CaseGen_General import case_naming
 from wisdem.inputs import load_yaml, write_yaml
@@ -912,7 +911,8 @@ class FASTLoadCases(ExplicitComponent):
                         output.to_df().to_pickle(os.path.join(self.FAST_runDirectory,sim_name+'.p'))
 
                 elif modopt['OpenFAST_Linear']['DTQP']['flag']:
-
+                    raise Exception('DTQP is an experimental feature and is not currently supported.')
+                    from weis.control.dtqp_wrapper          import dtqp_wrapper
                     dtqp_wrapper(
                         LinearTurbine, 
                         level2_disturbance, 
