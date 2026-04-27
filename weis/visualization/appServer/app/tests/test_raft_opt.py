@@ -74,7 +74,7 @@ def test_complete_raft_sublayout():
 
 def test_toggle_conv_layout():
     if not df_dict:
-        pytest.fail("No data available from preprocessing step — upstream example may have failed")
+        pytest.fail("No data available from preprocessing step (iea22_raft_opt_driver) — upstream example may have failed")
     prep_data={'log_flag': True, 'raft_flag': True}
     output = toggle_conv_layout(prep_data, opt_options, df_dict)
 
@@ -82,8 +82,8 @@ def test_toggle_conv_layout():
 
 
 def test_update_graphs():
-    if not df_dict or 0 not in df_dict:
-        pytest.fail("No data available from preprocessing step — upstream example may have failed")
+    if not df_dict:
+        pytest.fail("No data available from preprocessing step (iea22_raft_opt_driver) — upstream example may have failed")
     signaly = opt_options['conv_y']
     fig = update_graphs(signaly, [convert_dict_values_to_list(df_dict[0])])         # With some reason, its value types are not correct.. Need to correct value type for further unit test..
 
