@@ -42,16 +42,11 @@ jobs:
 
       # Enable the next entries to use feature branches of dependencies for CI testing
 
-      - name: Debug solver - check problem packages
-        run: |
-          mamba search openfast --channel conda-forge | tail -5
-          mamba search wisdem --channel conda-forge | tail -5
-          mamba install --dry-run --file environment.yml -y --verbose 2>&1 | tail -50 || true
 
-      - name: Add dependencies ubuntu specific
-        if: false == contains( matrix.os, 'windows')
-        run: |
-          mamba install -y compilers
+      # - name: Add dependencies ubuntu specific
+      #   if: false == contains( matrix.os, 'windows')
+      #   run: |
+      #     mamba install -y compilers
 
       # - name: Add dependencies windows specific
       #   if: contains( matrix.os, 'windows')
@@ -61,19 +56,14 @@ jobs:
       
 
       
-      - name: feature branches of other codes
-        run: |
-          conda remove --force wisdem
-          pip install https://github.com/dzalkind/WISDEM/archive/nsga2_again.zip
+      # - name: feature branches of other codes
+      #   run: |
+      #     conda remove --force wisdem
+      #     pip install https://github.com/dzalkind/WISDEM/archive/nsga2_again.zip
 
       # Don't delete after this
 
       # Note- could add mpich through conda, but takes forever to resolve the environment in testing
-      - name: Fix polars on macOS (remove polars-lts-cpu conflict)
-        if: contains( matrix.os, 'macOS')
-        run: |
-          pip uninstall -y polars-lts-cpu || true
-
       - name: Add dependencies ubuntu specific
         if: contains( matrix.os, 'ubuntu')
         run: |
