@@ -38,9 +38,12 @@ def recursive_merge(dict1, dict2):
             dict1[key] = value
     return dict1
 
-def set_modopt_test_runs(fname_input_modeling, modeling_override, analysis_override):
+def set_modopt_test_runs(fname_input_modeling, fname_input_analysis, modeling_override, analysis_override):
     # Load modeling options
     modeling_options = sch.load_modeling_yaml(fname_input_modeling)
+
+    # Load analysis options to check current solver
+    analysis_options = sch.load_analysis_yaml(fname_input_analysis)
 
     test_modeling_overrides = {}
     test_analysis_overrides = {}
@@ -75,7 +78,12 @@ def set_modopt_test_runs(fname_input_modeling, modeling_override, analysis_overr
     test_analysis_overrides['driver'] = {}
     test_analysis_overrides['driver']['optimization'] = {}
     test_analysis_overrides['driver']['optimization']['max_iter'] = 1
-    test_analysis_overrides['driver']['optimization']['solver'] = 'LN_COBYLA'   # Gradient free
+
+    # Only override solver if it's not a multi-objective solver
+    multi_objective_solvers = ['NSGA2']
+    current_solver = analysis_options.get('driver', {}).get('optimization', {}).get('solver', '')
+    if current_solver not in multi_objective_solvers:
+        test_analysis_overrides['driver']['optimization']['solver'] = 'LN_COBYLA'   # Gradient free
 
     modeling_override = recursive_merge(modeling_override, test_modeling_overrides)
     analysis_override = recursive_merge(analysis_override, test_analysis_overrides)
@@ -99,7 +107,8 @@ def weis_main(fname_wt_input, fname_modeling_options, fname_analysis_options,
     maxnP = get_max_procs()
 
     if test_run:
-        set_modopt_test_runs(fname_modeling_options, 
+        set_modopt_test_runs(fname_modeling_options,
+                            fname_analysis_options,
                             modeling_override,
                             analysis_override
                             )
