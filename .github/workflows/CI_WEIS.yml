@@ -122,11 +122,14 @@ jobs:
 
       # Run all tests within WEIS, but not computationally expensive examples
       - name: Run tests within WEIS
-        if: false == contains( matrix.os, 'ubuntu') || contains( github.event_name, 'push')
         env:
-            WEIS_TEST_RUN: "1"
+              WEIS_TEST_RUN: "1"
         run: |
-          pytest -p no:warnings --disable-warnings --cov=weis weis
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+              pytest -p no:warnings --disable-warnings --cov=weis weis
+          else
+              pytest -p no:warnings --disable-warnings weis
+          fi
 
       # Run long tests in on pull request
       - name: Run exhaustive
