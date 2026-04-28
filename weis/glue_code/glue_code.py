@@ -109,7 +109,6 @@ class WindPark(om.Group):
             'vs_minspd',
             'ss_vsgain',
             'ss_pcgain',
-            # 'ps_percent',
         ]
         for param in optional_inputs:
             if param in rosco_options:
@@ -121,14 +120,6 @@ class WindPark(om.Group):
 
         tune_rosco_ivc.add_output('max_pitch_rate',   val=0.0, units='rad/s',     desc='Maximum pitch rate')
         tune_rosco_ivc.add_output('max_torque_rate',  val=0.0, units='N*m/s',     desc='Maximum generator torque rate')
-        # TODO: check whether these are needed
-        #tune_rosco_ivc.add_output('sd_maxpit',        val=0.0, units='rad',       desc='Maximum blade pitch angle to initiate shutdown [rad], {default = bld pitch at v_max}')
-        #tune_rosco_ivc.add_output('sd_cornerfreq',    val=0.0, units='rad/s',     desc='Cutoff Frequency for first order low-pass filter for blade pitch angle [rad/s], {default = 0.41888 ~ time constant of 15s}')
-        #tune_rosco_ivc.add_output('Kp_flap',          val=0.0, units='s',         desc='Proportional term of the PI controller for the trailing-edge flaps')
-        #tune_rosco_ivc.add_output('Ki_flap',          val=0.0,                    desc='Integral term of the PI controller for the trailing-edge flaps')
-        #tune_rosco_ivc.add_output('twr_freq',         val=3.2, units='rps',     desc='Tower natural frequency')
-        #tune_rosco_ivc.add_output('ptfm_freq',        val=0.2, units='rad/s',     desc='Platform natural frequency')
-        #tune_rosco_ivc.add_output('Kp_float',         val=0.0, units='s',         desc='Floating feedback gain')
 
         self.add_subsystem("tune_rosco_ivc",tune_rosco_ivc)
 
@@ -250,33 +241,33 @@ class WindPark(om.Group):
             
             # optional parameters
             optional_inputs = [
-                'max_pitch',
-                'min_pitch',
-                'vs_minspd',
-                'ss_vsgain',
-                'ss_pcgain',
-                'ps_percent',
+                "max_pitch",
+                "min_pitch",
+                "vs_minspd",
+                "ss_vsgain",
+                "ss_pcgain",
+                "ps_percent",
                 ]
             for param in optional_inputs:
                 if param in rosco_options:
-                    self.connect(f'tune_rosco_ivc.{param}', f'sse_tune.tune_rosco.{param}')
+                    self.connect(f"tune_rosco_ivc.{param}", f"sse_tune.tune_rosco.{param}")
             
             # Peak shaving DV should also influence rotor power in WISDEM
-            if not modeling_options['OpenFAST']['from_openfast']:
-                self.connect(f'tune_rosco_ivc.ps_percent', "rotorse.rp.powercurve.peak_thrust_shaving")
+            if not modeling_options["OpenFAST"]["from_openfast"]:
+                self.connect(f"tune_rosco_ivc.ps_percent", "rotorse.rp.powercurve.peak_thrust_shaving")
 
             # Connect generic ivc/dvs
             for dv in rosco_tuning_dvs:
-                if dv['name'] not in ['ps_percent']:   #  already added above
-                    self.connect(f'tune_rosco_ivc.{dv["name"]}',     f'sse_tune.tune_rosco.{dv["name"]}')
+                if dv["name"] not in ["ps_percent"]:   #  already added above
+                    self.connect(f"tune_rosco_ivc.{dv['name']}",     f"sse_tune.tune_rosco.{dv['name']}")
 
             # Connect discon ivc/dvs
             for dv in discon_dvs:
-                self.connect(f'tune_rosco_ivc.discon:{dv["name"]}', f'sse_tune.tune_rosco.discon:{dv["name"]}')
+                self.connect(f"tune_rosco_ivc.discon:{dv['name']}", f"sse_tune.tune_rosco.discon:{dv['name']}")
 
 
-        if modeling_options['RAFT']['flag']:
-            self.add_subsystem('raft', RAFT_WEIS(modeling_options = modeling_options, analysis_options=opt_options))
+        if modeling_options["RAFT"]["flag"]:
+            self.add_subsystem("raft", RAFT_WEIS(modeling_options = modeling_options, analysis_options=opt_options))
 
             n_span = modeling_options["WISDEM"]["RotorSE"]["n_span"]
             self.connect("configuration.turb_class",        "raft.turbulence_class")
@@ -1021,11 +1012,11 @@ class WindPark(om.Group):
                 self.connect("aeroelastic.AEP",     "outputs_2_screen_weis.aep")
 
             # Connections to outputs to screen
-            if not modeling_options['OpenFAST']['from_openfast']:
-                self.connect('financese_post.lcoe',          'outputs_2_screen_weis.lcoe')
+            if not modeling_options["OpenFAST"]["from_openfast"]:
+                self.connect("financese_post.lcoe",          "outputs_2_screen_weis.lcoe")
 
-                self.connect('rotorse.blade_mass',  'outputs_2_screen_weis.blade_mass')
-                self.connect('aeroelastic.max_TipDxc', 'outputs_2_screen_weis.tip_deflection')
+                self.connect("rotorse.blade_mass",  "outputs_2_screen_weis.blade_mass")
+                self.connect("aeroelastic.max_TipDxc", "outputs_2_screen_weis.tip_deflection")
 
             if modeling_options["General"]["openfast_configuration"]["model_only"] == False:
                 self.connect("aeroelastic.DEL_RootMyb",        "outputs_2_screen_weis.DEL_RootMyb")

@@ -20,7 +20,6 @@ def assign_ROSCO_values(wt_opt, wt_init, modeling_options, opt_options):
     for dv in discon_dvs:
         wt_opt[f"tune_rosco_ivc.discon:{dv['name']}"] = dv['start']
 
-    # TODO: see if this is still needed
     # other optional parameters
     optional_params = [
          'max_pitch',

@@ -170,7 +170,7 @@ class TuneROSCO(ExplicitComponent):
         rosco_tuning_dvs = self.opt_options['design_variables']['control']['rosco_tuning']
 
         for dv in rosco_tuning_dvs:
-            # TODO: support arrays
+
             ivc_units = None
             if 'units' in dv:
                 ivc_units = dv['units']
@@ -196,7 +196,6 @@ class TuneROSCO(ExplicitComponent):
 
             self.add_input(f'discon:{dv["name"]}', val=dv['start'], units=ivc_units, desc=ivc_desc)
 
-        
         
         if rosco_init_options['linmodel_tuning']['type'] == 'robust':
             n_PC = 1
