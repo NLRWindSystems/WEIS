@@ -260,7 +260,14 @@ class PoseOptimizationWEIS(PoseOptimization):
                 raise Exception('Please turn on the call to OpenFAST or RAFT if you are trying to optimize Max_PtfmPitch constraints.')
             wt_opt.model.add_constraint(f'{self.floating_solve_component}.Max_PtfmPitch',
                 upper = control_constraints['Max_PtfmPitch']['max'])
-        
+
+        # Mean platform pitch
+        if control_constraints['Mean_PtfmPitch']['flag']:
+            if not any(self.level_flags):
+                raise Exception('Please turn on the call to OpenFAST or RAFT if you are trying to optimize Mean_PtfmPitch constraints.')
+            wt_opt.model.add_constraint(f'{self.floating_solve_component}.Mean_PtfmPitch',
+                upper = control_constraints['Mean_PtfmPitch']['max'])
+
         # Platform pitch motion
         if control_constraints['Std_PtfmPitch']['flag']:
             if not any(self.level_flags):

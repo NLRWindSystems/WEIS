@@ -5,9 +5,12 @@ channels:
 dependencies:
   - bs4
   - dash
+  - dash-bootstrap-components
+  - dash-mantine-components
   - dill
   - jsonmerge
   - mat4py
+  - moorpy==1.2.1
   - nlopt
   - numpydoc
   - numpy
@@ -15,26 +18,22 @@ dependencies:
   - openfast-io==4.2
   - pyopenfast==4.2
   - openraft>=2.0.3
-  - openmdao==3.42
-  - osqp  
+  - openmdao
+  - osqp
   - pcrunch>=2.1.5
   - pip
   - pyhams>=1.3
+  - pyvista
   #- pyoptsparse
+  - pyvista
   - rosco>=2.10.1
   - trimesh
-  - wisdem>=4.1
+  - wisdem>=4.2
   - pip:
     - control
-    - dash-bootstrap-components
-    - dash-mantine-components
     - dash-vtk
-    - pyvista
     - dearpygui
-    - orbit-nrel
     - smt
-    - windIO>=2.0.1
-    - wombat>=0.13.1
     # - git+https://github.com/NLRWindSystems/RAFT.git@dev
 # Needs to be done outside of environment file:
 #  - m2w64-toolchain # [win]

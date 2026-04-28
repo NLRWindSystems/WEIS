@@ -382,9 +382,21 @@ properties:
                                 minimum: 0.0
                                 maximum: 30.0
                                 unit: deg
+                    Mean_PtfmPitch:
+                        type: object
+                        description: The maximum mean platform pitch displacement over all cases. Can be computed in both RAFT and OpenFAST.  The higher fidelity option will be used when active.
+                        default: {}
+                        properties:
+                            flag: *flag
+                            max:
+                                type: number
+                                default: 3.0
+                                minimum: 0.0
+                                maximum: 30.0
+                                unit: deg
                     Std_PtfmPitch:
                         type: object
-                        description: Maximum platform pitch standard deviation over all cases. Can be computed in both RAFT and OpenFAST.  The higher fidelity option will be used when active. 
+                        description: Maximum platform pitch standard deviation over all cases. Can be computed in both RAFT and OpenFAST.  The higher fidelity option will be used when active.
                         default: {}
                         properties:
                             flag: *flag

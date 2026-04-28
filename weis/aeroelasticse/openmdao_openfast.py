@@ -625,6 +625,7 @@ class FASTLoadCases(ExplicitComponent):
 
         # Floating outputs
         self.add_output('Max_PtfmPitch', val=0.0, desc='Maximum platform pitch angle over a set of OpenFAST simulations')
+        self.add_output('Mean_PtfmPitch', val=0.0, units='deg', desc='Maximum (across cases) mean (of each case) platform pitch angle over a set of OpenFAST simulations')
         self.add_output('Std_PtfmPitch', val=0.0, units='deg', desc='standard deviation of platform pitch angle')
         self.add_output('Max_Offset', val=0.0, units='m', desc='Maximum distance in surge/sway direction')
 
@@ -1200,9 +1201,18 @@ class FASTLoadCases(ExplicitComponent):
                 if not np.any(inputs[f'{fass}_modes'][idir,:]):
                     logger.warning(f'WARNING: {fass} tower shape coefficients are zero which will cause errors in using ElastoDyn')
         fst_vt['ElastoDynTower']['TwFAM1Sh'] = inputs['fore_aft_modes'][0, :]  / np.sum(inputs['fore_aft_modes'][0, :])
-        fst_vt['ElastoDynTower']['TwFAM2Sh'] = inputs['fore_aft_modes'][1, :]  / np.sum(inputs['fore_aft_modes'][1, :])
         fst_vt['ElastoDynTower']['TwSSM1Sh'] = inputs['side_side_modes'][0, :] / np.sum(inputs['side_side_modes'][0, :])
+        
+        # Since the 2nd tower modes are sometimes problematic, if the DOF is not enabled, let's give it a safe, dummy value that won't cause errors in ElastoDyn
+        fst_vt['ElastoDynTower']['TwFAM2Sh'] = inputs['fore_aft_modes'][1, :]  / np.sum(inputs['fore_aft_modes'][1, :])
+        if not fst_vt['ElastoDyn']['TwFADOF2']:
+            fst_vt['ElastoDynTower']['TwFAM2Sh'] = np.zeros_like(inputs['fore_aft_modes'][1, :])
+            fst_vt['ElastoDynTower']['TwFAM2Sh'][0] = 1.0
+        
         fst_vt['ElastoDynTower']['TwSSM2Sh'] = inputs['side_side_modes'][1, :] / np.sum(inputs['side_side_modes'][1, :])
+        if not fst_vt['ElastoDyn']['TwSSDOF2']:
+            fst_vt['ElastoDynTower']['TwSSM2Sh'] = np.zeros_like(inputs['side_side_modes'][1, :])
+            fst_vt['ElastoDynTower']['TwSSM2Sh'][0] = 1.0
         
         # Calculate yaw stiffness of tower (springs in series) and use in servodyn as yaw spring constant
         k_tow_tor = inputs['tor_stff'] / np.diff(inputs['tower_z'])
@@ -3450,6 +3460,7 @@ class FASTLoadCases(ExplicitComponent):
         calculate floating measures:
             - Std_PtfmPitch (max over all dlcs if constraint, mean otheriwse)
             - Max_PtfmPitch
+            - Mean_PtfmPitch
 
         given:
             - sum_stats : pd.DataFrame
@@ -3463,6 +3474,7 @@ class FASTLoadCases(ExplicitComponent):
             outputs['Std_PtfmPitch'] = np.mean(sum_stats['PtfmPitch']['std'])
 
         outputs['Max_PtfmPitch']  = np.max(sum_stats['PtfmPitch']['max'])
+        outputs['Mean_PtfmPitch'] = np.max(sum_stats['PtfmPitch']['mean'])
 
         # Max platform offset        
         outputs['Max_Offset'] = np.max(sum_stats['PtfmOffset']['max'])

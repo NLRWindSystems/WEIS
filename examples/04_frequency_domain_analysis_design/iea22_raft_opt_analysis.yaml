@@ -19,9 +19,6 @@ design_variables:
                   lower_bound: -30.0
                   upper_bound: -12.0
                   flag: True
-                # - names: [col1_freeboard, col2_freeboard, col3_freeboard]
-                #   lower_bound: 10.0
-                #   upper_bound: 20.0
             r_coordinate:
                 - names: [col1_keel, col1_freeboard, col2_keel, col2_freeboard, col3_keel, col3_freeboard]
                   lower_bound: 50.0
@@ -35,18 +32,7 @@ design_variables:
                       lower_bound: 12.0
                       upper_bound: 16.0
                       constant: True
-                #   ballast:
-                #       lower_bound: 0
-                #       upper_bound: 1000
-                # - names: [main_column]
-                #   ballast:
-                #       lower_bound: 0
-                #       upper_bound: 1000
-                # - names: [Y_pontoon_lower1, Y_pontoon_lower2, Y_pontoon_lower3]
-                #   diameter:
-                #       lower_bound: 10.0
-                #       upper_bound: 10.8
-                #       constant: True
+
 constraints:
     tower:
         height_constraint:
@@ -73,7 +59,7 @@ constraints:
             lower_bound: 0.37
     floating:
         survival_heel:
-            upper_bound: 0.17453292519943295 # 10 deg
+            upper_bound: 10.0 # deg
         metacentric_height:
             flag: True
             lower_bound: 15.0
@@ -91,14 +77,6 @@ constraints:
             flag: True
         buoyancy:
             flag: False
-        stress:
-            flag: False
-        global_buckling:
-            flag: False
-        shell_buckling:
-            flag: False
-        mooring_heel:
-            flag: False
         freeboard_margin:   # keep freeboard from being submerged below water during survival_heel, largest wave
             flag: True
         draft_margin:   # keep draft from raising above water line during survival_heel, largest wave
@@ -109,9 +87,6 @@ constraints:
         Max_PtfmPitch:
             flag: True
             max: 6.0
-        Std_PtfmPitch:
-            flag: False
-            max: 1.25  # Same as IEA-15MW with same DLCs
         nacelle_acceleration:
             flag: True
             max: 2.0
