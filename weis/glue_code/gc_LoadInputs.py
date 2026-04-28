@@ -193,10 +193,14 @@ class WindTurbineOntologyPythonWEIS(WindTurbineOntologyPython):
             self.modeling_options["RAFT"]["model_potential"] = [False]*1000
             
         # ROSCO
-        if (not self.modeling_options['ROSCO']['flag']) and (not self.modeling_options["OpenFAST"]["from_openfast"]):
-            raise Exception('ROSCO->flag must be true if OpenFAST->from_openfast is false; a pre-made DISCON file must be provided.')
-        
-        # TODO: Some RAFT/Level1 configurations will require ROSCO, perhaps all
+        if not self.modeling_options['ROSCO']['flag']:
+
+            if (self.modeling_options['OpenFAST']['flag']) and \
+               (not self.modeling_options["OpenFAST"]["from_openfast"]):
+                raise Exception('ROSCO->flag must be true if OpenFAST->from_openfast is false.  ROSCO tuning must be used with a WISDEM-generated OpenFAST model.')
+
+            if (self.modeling_options['RAFT']['flag']):
+                raise Exception('ROSCO->flag must be true if RAFT->flag is true.  ROSCO tuning must be used with RAFT.')
 
         if self.modeling_options['ROSCO']['tuning_yaml'] != 'none':  # default is empty
             # Make path absolute if not, relative to modeling options input
@@ -302,14 +306,6 @@ class WindTurbineOntologyPythonWEIS(WindTurbineOntologyPython):
     def update_ontology(self, wt_opt):
         # Call the WISDEM version first
         super(WindTurbineOntologyPythonWEIS, self).update_ontology(wt_opt)
-
-        '''
-        # Likely outdated
-        if self.modeling_options['flags']['control']:
-            if self.modeling_options['ROSCO']['Flp_Mode'] > 0:
-                self.wt_init['control']['dac']['flp_kp_norm']= float(wt_opt['tune_rosco_ivc.flp_kp_norm'])
-                self.wt_init['control']['dac']['flp_tau'] = float(wt_opt['tune_rosco_ivc.flp_tau'])
-        '''
 
         if self.modeling_options['flags']['TMDs']:
             for k in range( self.modeling_options['TMDs']['n_TMDs'] ):
