@@ -117,7 +117,7 @@ class FASTLoadCases(ExplicitComponent):
         self.n_span        = n_span    = rotorse_options['n_span']
         self.n_pc          = n_pc      = rotorse_options['n_pc']
         # Number of wind speeds for AEP calculation
-        self.n_ws_aep = n_ws_aep = modopt['DLC_driver']['n_ws_aep']
+        self.n_ws_aep = modopt['DLC_driver']['n_ws_aep']
 
         # Environmental Conditions needed regardless of where model comes from
         self.add_input('V_cutin', val=0.0, units='m/s', desc='Minimum wind speed where turbine operates (cut-in)')
@@ -486,9 +486,6 @@ class FASTLoadCases(ExplicitComponent):
                 self.add_input(f'discon:{dv["name"]}', val=dv['start'], units=ivc_units, desc=ivc_desc)
                 
 
-        # DLC options
-        n_ws_aep = np.max([1,modopt['DLC_driver']['n_ws_aep']])
-
         # OpenFAST options
         OFmgmt = modopt['General']['openfast_configuration']
         self.model_only = OFmgmt['model_only']
@@ -561,18 +558,18 @@ class FASTLoadCases(ExplicitComponent):
         
 
         # Rotor power outputs
-        if n_ws_aep > 0:
-            self.add_output('V', val=np.zeros(n_ws_aep), units='m/s', desc='wind speed vector from the OF simulations')
-            self.add_output('P', val=np.zeros(n_ws_aep), units='W', desc='rotor electrical power')
-            self.add_output('P_std', val=np.zeros(n_ws_aep), units='W', desc='standard deviation of rotor electrical power')
-            self.add_output('Cp', val=np.zeros(n_ws_aep), desc='rotor aero power coefficient')
-            self.add_output('Ct', val=np.zeros(n_ws_aep), desc='rotor aero thrust coefficient')
-            self.add_output('Omega', val=np.zeros(n_ws_aep), units='rpm', desc='rotation speeds')
-            self.add_output('Omega_std', val=np.zeros(n_ws_aep), units='rpm', desc='standard deviation of rotation speeds')
-            self.add_output('pitch', val=np.zeros(n_ws_aep), units='deg', desc='pitch angles')
-            self.add_output('pitch_std', val=np.zeros(n_ws_aep), units='deg', desc='standard deviation of pitch angles')
-            self.add_output('Thrust', val=np.zeros(n_ws_aep), units='N', desc='rotor thrust')
-            self.add_output('Thrust_std', val=np.zeros(n_ws_aep), units='N', desc='standard deviation of rotor thrust')
+        if self.n_ws_aep > 0:
+            self.add_output('V', val=np.zeros(self.n_ws_aep), units='m/s', desc='wind speed vector from the OF simulations')
+            self.add_output('P', val=np.zeros(self.n_ws_aep), units='W', desc='rotor electrical power')
+            self.add_output('P_std', val=np.zeros(self.n_ws_aep), units='W', desc='standard deviation of rotor electrical power')
+            self.add_output('Cp', val=np.zeros(self.n_ws_aep), desc='rotor aero power coefficient')
+            self.add_output('Ct', val=np.zeros(self.n_ws_aep), desc='rotor aero thrust coefficient')
+            self.add_output('Omega', val=np.zeros(self.n_ws_aep), units='rpm', desc='rotation speeds')
+            self.add_output('Omega_std', val=np.zeros(self.n_ws_aep), units='rpm', desc='standard deviation of rotation speeds')
+            self.add_output('pitch', val=np.zeros(self.n_ws_aep), units='deg', desc='pitch angles')
+            self.add_output('pitch_std', val=np.zeros(self.n_ws_aep), units='deg', desc='standard deviation of pitch angles')
+            self.add_output('Thrust', val=np.zeros(self.n_ws_aep), units='N', desc='rotor thrust')
+            self.add_output('Thrust_std', val=np.zeros(self.n_ws_aep), units='N', desc='standard deviation of rotor thrust')
             self.add_output('AEP', val=0.0, units='kW*h', desc='annual energy production reconstructed from the openfast simulations')
 
         self.add_output('My_std',      val=0.0,            units='N*m',  desc='standard deviation of blade root flap bending moment in out-of-plane direction')
@@ -744,10 +741,10 @@ class FASTLoadCases(ExplicitComponent):
                 fst_vt['HydroDyn']['AddF0'] = [[F0] for F0 in fst_vt['HydroDyn']['AddF0']]
 
             if modopt['ROSCO']['flag']:
-                # This is usually populated in tune_rosco if the ROSCO flag is true
+                # modopt DISCON_in is populated in tune_rosco if the ROSCO flag is true
                 fst_vt['DISCON_in'] = modopt['General']['openfast_configuration']['fst_vt']['DISCON_in']
             else:
-                # If we're not tuning ROSCO and the DVs are direct inputs to the DISCON
+                # If we're not tuning ROSCO, this iwll update DISCON inputs
                 discon_dvs = self.options['opt_options']['design_variables']['control']['discon']
                 for dv in discon_dvs:
                     fst_vt['DISCON_in'][dv['name']] = inputs[f'discon:{dv["name"]}']
@@ -3294,14 +3291,6 @@ class FASTLoadCases(ExplicitComponent):
 
         # determine which dlc will be used for the powercurve calculations, allows using dlc 1.1 if specific power curve calculations were not run
         sum_stats = self.cruncher.summary_stats
-
-        modopts = self.options['modeling_options']
-        DLCs = [i_dlc['DLC'] for i_dlc in modopts['DLC_driver']['DLCs']]
-        if 'AEP' in DLCs:
-            DLC_label_for_AEP = 'AEP'
-        else:
-            DLC_label_for_AEP = '1.1'
-            logger.warning('WARNING: DLC 1.1 is being used for AEP calculations.  Use the AEP DLC for more accurate wind modeling with constant TI.')
 
         modopts = self.options['modeling_options']
         DLCs = [i_dlc['DLC'] for i_dlc in modopts['DLC_driver']['DLCs']]
