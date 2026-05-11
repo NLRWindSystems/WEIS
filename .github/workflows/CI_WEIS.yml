@@ -46,7 +46,7 @@ jobs:
       # - name: Add dependencies ubuntu specific
       #   if: false == contains( matrix.os, 'windows')
       #   run: |
-      #     mamba install -y compilers
+      #     conda install -y compilers
 
       # - name: Add dependencies windows specific
       #   if: contains( matrix.os, 'windows')
@@ -59,7 +59,7 @@ jobs:
       # - name: feature branches of other codes
       #   run: |
       #     conda remove --force wisdem
-      #     pip install https://github.com/dzalkind/WISDEM/archive/nsga2_again.zip
+      #     https://github.com/NLRWindSystems/WISDEM/archive/develop.zip
 
       # Don't delete after this
 
@@ -76,7 +76,7 @@ jobs:
       
       - name: Add test packages
         run: |
-            mamba install -y pytest pytest-cov coveralls treon
+            conda install -y pytest pytest-cov coveralls treon
             
       - name: Show custom environment
         run: |
