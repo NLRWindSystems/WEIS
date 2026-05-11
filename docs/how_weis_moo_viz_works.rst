@@ -11,7 +11,7 @@ Overview
 
 The dashboard enables users to:
 
-* Visualize high-dimensional optimization results using Scatter Plot Matrix (SPLOM)
+* Visualize high-dimensional optimization results using a scatter plot matrix (SPLOM)
 * Identify and explore Pareto-optimal solutions
 * Analyze relationships between design variables, objectives, and constraints
 * Export interactive visualizations for reports and presentations
