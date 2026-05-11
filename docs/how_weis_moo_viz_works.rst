@@ -109,6 +109,35 @@ Example:
    "410786235558.229", "87616.5338", "0.0905", "5.0551", "-20.4375", "0.6525"
    "421847787601.9160", "101079.1819", "0.0848", "5.2194", "-8.4375", "0.8725"
 
+Variables containing arrays (e.g., constraint margins with multiple entries) are
+stored as string representations such as ``"[0.04, 0.75, 0.76]"`` and are
+automatically split into ``_min`` / ``_max`` columns by the dashboard.
+
+Generating the CSV from WEIS output
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+After a WEIS optimization run completes, the results are stored in an OpenMDAO
+SQL database (``log_opt.sql``).  Use the ``postprocess_results`` script to
+convert these into the flat, per-iteration CSV that the dashboard expects:
+
+.. code-block:: python
+
+   import sys, os
+   sys.path.insert(0, os.path.join(os.environ.get("WEIS_DIR", "."), "examples/06_parametric_analysis"))
+   from postprocess_results import sql_to_csv
+
+   output_dir = "/path/to/weis/outputs"   # directory containing log_opt.sql
+   df = sql_to_csv(output_dir)
+   df.to_csv(os.path.join(output_dir, "moo_results.csv"), index=False)
+
+Or run the script directly for example 06::
+
+   cd examples/06_parametric_analysis
+   python postprocess_results.py
+
+The same ``output_dir`` will also contain a ``problem_vars.yaml`` file produced
+by WEIS that is used as the YAML input to the dashboard.
+
 
 YAML File
 ~~~~~~~~~
