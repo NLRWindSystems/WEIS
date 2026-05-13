@@ -25,9 +25,6 @@ design_variables:
                   flag: True
                   lower_bound: -30.0
                   upper_bound: -8.0
-                # - names: [col1_freeboard, col2_freeboard, col3_freeboard]
-                #   lower_bound: 10.0
-                #   upper_bound: 20.0
             r_coordinate:
                 - names: [col1_keel, col1_freeboard, col2_keel, col2_freeboard, col3_keel, col3_freeboard]
                   flag: True
@@ -41,18 +38,7 @@ design_variables:
                       lower_bound: 12.0
                       upper_bound: 16.0
                       constant: True
-                #   ballast:
-                #       lower_bound: 0
-                #       upper_bound: 1000
-                # - names: [main_column]
-                #   ballast:
-                #       lower_bound: 0
-                #       upper_bound: 1000
-                # - names: [Y_pontoon_lower1, Y_pontoon_lower2, Y_pontoon_lower3]
-                #   diameter:
-                #       lower_bound: 10.0
-                #       upper_bound: 10.8
-                #       constant: True
+
 constraints:
     tower:
         height_constraint:
