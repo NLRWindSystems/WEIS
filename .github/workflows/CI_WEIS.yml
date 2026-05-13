@@ -59,8 +59,7 @@ jobs:
       # - name: feature branches of other codes
       #   run: |
       #     conda remove --force wisdem
-      #     https://github.com/NLRWindSystems/WISDEM/archive/develop.zip
-
+      #     pip install https://github.com/NLRWindSystems/WISDEM/archive/develop.zip
       # Don't delete after this
 
       # Note- could add mpich through conda, but takes forever to resolve the environment in testing
