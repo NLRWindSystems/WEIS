@@ -102,21 +102,18 @@ class WindPark(om.Group):
             tune_rosco_ivc.add_output(f'discon:{dv["name"]}', val=dv['start'], units=ivc_units, desc=ivc_desc)
 
 
-        # optional inputs - not connected right now!!
+        # optional inputs - skip if already added as a rosco_tuning DV
         optional_inputs = [
             'max_pitch',
             'min_pitch',
             'vs_minspd',
             'ss_vsgain',
             'ss_pcgain',
+            'ps_percent',
         ]
         for param in optional_inputs:
-            if param in rosco_options:
-                tune_rosco_ivc.add_output(param, val=0.0, desc='Optional input for ROSCO tuning')
-        
-        # Skip if already added, could apply same treatment to The Ones Above
-        if "ps_percent" not in rosco_tuning_dv_names:
-            tune_rosco_ivc.add_output("ps_percent", val=modeling_options["ROSCO"]["ps_percent"],  desc="Peak shaving fraction [0-1], {default = 1.0}")
+            if param not in rosco_tuning_dv_names and param in rosco_options:
+                tune_rosco_ivc.add_output(param, val=rosco_options[param], desc='Optional input for ROSCO tuning')
 
         tune_rosco_ivc.add_output('max_pitch_rate',   val=0.0, units='rad/s',     desc='Maximum pitch rate')
         tune_rosco_ivc.add_output('max_torque_rate',  val=0.0, units='N*m/s',     desc='Maximum generator torque rate')
@@ -249,7 +246,7 @@ class WindPark(om.Group):
                 "ps_percent",
                 ]
             for param in optional_inputs:
-                if param in rosco_options:
+                if param not in rosco_tuning_dv_names and param in rosco_options:
                     self.connect(f"tune_rosco_ivc.{param}", f"sse_tune.tune_rosco.{param}")
             
             # Peak shaving DV should also influence rotor power in WISDEM
@@ -258,7 +255,7 @@ class WindPark(om.Group):
 
             # Connect generic ivc/dvs
             for dv in rosco_tuning_dvs:
-                if dv["name"] not in ["ps_percent"]:   #  already added above
+                if dv["name"] not in optional_inputs:   #  already added above
                     self.connect(f"tune_rosco_ivc.{dv['name']}",     f"sse_tune.tune_rosco.{dv['name']}")
 
             # Connect discon ivc/dvs
