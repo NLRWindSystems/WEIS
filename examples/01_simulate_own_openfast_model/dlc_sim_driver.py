@@ -10,7 +10,14 @@ fname_wt_input = os.path.join(run_dir, "..", "00_setup", "ref_turbines", "IEA-15
 fname_modeling_options = os.path.join(run_dir, "dlc_sim_modeling.yaml")
 fname_analysis_options = os.path.join(run_dir, "dlc_sim_analysis.yaml")
 
-# Run WEIS for real now
+# Run WEIS
+wt_opt, modeling_options, opt_options = weis_main(fname_wt_input, 
+                                                  fname_modeling_options, 
+                                                  fname_analysis_options,
+                                                  test_run=TEST_RUN)
+
+# Run WEIS without tuning ROSCO
+fname_modeling_options = os.path.join(run_dir, "dlc_sim_no_tune_modeling.yaml")
 wt_opt, modeling_options, opt_options = weis_main(fname_wt_input, 
                                                   fname_modeling_options, 
                                                   fname_analysis_options,

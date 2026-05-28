@@ -1,7 +1,7 @@
 .. _weis_viz_app:
 
 
-WEIS Visualization APP
+WEIS I/O Visualization APP
 =======================
 
 This application provides a web-based graphical user interface to visualize input/output from WEIS.

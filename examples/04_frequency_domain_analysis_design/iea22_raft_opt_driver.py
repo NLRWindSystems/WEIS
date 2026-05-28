@@ -3,7 +3,7 @@ import os
 from weis import weis_main
 
 # TEST_RUN will reduce the number and duration of simulations
-TEST_RUN = False
+# TEST_RUN will change the driver to LN_COBYLA, so let's not use it here
 
 ## File management
 run_dir = os.path.dirname( os.path.realpath(__file__) )
@@ -14,7 +14,15 @@ fname_analysis_options = os.path.join(run_dir, "iea22_raft_opt_analysis.yaml")
 wt_opt, modeling_options, opt_options = weis_main(fname_wt_input, 
                                                  fname_modeling_options, 
                                                  fname_analysis_options,
-                                                 test_run=TEST_RUN
+                                                 test_run=False
+                                                 )
+
+# Multi-objective optimization with peak shaving
+fname_analysis_options = os.path.join(run_dir, "iea22_raft_opt_analysis_shaving.yaml")
+wt_opt, modeling_options, opt_options = weis_main(fname_wt_input, 
+                                                 fname_modeling_options, 
+                                                 fname_analysis_options,
+                                                 test_run=False
                                                  )
 
 

@@ -59,7 +59,7 @@ constraints:
             lower_bound: 0.37
     floating:
         survival_heel:
-            upper_bound: 10.0 # deg
+            upper_bound: 10 # deg
         metacentric_height:
             flag: True
             lower_bound: 15.0
@@ -77,6 +77,14 @@ constraints:
             flag: True
         buoyancy:
             flag: False
+        stress:
+            flag: False
+        global_buckling:
+            flag: False
+        shell_buckling:
+            flag: False
+        mooring_heel:
+            flag: False
         freeboard_margin:   # keep freeboard from being submerged below water during survival_heel, largest wave
             flag: True
         draft_margin:   # keep draft from raising above water line during survival_heel, largest wave
@@ -87,6 +95,9 @@ constraints:
         Max_PtfmPitch:
             flag: True
             max: 6.0
+        Std_PtfmPitch:
+            flag: False
+            max: 1.25  # Same as IEA-15MW with same DLCs
         nacelle_acceleration:
             flag: True
             max: 2.0
