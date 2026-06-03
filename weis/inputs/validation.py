@@ -106,4 +106,40 @@ def write_analysis_yaml(instance, foutput):
     sfx_str = "-analysis.yaml"
     wisval.write_yaml(instance, foutput + sfx_str)
     return foutput + sfx_str
-    
+
+
+def make_paths_absolute(data, base_dir=None):
+    """Recursively convert relative paths in a nested dict/list to absolute paths.
+
+    Any string value that contains ``/`` or ``\\`` and is not already an
+    absolute path is joined with *base_dir* and resolved to an absolute path.
+    This is useful when loading YAML configuration files that contain
+    relative references to other files or directories.
+
+    Parameters
+    ----------
+    data : dict, list, or str
+        The data structure to process (typically the result of
+        ``yaml.safe_load``).
+    base_dir : str, optional
+        The directory that relative paths are relative to.  Defaults to
+        the current working directory.
+
+    Returns
+    -------
+    data : dict, list, or str
+        A copy of the input with relative paths replaced by absolute paths.
+    """
+    if base_dir is None:
+        base_dir = os.getcwd()
+
+    if isinstance(data, dict):
+        return {k: make_paths_absolute(v, base_dir) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [make_paths_absolute(item, base_dir) for item in data]
+    elif isinstance(data, str):
+        if ("/" in data or "\\" in data) and not os.path.isabs(data):
+            return os.path.abspath(os.path.join(base_dir, data))
+        return data
+    else:
+        return data

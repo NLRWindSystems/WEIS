@@ -16,7 +16,9 @@ wt_opt, modeling_options, opt_options = weis_main(fname_wt_input,
                                                  test_run=TEST_RUN
                                                  )
 
-if not TEST_RUN:
+# Don't plot in test mode
+if not TEST_RUN and os.environ.get('WEIS_TEST_RUN', '').lower() in ('1', 'true'):
+
     import matplotlib.pyplot as plt
     import numpy as np
     from matplotlib import cm

@@ -73,7 +73,7 @@ constraints:
             lower_bound: 0.37
     floating:
         survival_heel:
-            upper_bound: 0.17453292519943295 # 10 deg
+            upper_bound: 10.0 # deg
         metacentric_height:
             flag: False
             lower_bound: 15.0
@@ -108,9 +108,9 @@ constraints:
     control:
         Max_PtfmPitch:
             flag: True
-            max: 6.0
+            max: 7.0
         Std_PtfmPitch:
-            flag: True
+            flag: False
             max: 1.25  # Same as IEA-15MW with same DLCs
         nacelle_acceleration:
             flag: True

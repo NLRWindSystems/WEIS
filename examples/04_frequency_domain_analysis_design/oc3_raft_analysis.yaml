@@ -3,13 +3,10 @@ general:
     fname_output: refturb_output
 design_variables:
   control:
-    servo:
-      pitch_control:
-        omega:
-          flag: True
-          min: 0.1
-          max: 0.5
-
+    rosco_tuning:
+      - name: omega_pc
+        min: 0.1
+        max: 0.5
   floating:
     members:
         groups:

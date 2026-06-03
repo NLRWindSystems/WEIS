@@ -161,3 +161,86 @@ def plot_conv(
 
     return fig, axes
 
+
+def plot_convergence(data, vars_to_plot, title_prefix, bounds=None,
+                     aliases=None, save_path=None):
+    """Plot iteration history for a list of recorded variables with optional bound lines.
+
+    This is a lightweight alternative to :func:`plot_conv` that works directly
+    with the dict returned by :func:`~weis.visualization.utils.load_OMsql`
+    and accepts a *bounds* dict (e.g. from
+    :func:`~weis.visualization.utils.load_problem_vars_yaml` or
+    :func:`~weis.visualization.utils.load_bounds_from_analysis_yaml`).
+
+    Parameters
+    ----------
+    data : dict
+        ``{var_name: list_of_values_per_iteration}`` as returned by
+        :func:`~weis.visualization.utils.load_OMsql`.
+    vars_to_plot : list[str]
+        OpenMDAO variable names to include in the figure.
+    title_prefix : str
+        Text used as the figure super-title.
+    bounds : dict, optional
+        ``{var_name: {"lower": float | None, "upper": float | None}}``.
+        When provided, horizontal dashed lines are drawn at the bound values.
+    aliases : dict, optional
+        ``{var_name: "Human-Readable Label"}``.  Falls back to the raw
+        variable name when not provided.
+    save_path : str, optional
+        If given, the figure is saved to this path (PNG recommended).
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure or None
+        The generated figure, or ``None`` if no plottable variables were found.
+    """
+    bounds = bounds or {}
+    aliases = aliases or {}
+
+    # Filter to variables actually present in data
+    vars_present = [v for v in vars_to_plot if v in data]
+    vars_missing = [v for v in vars_to_plot if v not in data]
+    if vars_missing:
+        print(f"  Skipping (not recorded): {vars_missing}")
+    if not vars_present:
+        print(f"  No variables found for '{title_prefix}' — skipping plot.")
+        return None
+
+    n = len(vars_present)
+    fig, axes = plt.subplots(n, 1, figsize=(10, 3 * n), sharex=True)
+    if n == 1:
+        axes = [axes]
+    fig.suptitle(title_prefix, fontsize=13)
+
+    for ax, var in zip(axes, vars_present):
+        vals = np.array(data[var])
+        if vals.ndim == 1:
+            ax.plot(vals, marker="o", ms=4)
+        else:
+            for i in range(vals.shape[1]):
+                ax.plot(vals[:, i], marker="o", ms=4, label=f"[{i}]")
+            ax.legend(fontsize=8)
+
+        # Draw bounds as horizontal dashed lines
+        if var in bounds:
+            if bounds[var].get("upper") is not None:
+                ax.axhline(bounds[var]["upper"], color="r", ls="--", lw=1.2,
+                           label=f"upper={bounds[var]['upper']:.3g}")
+            if bounds[var].get("lower") is not None:
+                ax.axhline(bounds[var]["lower"], color="b", ls="--", lw=1.2,
+                           label=f"lower={bounds[var]['lower']:.3g}")
+            ax.legend(fontsize=8)
+
+        ax.set_title(aliases.get(var, var), pad=3)
+        ax.set_ylabel("value", labelpad=4)
+        ax.grid(True)
+
+    axes[-1].set_xlabel("Optimizer iteration")
+    plt.tight_layout(rect=[0, 0, 1, 0.98])
+    if save_path:
+        fig.savefig(save_path, dpi=150, bbox_inches="tight")
+        print(f"  Saved: {save_path}")
+    plt.close(fig)
+    return fig
+
