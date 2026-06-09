@@ -452,6 +452,17 @@ properties:
                                 minimum: 0.0
                                 maximum: 200.0
                                 uniqueItems: true
+                        current_speed:
+                            type: array
+                            description: Current speeds for this DLC (MHK TECs). If these are defined, ws_bin_size is neglected.
+                            default: []
+                            items:
+                                type: number
+                                unit: m/s
+                                minItems: 1
+                                minimum: 0.0
+                                maximum: 20.0
+                                uniqueItems: true
                         ws_bin_size:
                             type: number
                             default: 2
@@ -1099,6 +1110,90 @@ properties:
                             unit: s
                             minimum: 0.0
                             maximum: 1000.0
+                    # MHK TEC metocean fields (IEC TS 62600-2)
+                    current_speed:
+                        type: array
+                        description: Array of current speeds for metocean table lookup (MHK TECs). Replaces wind_speed as primary index for MHK.
+                        default: []
+                        items:
+                            type: number
+                            unit: m/s
+                            minItems: 1
+                            minimum: 0.0
+                            maximum: 20.0
+                            uniqueItems: true
+                    current_std:
+                        type: array
+                        description: Standard deviation of current at each speed bin (MHK TECs). Used for TI computation.
+                        default: []
+                        items:
+                            type: number
+                            unit: m/s
+                            minItems: 0
+                            minimum: 0.0
+                            maximum: 10.0
+                    current_NSS:
+                        type: array
+                        description: Normal current speed per wave height bin (MHK TECs).
+                        default: []
+                        items:
+                            type: number
+                            unit: m/s
+                            minItems: 0
+                            minimum: 0.0
+                            maximum: 20.0
+                    current_fatigue:
+                        type: array
+                        description: Current speeds for fatigue bins (MHK TECs). Mirrors wind_speed_fatigue.
+                        default: []
+                        items:
+                            type: number
+                            unit: m/s
+                            minItems: 0
+                            minimum: 0.0
+                            maximum: 20.0
+                    current_peak_spring:
+                            type: number
+                            description: Peak spring tidal current speed (MHK TECs), used in DLC 6.1.
+                            default: 0.
+                            unit: m/s
+                            minimum: 0.0
+                            maximum: 20.0
+                    current_mean_spring:
+                            type: number
+                            description: Mean spring tidal current speed (MHK TECs), used in DLC 7.1, 8.2.
+                            default: 0.
+                            unit: m/s
+                            minimum: 0.0
+                            maximum: 20.0
+                    wave_height5:
+                            type: number
+                            description: 5-year significant wave height Hm5 (MHK TECs), used in DLC 6.1a.
+                            default: 0.
+                            unit: m
+                            minimum: 0.0
+                            maximum: 100.0
+                    wave_period5:
+                            type: number
+                            description: Wave period associated with 5-year Hm5 (MHK TECs), used in DLC 6.1a.
+                            default: 0.
+                            unit: s
+                            minimum: 0.0
+                            maximum: 1000.0
+                    wave_height_cutout:
+                            type: number
+                            description: Maximum wave height during operation Hm0,out (MHK TECs), used in DLC 1.2, 3.2, 4.2.
+                            default: 0.
+                            unit: m
+                            minimum: 0.0
+                            maximum: 100.0
+                    orientation_error:
+                            type: number
+                            description: Maximum allowable orientation error for TEC yaw (MHK TECs). Used in flood/ebb/OE directional cases.
+                            default: 10.
+                            unit: deg
+                            minimum: 0.0
+                            maximum: 180.0
             openfast_input_map:
                 type: object
                 default: {}
