@@ -8,6 +8,7 @@ import weis.inputs as sch
 from openfast_io.FAST_reader import InputReader_OpenFAST
 from wisdem.glue_code.gc_LoadInputs import WindTurbineOntologyPython
 from weis.dlc_driver.dlc_generator    import DLCGenerator
+from weis.dlc_driver.dlc_generator_mhk import MHKDLCGenerator
 from openmdao.utils.mpi import MPI
 from rosco.toolbox.inputs.validation import load_rosco_yaml
 from wisdem.inputs import load_yaml
@@ -223,7 +224,13 @@ class WindTurbineOntologyPythonWEIS(WindTurbineOntologyPython):
         cut_out = self.wt_init['assembly']['cut_out_wind_speed']
         metocean = self.modeling_options['DLC_driver']['metocean_conditions']
         dlc_driver_options = self.modeling_options['DLC_driver']
-        dlc_generator = DLCGenerator(cut_in, cut_out, dlc_driver_options=dlc_driver_options, metocean=metocean)
+        if self.modeling_options.get('General', {}).get('openfast_configuration', {}).get('MHK', 0) > 0:
+            dlc_generator = MHKDLCGenerator(
+                ws_cut_in=cut_in, ws_cut_out=cut_out,
+                dlc_driver_options=dlc_driver_options, metocean=metocean
+            )
+        else:
+            dlc_generator = DLCGenerator(cut_in, cut_out, dlc_driver_options=dlc_driver_options, metocean=metocean)
         # Generate cases from user inputs
         for i_DLC in range(len(DLCs)):
             DLCopt = DLCs[i_DLC]

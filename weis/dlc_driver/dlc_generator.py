@@ -23,7 +23,7 @@ openfast_input_map = {
     
     'WindFile_type': ("InflowWind","WindType"),
     'wind_speed': ("InflowWind","HWindSpeed"),
-    'current_speed': [("HydroDyn","CurrDIV"), ("InflowWind","HWindSpeed")],
+    'current_speed': [("SeaState","CurrDIV"), ("InflowWind","HWindSpeed")],
     'wind_shear_exponent': ("InflowWind","PLExp"),
     'WindFile_name': ("InflowWind","FileName_BTS"),
     'WindFile_name': ("InflowWind","FileName_Uni"),
@@ -203,7 +203,8 @@ class DLCGenerator(object):
         self.n_ws_dlc11 = 0
 
         # Primary flow variable key: 'wind_speed' for wind turbines, overridden to 'current_speed' for MHK
-        self.flow_key = 'wind_speed'
+        if not hasattr(self, 'flow_key'):
+            self.flow_key = 'wind_speed'
 
         # OpenFAST input map
         self.openfast_input_map = copy.deepcopy(openfast_input_map)
