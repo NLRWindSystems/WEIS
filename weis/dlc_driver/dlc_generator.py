@@ -236,6 +236,8 @@ class DLCGenerator(object):
         self.wave_period50 = np.array([metocean['wave_period50']])
         self.wave_height1 = np.array([metocean['wave_height1']])
         self.wave_period1 = np.array([metocean['wave_period1']])
+        self.wave_height5 = np.array([metocean.get('wave_height5', metocean['wave_height50'])])
+        self.wave_period5 = np.array([metocean.get('wave_period5', metocean['wave_period50'])])
 
         self.initial_condition_table = initial_condition_table
 
@@ -522,7 +524,7 @@ class DLCGenerator(object):
         Will use met_options as an input and modify that dict
         sea_state can be normal, severe
         '''
-        allowed_sea_states = ['normal','severe','50-year','1-year']
+        allowed_sea_states = ['normal','severe','50-year','1-year','5-year']
         if sea_state not in allowed_sea_states:
             raise Exception(f'Selected sea state of {sea_state} is not in allowed_sea_states: {allowed_sea_states}')
         
@@ -543,6 +545,10 @@ class DLCGenerator(object):
             wind_speed_table = [50.]
             wave_height_table = self.wave_height1
             wave_period_table = self.wave_period1
+        elif sea_state == '5-year':
+            wind_speed_table = [50.]
+            wave_height_table = self.wave_height5
+            wave_period_table = self.wave_period5
 
 
         # If the user has not defined Hs (wave_height in modopts) and Tp (wave_period in modopts), apply the metocean conditions defined by the table
@@ -1144,7 +1150,7 @@ class DLCGenerator(object):
             ]
         )  # group 0, (usually constants) turbine variables, DT, aero_modeling
         generic_case_inputs.append(
-            ["wind_speed", "wave_height", "wave_period", "wind_seed", "wave_seed"]
+            [self.flow_key, "wave_height", "wave_period", "wind_seed", "wave_seed"]
         )
       
         self.generate_cases(generic_case_inputs,dlc_options)
