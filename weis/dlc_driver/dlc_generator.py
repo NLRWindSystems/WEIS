@@ -373,14 +373,11 @@ class DLCGenerator(object):
         metocean_case_info[self.flow_key] = wind_speed
         metocean_case_info['wind_seed'] = wind_seed
         metocean_case_info['wave_seed'] = wave_seed
-        # metocean_case_info['wind_heading'] = wind_heading
         metocean_case_info['wave_height'] = wave_height
         metocean_case_info['wave_period'] = wave_period
-        # metocean_case_info['current_speeds'] = current_speeds
         metocean_case_info['wave_gamma'] = wave_gamma
         metocean_case_info['wave_heading'] = wave_heading
         metocean_case_info['probability'] = probability       
-        # metocean_case_info['current_std'] = self.mo_current_std       
         
         return metocean_case_info
 

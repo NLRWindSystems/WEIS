@@ -1122,16 +1122,16 @@ properties:
                             minimum: 0.0
                             maximum: 20.0
                             uniqueItems: true
-                    current_std:
+                    current_TI:
                         type: array
-                        description: Standard deviation of current at each speed bin (MHK TECs). Used for TI computation.
+                        description: Turbulence intensity of current at each speed bin (MHK TECs), as a fraction (e.g. 0.10 for 10%).
                         default: []
                         items:
                             type: number
-                            unit: m/s
+                            unit: none
                             minItems: 0
                             minimum: 0.0
-                            maximum: 10.0
+                            maximum: 1.0
                     current_NSS:
                         type: array
                         description: Normal current speed per wave height bin (MHK TECs).

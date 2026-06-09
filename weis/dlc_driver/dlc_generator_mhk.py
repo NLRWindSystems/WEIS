@@ -670,6 +670,49 @@ class MHKDLCGenerator(DLCGenerator):
         self.generate_cases(generic_case_inputs, dlc_options)
 
     # ──────────────────────────────────────────────────────────────────────
+    # AEP — Annual Energy Production, current-TI from metocean table
+    # Overrides base class to interpolate TI from current_TI vs current_speed
+    # ──────────────────────────────────────────────────────────────────────
+    def generate_AEP(self, dlc_options):
+        dlc_options.update(self.default_options)
+
+        dlc_options['label'] = 'AEP'
+        dlc_options['sea_state'] = 'normal'
+        dlc_options['PSF'] = 1.0
+        dlc_options['wave_model'] = dlc_options.get('wave_model', 2)
+
+        if 'yaw_misalign' not in dlc_options:
+            dlc_options['yaw_misalign'] = [0]
+
+        generic_case_inputs = []
+        generic_case_inputs.append([])
+        generic_case_inputs.append([self.flow_key, 'wave_height', 'wave_period', 'wind_seed'])
+        generic_case_inputs.append(['yaw_misalign'])
+
+        # Track case index before generating
+        n_cases_before = len(self.cases)
+
+        self.generate_cases(generic_case_inputs, dlc_options)
+
+        # Set TI on each AEP case from metocean current_TI table
+        current_speed_table = np.array(self.metocean.get('current_speed', []))
+        current_TI_table = np.array(self.metocean.get('current_TI', []))
+
+        for idlc in self.cases[n_cases_before:]:
+            if 'TI' in dlc_options:
+                # User-specified constant TI (percentage)
+                idlc.IECturbc = dlc_options['TI']
+            elif len(current_speed_table) > 0 and len(current_TI_table) > 0:
+                # Interpolate TI (fraction) from metocean table, convert to percentage
+                TI_interp = np.interp(idlc.URef, current_speed_table, current_TI_table)
+                idlc.IECturbc = TI_interp * 100
+            else:
+                raise Exception(
+                    'For MHK AEP, provide either TI in dlc_options or '
+                    'current_speed and current_TI in metocean_conditions.'
+                )
+
+    # ──────────────────────────────────────────────────────────────────────
     # Wind-only DLCs — blocked for MHK TECs
     # ──────────────────────────────────────────────────────────────────────
     def generate_1p4(self, dlc_options):
