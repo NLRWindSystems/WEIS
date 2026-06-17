@@ -226,7 +226,10 @@ class TuneROSCO(ExplicitComponent):
         self.add_output('PC_GS_Ki',         val=np.zeros(rosco_init_options['PC_GS_n']),              desc='Gain-schedule table: pitch controller ki gains')
         self.add_output('Fl_Kp',            val=0.0,            desc='Floating feedback gain')
 
-        # self.add_output('VS_Rgn2K',     val=0.0, units='N*m/(rad/s)**2',      desc='Generator torque constant in Region 2 (HSS side), [N-m/(rad/s)^2]')
+        # ServoDyn parameters passed to FASTLoadCases via formal OpenMDAO connection
+        self.add_output('VS_RefSpd',        val=0.0,        units='rad/s',      desc='Rated generator speed for ServoDyn')
+        self.add_output('VS_RtTq',          val=0.0,        units='N*m',        desc='Rated generator torque for ServoDyn')
+        self.add_output('VS_Rgn2K',         val=0.0,        units='N*m/(rad/s)**2', desc='Generator torque constant in Region 2 (HSS side)')
 
     def compute(self,inputs,outputs, discrete_inputs, discrete_outputs):
         '''
@@ -426,6 +429,11 @@ class TuneROSCO(ExplicitComponent):
         # outputs['VS_Rgn2K']     = controller.vs_rgn2K
         outputs['VS_Kp'] = controller.vs_gain_schedule.Kp[0]
         outputs['VS_Ki'] = controller.vs_gain_schedule.Ki[0]
+
+        # ServoDyn parameters for FASTLoadCases
+        outputs['VS_RefSpd'] = ROSCO_input['VS_RefSpd']
+        outputs['VS_RtTq'] = ROSCO_input['VS_RtTq']
+        outputs['VS_Rgn2K'] = ROSCO_input['VS_Rgn2K']
  
 class Cp_Ct_Cq_Tables(ExplicitComponent):
     def initialize(self):
