@@ -22,6 +22,7 @@ import weis.aeroelasticse.runFAST_pywrapper as fastwrap
 from openfast_io.FAST_post         import FAST_IO_timeseries
 from wisdem.floatingse.floating_frame import NULL, NNODES_MAX, NELEM_MAX
 from weis.dlc_driver.dlc_generator    import DLCGenerator
+from weis.dlc_driver.dlc_generator_mhk import MHKDLCGenerator
 from weis.aeroelasticse.CaseGen_General import CaseGen_General
 from functools import partial
 from weis.aeroelasticse.LinearFAST import LinearFAST
@@ -2555,18 +2556,32 @@ class FASTLoadCases(ExplicitComponent):
         thrust = 0.5 * np.array(Ct_aero_interp) * inputs['Rtip'][0]**2 * np.pi * inputs['rho'][0] * np.array(U_interp)**2
         initial_condition_table['TTFAdisp_initial'] = thrust / np.max(thrust) * hub_height * 0.03
 
-        dlc_generator = DLCGenerator(
-            cut_in, 
-            cut_out, 
-            rated, 
-            ws_class, 
-            wt_class, 
-            fix_wind_seeds, 
-            fix_wave_seeds, 
-            metocean, 
-            modopt['DLC_driver'],
-            initial_condition_table,
+        if modopt['flags']['MHK']:
+            dlc_generator = MHKDLCGenerator(
+                ws_cut_in=cut_in,
+                ws_cut_out=cut_out,
+                ws_rated=rated,
+                wind_speed_class=ws_class,
+                wind_turbulence_class=wt_class,
+                fix_wind_seeds=fix_wind_seeds,
+                fix_wave_seeds=fix_wave_seeds,
+                metocean=metocean,
+                dlc_driver_options=modopt['DLC_driver'],
+                initial_condition_table=initial_condition_table,
             )
+        else:
+            dlc_generator = DLCGenerator(
+                cut_in, 
+                cut_out, 
+                rated, 
+                ws_class, 
+                wt_class, 
+                fix_wind_seeds, 
+                fix_wave_seeds, 
+                metocean, 
+                modopt['DLC_driver'],
+                initial_condition_table,
+                )
         # Generate cases from user inputs
         for i_DLC in range(len(DLCs)):
             DLCopt = DLCs[i_DLC]

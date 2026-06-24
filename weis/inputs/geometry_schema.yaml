@@ -4,6 +4,11 @@ title: WEIS geometry ontology add-ons beyond WISDEM ontology
 description: Ontology definition for wind turbines as defined in WP1 of IEA Wind Task 37 - Phase II
 type: object
 properties:
+    assembly:
+        properties:
+            hub_height:
+                minimum: -1000
+                description: Height of the hub center over the ground (land-based), the mean sea level (offshore), or below sea level for MHK turbines (negative)
     TMDs:
         type: array
         description: Ontology definition for TMDs

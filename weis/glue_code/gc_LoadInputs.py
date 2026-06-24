@@ -217,6 +217,9 @@ class WindTurbineOntologyPythonWEIS(WindTurbineOntologyPython):
         if not osp.isfile(self.modeling_options['OpenFAST']["xfoil"]["path"]) and self.modeling_options['ROSCO']['Flp_Mode']:
             raise Exception("A distributed aerodynamic control device is defined in the geometry yaml, but the path to XFoil in the modeling options is not defined correctly")
 
+        # MHK flag
+        self.modeling_options['flags']['MHK'] = self.modeling_options.get('General', {}).get('openfast_configuration', {}).get('MHK', 0) > 0
+
         # Compute the number of DLCs that will be run
         DLCs = self.modeling_options['DLC_driver']['DLCs']
         # Initialize the DLC generator
@@ -224,7 +227,7 @@ class WindTurbineOntologyPythonWEIS(WindTurbineOntologyPython):
         cut_out = self.wt_init['assembly']['cut_out_wind_speed']
         metocean = self.modeling_options['DLC_driver']['metocean_conditions']
         dlc_driver_options = self.modeling_options['DLC_driver']
-        if self.modeling_options.get('General', {}).get('openfast_configuration', {}).get('MHK', 0) > 0:
+        if self.modeling_options['flags']['MHK']:
             dlc_generator = MHKDLCGenerator(
                 ws_cut_in=cut_in, ws_cut_out=cut_out,
                 dlc_driver_options=dlc_driver_options, metocean=metocean
