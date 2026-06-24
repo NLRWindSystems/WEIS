@@ -98,9 +98,9 @@ class MHKDLCGenerator(DLCGenerator):
             dlc_options['wave_height'] = max_wave_height * np.ones_like(met_options[self.flow_key])
 
         # Wave direction sweep 0°–360° in 30° steps
-        default_wave_headings = np.arange(0, 360, 30)
-        if len(dlc_options.get('wave_heading', [])) == 0:
-            dlc_options['wave_heading'] = default_wave_headings
+        default_wave_directions = np.arange(0, 360, 30)
+        if len(dlc_options.get('wave_direction', [])) == 0:
+            dlc_options['wave_direction'] = default_wave_directions
 
         # User specifies yaw_misalign in YAML for flood/ebb/OE cases
         if 'yaw_misalign' not in dlc_options:
@@ -109,7 +109,7 @@ class MHKDLCGenerator(DLCGenerator):
         generic_case_inputs = []
         generic_case_inputs.append([])  # group 0
         generic_case_inputs.append([self.flow_key, 'wave_height', 'wave_period', 'wind_seed', 'wave_seed'])  # group 1
-        generic_case_inputs.append(['wave_heading'])  # group 2
+        generic_case_inputs.append(['wave_direction'])  # group 2
         generic_case_inputs.append(['yaw_misalign'])  # group 3
 
         self.generate_cases(generic_case_inputs, dlc_options)
@@ -157,7 +157,7 @@ class MHKDLCGenerator(DLCGenerator):
             raise Exception('genfault_time must be set for DLC 2.1')
 
         # Default current speeds: rated to cut-out
-        dlc_options[self.flow_key] = dlc_options.get(self.flow_key, [self.ws_rated, self.ws_cut_out])
+        dlc_options[self.flow_key] = dlc_options.get(self.flow_key) or [self.ws_rated, self.ws_cut_out]
 
         # Azimuth starting positions
         dlc_options['azimuth_init'] = np.linspace(0., 120., dlc_options['n_azimuth'], endpoint=False)
@@ -188,7 +188,7 @@ class MHKDLCGenerator(DLCGenerator):
         dlc_options['wave_model'] = dlc_options.get('wave_model', 2)
 
         # Default current speeds: rated to cut-out
-        dlc_options[self.flow_key] = dlc_options.get(self.flow_key, [self.ws_rated, self.ws_cut_out])
+        dlc_options[self.flow_key] = dlc_options.get(self.flow_key) or [self.ws_rated, self.ws_cut_out]
 
         # Azimuth starting positions
         dlc_options['azimuth_init'] = np.linspace(0., 120., dlc_options['n_azimuth'], endpoint=False)
@@ -244,7 +244,7 @@ class MHKDLCGenerator(DLCGenerator):
             raise Exception('genfault_time must be set for DLC 2.3')
 
         # Default current speeds: rated to cut-out
-        dlc_options[self.flow_key] = dlc_options.get(self.flow_key, [self.ws_rated, self.ws_cut_out])
+        dlc_options[self.flow_key] = dlc_options.get(self.flow_key) or [self.ws_rated, self.ws_cut_out]
 
         # Azimuth starting positions
         dlc_options['azimuth_init'] = np.linspace(0., 120., dlc_options['n_azimuth'], endpoint=False)
@@ -277,7 +277,7 @@ class MHKDLCGenerator(DLCGenerator):
         dlc_options['wave_model'] = dlc_options.get('wave_model', 2)
 
         # Default current speeds: rated to cut-out
-        dlc_options[self.flow_key] = dlc_options.get(self.flow_key, [self.ws_rated, self.ws_cut_out])
+        dlc_options[self.flow_key] = dlc_options.get(self.flow_key) or [self.ws_rated, self.ws_cut_out]
 
         # Startup options
         dlc_options['startup_mode'] = 1
@@ -321,7 +321,7 @@ class MHKDLCGenerator(DLCGenerator):
         dlc_options['wave_model'] = dlc_options.get('wave_model', 2)
 
         # Default current speeds: rated to cut-out
-        dlc_options[self.flow_key] = dlc_options.get(self.flow_key, [self.ws_rated, self.ws_cut_out])
+        dlc_options[self.flow_key] = dlc_options.get(self.flow_key) or [self.ws_rated, self.ws_cut_out]
 
         # Use cutout wave height
         met_options = self.gen_met_options(dlc_options, sea_state=dlc_options['sea_state'])
@@ -371,7 +371,7 @@ class MHKDLCGenerator(DLCGenerator):
         dlc_options['wave_model'] = dlc_options.get('wave_model', 2)
 
         # Default current speeds: rated to cut-out
-        dlc_options[self.flow_key] = dlc_options.get(self.flow_key, [self.ws_rated, self.ws_cut_out])
+        dlc_options[self.flow_key] = dlc_options.get(self.flow_key) or [self.ws_rated, self.ws_cut_out]
 
         # Shutdown options
         dlc_options['shutdown_mode'] = 1
@@ -413,7 +413,7 @@ class MHKDLCGenerator(DLCGenerator):
         dlc_options['wave_model'] = dlc_options.get('wave_model', 2)
 
         # Default current speeds: rated to cut-out
-        dlc_options[self.flow_key] = dlc_options.get(self.flow_key, [self.ws_rated, self.ws_cut_out])
+        dlc_options[self.flow_key] = dlc_options.get(self.flow_key) or [self.ws_rated, self.ws_cut_out]
 
         # Use cutout wave height
         met_options = self.gen_met_options(dlc_options, sea_state=dlc_options['sea_state'])
@@ -475,7 +475,7 @@ class MHKDLCGenerator(DLCGenerator):
             raise Exception(f"DLC 5.1: shutdown_time ({dlc_options['shutdown_time']}) > analysis_time ({dlc_options['analysis_time']})")
 
         # Default current speeds: rated to cut-out
-        dlc_options[self.flow_key] = dlc_options.get(self.flow_key, [self.ws_rated, self.ws_cut_out])
+        dlc_options[self.flow_key] = dlc_options.get(self.flow_key) or [self.ws_rated, self.ws_cut_out]
 
         if 'yaw_misalign' not in dlc_options:
             dlc_options['yaw_misalign'] = [0]

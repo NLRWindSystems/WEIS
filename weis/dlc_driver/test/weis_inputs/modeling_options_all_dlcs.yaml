@@ -67,7 +67,6 @@ DLC_driver:
         mean_sea_level: [Fst,MSL2SWL]
         wave_dir: [HydroDyn,WaveDir]
         current_model: [HydroDyn,CurrMod]
-        current_speed: [HydroDyn,CurrDIV]
 
     DLCs: # All currently supported load cases should be below:
         - DLC: "1.1"

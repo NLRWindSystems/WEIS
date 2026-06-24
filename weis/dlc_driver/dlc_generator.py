@@ -498,6 +498,7 @@ class DLCGenerator(object):
             idlc.analysis_time = case['analysis_time']
             idlc.IEC_WindType = dlc_options['IEC_WindType']
             idlc.turbine_status = dlc_options['turbine_status']
+            idlc.PSF = dlc_options['PSF']
 
             # Apply case_list info to idlc
             for key in case:
@@ -511,7 +512,8 @@ class DLCGenerator(object):
                     idlc.IECturbc = dlc_options['TI']
                 elif 'TI_factor' in dlc_options:
                     idlc.IECturbc = self.IECturb.NTM(idlc.URef) * dlc_options['TI_factor'] / idlc.URef * 100
-                else:
+                elif not getattr(self, 'MHK', False):
+                    # MHK subclasses apply TI per-case from the metocean current_TI table after generate_cases
                     raise Exception('For AEP DLCs, either TI or TI_factor must be provided in dlc_options')
 
             
