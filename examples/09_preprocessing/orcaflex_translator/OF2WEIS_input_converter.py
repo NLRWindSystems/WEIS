@@ -224,9 +224,10 @@ weis_obj['components']['blade']['outer_shape_bem']['chord']['values']           
 weis_obj['components']['blade']['outer_shape_bem']['twist']['grid']                 = blade_fraction
 twist = fast.fst_vt['AeroDynBlade']['BlTwist'] # convert to radians
 weis_obj['components']['blade']['outer_shape_bem']['twist']['values']               = [T * pi/180 for T in twist]
-# Pitch Axis
-weis_obj['components']['blade']['outer_shape_bem']['pitch_axis']['grid']            = blade_fraction
-weis_obj['components']['blade']['outer_shape_bem']['pitch_axis']['values']          = np.interp(blade_fraction,fast.fst_vt['ElastoDynBlade']['BlFract'],fast.fst_vt['ElastoDynBlade']['PitchAxis'])
+# Removed in OpenFAST 5.0
+# # Pitch Axis
+# weis_obj['components']['blade']['outer_shape_bem']['pitch_axis']['grid']            = blade_fraction
+# weis_obj['components']['blade']['outer_shape_bem']['pitch_axis']['values']          = np.interp(blade_fraction,fast.fst_vt['ElastoDynBlade']['BlFract'],fast.fst_vt['ElastoDynBlade']['PitchAxis'])
 # Reference Axis (normal prebend is negative in weis)
 weis_obj['components']['blade']['outer_shape_bem']['reference_axis']['x']['grid']   = blade_fraction
 weis_obj['components']['blade']['outer_shape_bem']['reference_axis']['x']['values'] = [-x for x in fast.fst_vt['AeroDynBlade']['BlCrvAC']]

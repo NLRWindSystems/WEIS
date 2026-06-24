@@ -33,6 +33,11 @@ properties:
                         maximum: 10.0
                         unit: s
                         description: Integration time step (s)
+                    ModCoupling:
+                        type: integer
+                        enum: [1,2,3]
+                        default: 3
+                        description: Module coupling method (switch) {1=loose; 2=tight with fixed Jacobian updates (DT_UJac); 3=tight with automatic Jacobian updates} 
                     InterpOrder:
                         type: string
                         enum: ['1','2', linear, Linear, LINEAR, quadratic, Quadratic, QUADRATIC]
@@ -44,6 +49,24 @@ properties:
                         minimum: 0
                         maximum: 10
                         description: Number of correction iterations (-) {0=explicit calculation, i.e., no corrections}
+                    RhoInf:
+                        type: number
+                        default: 0.0
+                        minimum: 0.0
+                        maximum: 1.0
+                        description: Numerical damping parameter for tight coupling generalized-alpha integrator (-)
+                    ConvTol:
+                        type: number
+                        default: 1e-4
+                        minimum: 0.0
+                        maximum: 1e-2
+                        description: Convergence iteration error tolerance for tight coupling generalized alpha integrator (-)
+                    MaxConvIter:
+                        type: integer
+                        default: 6
+                        minimum: 1
+                        maximum: 100
+                        description: Maximum number of convergence iterations for tight coupling generalized alpha integrator (-)
                     DT_UJac:
                         type: number
                         default: 99999.0
@@ -57,6 +80,12 @@ properties:
                         minimum: 0.0
                         maximum: 1e9
                         description: Scaling factor used in Jacobians (-)
+                    NRotors:
+                        type: integer
+                        default: 1
+                        minimum: 1
+                        maximum: 10
+                        description: Number of rotors in turbine (-)
                     CompElast:
                         type: integer
                         enum: [0,1,2]
@@ -102,11 +131,23 @@ properties:
                         enum: [0,1,2]
                         default: 0
                         description: Compute ice loads (switch) {0=None; 1=IceFloe; 2=IceDyn}
+                    CompSoil:
+                        type: integer
+                        enum: [0,1]
+                        default: 0
+                        description: Compute soil-structural dynamics (switch) {0=None; 1=SoilDyn}
                     MHK:
                         type: integer
                         enum: [0,1,2]
                         default: 0
                         description: MHK turbine type (switch) {0=Not an MHK turbine; 1=Fixed MHK turbine; 2=Floating MHK turbine}
+                    MirrorRotor:
+                        type: array
+                        description: List of flags to reverse rotor rotation direction [1 to NRotors] {false=Normal, true=Mirror}
+                        default: [False]
+                        items:
+                            type: boolean
+                            uniqueItems: False
                     Gravity:
                         type: number
                         default: 9.81
@@ -196,6 +237,10 @@ properties:
                         type: string
                         default: none
                         description: Name of file containing ice input parameters (quoted string)
+                    SoilFile:
+                        type: string
+                        default: none
+                        description: Name of the file containing the SoilDyn input parameters (quoted string)
                     SumPrint: &sumprint
                         type: boolean
                         default: False
@@ -1079,6 +1124,18 @@ properties:
                         # minimum: 0.
                         # maximum: 10.
                         description: Turbulence buoyancy coefficient
+                    TwrCp:
+                        type: number
+                        default: 0.0
+                        # minimum: 0.
+                        # maximum: 10.
+                        description: Tower dynamic pressure coefficient
+                    TwrCa:
+                        type: number
+                        default: 0.0
+                        # minimum: 0.
+                        # maximum: 10.
+                        description: Tower added mass coefficient
                     SumPrint: *sumprint
             ElastoDyn: &ofelastodyn
                 type: object
@@ -1108,6 +1165,10 @@ properties:
                         type: boolean
                         default: True
                         description: First edgewise blade mode DOF (flag)
+                    PitchDOF:
+                        type: boolean
+                        default: False
+                        description: Blade pitch DOF (flag)
                     TeetDOF:
                         type: boolean
                         default: False
@@ -1779,9 +1840,9 @@ properties:
                 properties:
                     damp_type:
                         type: integer
-                        enum: [0, 1]
+                        enum: [0, 1, 2]
                         default: 1
-                        description: Damping type, 0 no damping; 1 damped
+                        description: Damping type, 0 no damping; 1 stiffness proportional damping; 2 modal damping
                     mu1:
                         type: number
                         minimum: 0.0
@@ -1818,6 +1879,16 @@ properties:
                         maximum: 1.
                         default: 1.e-4
                         description: Stiffness proportional damping coefficient in torsional direction (around z). mu6 is often assumed equal to mu3.
+                    n_modes:
+                        type: integer
+                        minimum: 0
+                        maximum: 100
+                        default: 6
+                        description: Number of modal damping coefficients (-). Only used when damp_type=2
+                    zeta:
+                        type: array
+                        default: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+                        description: Modal damping coefficients (-). Only used when damp_type=2
             HydroDyn: &ofhydrodyn
                 type: object
                 default: {}
@@ -1965,6 +2036,12 @@ properties:
                             type: number
                             minItems: 1
                         description: The yt offset of the center of buoyancy (COB) from the platform reference point (meters) [only used when PotMod=1]
+                    NAddDOF:
+                        type: integer
+                        minimum: 0
+                        maximum: 6
+                        default: 0
+                        description: Number of additional generalized DOF of each WAMIT body (-) [1 to NBody] [>=0; =0 if NBody>1; only used when PotMod=1]
                     MnDrift:
                         type: integer
                         enum: [0, 7, 8, 9, 10, 11, 12]
@@ -2042,6 +2119,11 @@ properties:
                         enum: [0, 2]
                         default: 0
                         description: 'Method of computing distributed added-mass force. (0: Only and always on nodes below SWL at the undisplaced position. 2: Up to the instantaneous free surface) [overwrite to 0 when WaveMod = 0 or 6 or when WaveStMod = 0 in SeaState]'
+                    HstMod:
+                        type: integer
+                        enum: [0, 1]
+                        default: 1
+                        description: 'Method of computing hydrostatic loads. (0: Up to the still water level. 1: Up to the instantaneous free surface) [overwrite to 0 when WaveStMod = 0 in SeaState]'
                     NMOutputs:
                         type: integer
                         minimum: 0
@@ -2317,19 +2399,82 @@ properties:
                         unit: s
                         minimum: 0.
                         description: Time to enable active pitch control (s) [unused when PCMode=0]
-                    TPitManS1:
+                    PitNeut(1):
+                        type: number
+                        unit: deg
+                        default: 0.
+                        minimum: -180
+                        maximum: +180
+                        description: Blade 1 neutral pitch position--pitch spring moment is zero at this pitch (degrees)
+                    PitNeut(2):
+                        type: number
+                        unit: deg
+                        default: 0.
+                        minimum: -180
+                        maximum: +180
+                        description: Blade 2 neutral pitch position--pitch spring moment is zero at this pitch (degrees)
+                    PitNeut(3):
+                        type: number
+                        unit: deg
+                        default: 0.
+                        minimum: -180
+                        maximum: +180
+                        description: Blade 3 neutral pitch position--pitch spring moment is zero at this pitch (degrees)
+                    PitSpr(1):
+                        type: number
+                        unit: N-m/rad
+                        default: 0.
+                        minimum: 0.
+                        maximum: 1000.
+                        description: Blade 1 pitch spring constant (N-m/rad)
+                    PitSpr(2):
+                        type: number
+                        unit: N-m/rad
+                        default: 0.
+                        minimum: 0.
+                        maximum: 1000.
+                        description: Blade 2 pitch spring constant (N-m/rad)
+                    PitSpr(3):
+                        type: number
+                        unit: N-m/rad
+                        default: 0.
+                        minimum: 0.
+                        maximum: 1000.
+                        description: Blade 3 pitch spring constant (N-m/rad)
+                    PitDamp(1):
+                        type: number
+                        unit: N-m/(rad/s)
+                        default: 0.
+                        minimum: 0.
+                        maximum: 1000.
+                        description: Blade 1 pitch damping constant (N-m/(rad/s))
+                    PitDamp(2):
+                        type: number
+                        unit: N-m/(rad/s)
+                        default: 0.
+                        minimum: 0.
+                        maximum: 1000.
+                        description: Blade 2 pitch damping constant (N-m/(rad/s))
+                    PitDamp(3):
+                        type: number
+                        unit: N-m/(rad/s)
+                        default: 0.
+                        minimum: 0.
+                        maximum: 1000.
+                        description: Blade 3 pitch damping constant (N-m/(rad/s))
+                    TPitManS(1):
                         type: number
                         minimum: 0.
                         unit: s
                         default: 99999.
                         description: Time to start override pitch maneuver for blade 1 and end standard pitch control (s)
-                    TPitManS2:
+                    TPitManS(2):
                         type: number
                         minimum: 0.
                         unit: s
                         default: 99999.
                         description: Time to start override pitch maneuver for blade 2 and end standard pitch control (s)
-                    TPitManS3:
+                    TPitManS(3):
                         type: number
                         minimum: 0.
                         unit: s
@@ -2795,6 +2940,11 @@ properties:
                         enum: [0, 1, 2, 3]
                         default: 0
                         description: Model for stretching incident wave kinematics to instantaneous free surface {0 = none=no stretching, 1 = vertical stretching, 2 = extrapolation stretching, 3 = Wheeler stretching} (switch) [unused when WaveMod=0 or when PotMod/=0]
+                    WvCrntMod:
+                        type: integer
+                        enum: [0, 1, 2]
+                        default: 0
+                        description: 'Combined wave-current modeling option {0: simple superposition, 1: include Doppler effect, 2: include both Doppler effect and wave amplitude/spectrum scaling} (switch) [unused when WaveMod=0 or WaveMod=6. Also unused when there is no current from SeaState (CurrMod=0) or from InflowWind if MHK.]'
                     WaveTMax:
                         type: number
                         default: 3600

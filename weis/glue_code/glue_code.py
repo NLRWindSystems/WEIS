@@ -758,12 +758,6 @@ class WindPark(om.Group):
                     self.connect("drivetrain.mb2Type",                   "drivese_post.bear2.bearing_type")
                     self.connect("drivetrain.lss_diameter",              "drivese_post.lss_diameter")
                     self.connect("drivetrain.lss_wall_thickness",        "drivese_post.lss_wall_thickness")
-                    if modeling_options["WISDEM"]["DriveSE"]["direct"]:
-                        self.connect("drivetrain.nose_diameter",              "drivese_post.bear1.D_shaft", src_indices=[0])
-                        self.connect("drivetrain.nose_diameter",              "drivese_post.bear2.D_shaft", src_indices=[-1])
-                    else:
-                        self.connect("drivetrain.lss_diameter",              "drivese_post.bear1.D_shaft", src_indices=[0])
-                        self.connect("drivetrain.lss_diameter",              "drivese_post.bear2.D_shaft", src_indices=[-1])
                     self.connect("drivetrain.uptower",                   "drivese_post.uptower")
                     self.connect("drivetrain.brake_mass_user",           "drivese_post.brake_mass_user")
                     self.connect("drivetrain.hvac_mass_coeff",           "drivese_post.hvac_mass_coeff")

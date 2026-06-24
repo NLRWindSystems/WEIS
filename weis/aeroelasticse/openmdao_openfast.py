@@ -769,6 +769,10 @@ class FASTLoadCases(ExplicitComponent):
             fst_vt['AeroDyn']['TwrTI'] = [fst_vt['AeroDyn']['TwrTI']] * len(fst_vt['AeroDyn']['TwrElev'])
         if not hasattr(fst_vt['AeroDyn']['TwrCb'],'__len__'):
             fst_vt['AeroDyn']['TwrCb'] = [fst_vt['AeroDyn']['TwrCb']] * len(fst_vt['AeroDyn']['TwrElev'])
+        if not hasattr(fst_vt['AeroDyn']['TwrCp'],'__len__'):
+            fst_vt['AeroDyn']['TwrCp'] = [fst_vt['AeroDyn']['TwrCp']] * len(fst_vt['AeroDyn']['TwrElev'])
+        if not hasattr(fst_vt['AeroDyn']['TwrCa'],'__len__'):
+            fst_vt['AeroDyn']['TwrCa'] = [fst_vt['AeroDyn']['TwrCa']] * len(fst_vt['AeroDyn']['TwrElev'])
         
         # Apply modeling overrides for faster testing
         if modopt['General']['test_mode']:
@@ -1142,6 +1146,12 @@ class FASTLoadCases(ExplicitComponent):
         fst_vt['ElastoDyn']['TipMass(1)'] = 0.
         fst_vt['ElastoDyn']['TipMass(2)'] = 0.
         fst_vt['ElastoDyn']['TipMass(3)'] = 0.
+        fst_vt['ElastoDyn']['PBrIner(1)'] = 0.
+        fst_vt['ElastoDyn']['PBrIner(2)'] = 0.
+        fst_vt['ElastoDyn']['PBrIner(3)'] = 0.
+        fst_vt['ElastoDyn']['BlPIner(1)'] = 0.
+        fst_vt['ElastoDyn']['BlPIner(2)'] = 0.
+        fst_vt['ElastoDyn']['BlPIner(3)'] = 0.
 
         tower_base_height = max(float(inputs['tower_base_height'][0]), float(inputs["platform_total_center_of_mass"][2]))
         fst_vt['ElastoDyn']['TowerBsHt'] = tower_base_height # Height of tower base above ground level [onshore] or MSL [offshore] (meters)
@@ -1160,6 +1170,8 @@ class FASTLoadCases(ExplicitComponent):
             fst_vt['ElastoDyn']['PtfmCMxt'] = float(inputs["platform_total_center_of_mass"][0])
             fst_vt['ElastoDyn']['PtfmCMyt'] = float(inputs["platform_total_center_of_mass"][1])
             fst_vt['ElastoDyn']['PtfmCMzt'] = float(inputs["platform_total_center_of_mass"][2])
+            fst_vt['ElastoDyn']['PtfmRefxt'] = 0. # Downwind distance from the ground level [onshore] or MSL [offshore] to the platform reference point (meters)
+            fst_vt['ElastoDyn']['PtfmRefyt'] = 0. # Lateral distance from the ground level [onshore] or MSL [offshore] to the platform reference point (meters)
             fst_vt['ElastoDyn']['PtfmRefzt'] = 0. # Vertical distance from the ground level [onshore] or MSL [offshore] to the platform reference point (meters)
 
         else:
@@ -1176,6 +1188,8 @@ class FASTLoadCases(ExplicitComponent):
             fst_vt['ElastoDyn']['PtfmCMxt'] = 0.
             fst_vt['ElastoDyn']['PtfmCMyt'] = 0.
             fst_vt['ElastoDyn']['PtfmCMzt'] = float(inputs['tower_base_height'][0])
+            fst_vt['ElastoDyn']['PtfmRefxt'] = 0. # Downwind distance from the ground level [onshore] or MSL [offshore] to the platform reference point (meters)
+            fst_vt['ElastoDyn']['PtfmRefyt'] = 0. # Lateral distance from the ground level [onshore] or MSL [offshore] to the platform reference point (meters)
             fst_vt['ElastoDyn']['PtfmRefzt'] = tower_base_height # Vertical distance from the ground level [onshore] or MSL [offshore] to the platform reference point (meters)
 
 
@@ -1258,7 +1272,6 @@ class FASTLoadCases(ExplicitComponent):
         fst_vt['ElastoDynBlade']['BlFract']    = (inputs['r']-inputs['Rhub'])/(inputs['Rtip']-inputs['Rhub'])
         fst_vt['ElastoDynBlade']['BlFract'][0] = 0.
         fst_vt['ElastoDynBlade']['BlFract'][-1]= 1.
-        fst_vt['ElastoDynBlade']['PitchAxis']  = inputs['le_location'] / inputs['chord']
         fst_vt['ElastoDynBlade']['StrcTwst']   = inputs['theta'] # to do: structural twist is not nessessarily (nor likely to be) the same as aero twist
         fst_vt['ElastoDynBlade']['BMassDen']   = inputs['blade:rhoA']
         fst_vt['ElastoDynBlade']['FlpStff']    = inputs['blade:EIyy']
@@ -1310,6 +1323,17 @@ class FASTLoadCases(ExplicitComponent):
         fst_vt['AeroDynBlade']['BlTwist']  = inputs['theta']
         fst_vt['AeroDynBlade']['BlChord']  = inputs['chord']
         fst_vt['AeroDynBlade']['BlAFID']   = np.asarray(range(1,self.n_span+1))
+
+        # AeroDyn inputs listed starting in OpenFAST v5.0.0
+        fst_vt['AeroDynBlade']['t_c'] = np.zeros_like(r)
+        fst_vt['AeroDynBlade']['BlCb'] = np.zeros_like(r)
+        fst_vt['AeroDynBlade']['BlCenBn'] = np.zeros_like(r)
+        fst_vt['AeroDynBlade']['BlCenBt'] = np.zeros_like(r)
+        fst_vt['AeroDynBlade']['BlCpn'] = np.zeros_like(r)
+        fst_vt['AeroDynBlade']['BlCpt'] = np.zeros_like(r)
+        fst_vt['AeroDynBlade']['BlCan'] = np.zeros_like(r)
+        fst_vt['AeroDynBlade']['BlCat'] = np.zeros_like(r)
+        fst_vt['AeroDynBlade']['BlCam'] = np.zeros_like(r)
 
         # TODO: Check these additional values required for MHK applications, setting them to zero for now
         fst_vt['AeroDynBlade']['BlCb'] = np.zeros(self.n_span)
@@ -2686,7 +2710,8 @@ class FASTLoadCases(ExplicitComponent):
                     StC_files.append(StC_filename)
 
                     # Write StC Input, add filename to case_inputs
-
+                    stc_writer.fst_vt['Fst'] = {}
+                    stc_writer.fst_vt['Fst']['ServoFile'] = fst_vt['Fst']['ServoFile']
                     stc_writer.write_StC(StC_i,StC_filename)
 
                     # Add StC file to case_inputs
