@@ -22,6 +22,49 @@ weis_dir = os.path.realpath(os.path.join(os.path.dirname(__file__),'../..'))
 logger = logging.getLogger("wisdem/weis")
 
 
+def resolve_tsr_operational(rosco_init_options, tsr_operational_default, rated_rotor_speed, rotor_radius, Cp):
+    '''
+    Resolve the Region 2 TSR_operational (and dependent rated wind speed) used to tune ROSCO.
+
+    If 'TSR_operational' is present in rosco_init_options (i.e. set via rosco_tuning_inputs),
+    it takes precedence over tsr_operational_default (WISDEM's control.rated_TSR / optimal_tsr):
+      - 0 triggers auto-computation from the Cp surface (Cp.TSR_opt), matching standalone
+        ROSCO's convention in rosco.toolbox.turbine.Turbine.
+      - A positive value is used directly as an override.
+    If the key is absent, tsr_operational_default is returned unchanged.
+
+    Parameters
+    ----------
+    rosco_init_options : dict
+        modeling_options['ROSCO'], may optionally contain 'TSR_operational'
+    tsr_operational_default : float
+        Default operational TSR, usually from WISDEM's control.rated_TSR
+    rated_rotor_speed : float
+        Rated rotor speed, rad/s
+    rotor_radius : float
+        Rotor radius, m
+    Cp : rosco.toolbox.turbine.RotorPerformance
+        Power coefficient surface, used for auto-computation of TSR_operational
+
+    Returns
+    -------
+    tsr_operational : float
+    v_rated : float
+    '''
+    tsr_operational = tsr_operational_default
+    if 'TSR_operational' in rosco_init_options:
+        tsr_override = float(rosco_init_options['TSR_operational'])
+        if tsr_override == 0:
+            tsr_operational = Cp.TSR_opt
+            logger.info(f"TSR_operational auto-computed from Cp surface: {tsr_operational:.4f}")
+        elif tsr_override > 0:
+            tsr_operational = tsr_override
+            logger.info(f"TSR_operational overridden by ROSCO tuning input: {tsr_override:.4f}")
+
+    v_rated = rated_rotor_speed * rotor_radius / tsr_operational
+    return tsr_operational, v_rated
+
+
 class ServoSE_ROSCO(Group):
     def initialize(self):
         self.options.declare('modeling_options')
@@ -260,12 +303,12 @@ class TuneROSCO(ExplicitComponent):
         WISDEM_turbine.rated_power  = float(inputs['rated_power'][0])
         WISDEM_turbine.rated_torque = float(inputs['rated_torque'][0]) / WISDEM_turbine.Ng * float(inputs['gearbox_efficiency'][0])
         WISDEM_turbine.max_torque   = WISDEM_turbine.rated_torque * 1.1  # TODO: make this an input if studying constant power
-        WISDEM_turbine.v_rated      = float(inputs['rated_rotor_speed'][0])*float(inputs['R'][0]) / float(inputs['tsr_operational'][0])
         WISDEM_turbine.v_min        = float(inputs['v_min'][0])
         WISDEM_turbine.v_max        = float(inputs['v_max'][0])
         WISDEM_turbine.max_pitch_rate   = float(inputs['max_pitch_rate'][0])
         WISDEM_turbine.min_pitch_rate   = -float(inputs['max_pitch_rate'][0])
-        WISDEM_turbine.TSR_operational  = float(inputs['tsr_operational'][0])
+        # TSR_operational and v_rated are finalized below, once the Cp surface is available
+        # (see resolve_tsr_operational), since ROSCO tuning inputs may override the WISDEM value.
         WISDEM_turbine.TowerHt          = float(inputs['TowerHt'][0])
         WISDEM_turbine.bld_edgewise_freq = float(inputs['edge_freq'][0]) * 2 * np.pi
 
@@ -295,6 +338,16 @@ class TuneROSCO(ExplicitComponent):
         WISDEM_turbine.Cp   = RotorPerformance(self.Cp_table,self.pitch_vector,self.tsr_vector)
         WISDEM_turbine.Ct   = RotorPerformance(self.Ct_table,self.pitch_vector,self.tsr_vector)
         WISDEM_turbine.Cq   = RotorPerformance(self.Cq_table,self.pitch_vector,self.tsr_vector)
+
+        # Resolve TSR_operational (and dependent v_rated), allowing ROSCO tuning inputs
+        # (rosco_init_options['TSR_operational']) to override the WISDEM value.
+        WISDEM_turbine.TSR_operational, WISDEM_turbine.v_rated = resolve_tsr_operational(
+            rosco_init_options,
+            float(inputs['tsr_operational'][0]),
+            WISDEM_turbine.rated_rotor_speed,
+            WISDEM_turbine.rotor_radius,
+            WISDEM_turbine.Cp,
+        )
 
         # Load blade info to pass to flap controller tuning process
         if rosco_init_options['Flp_Mode'] >= 1:
