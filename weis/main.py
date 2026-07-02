@@ -83,7 +83,7 @@ def set_modopt_test_runs(fname_input_modeling, fname_input_analysis, modeling_ov
     multi_objective_solvers = ['NSGA2']
     current_solver = analysis_options.get('driver', {}).get('optimization', {}).get('solver', '')
     if current_solver not in multi_objective_solvers:
-        test_analysis_overrides['driver']['optimization']['solver'] = 'COBYLA'   # Gradient free
+        test_analysis_overrides['driver']['optimization']['solver'] = 'LN_COBYLA'   # Gradient free
 
     modeling_override = recursive_merge(modeling_override, test_modeling_overrides)
     analysis_override = recursive_merge(analysis_override, test_analysis_overrides)
