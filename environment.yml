@@ -28,7 +28,7 @@ dependencies:
   - pyvista
   - rosco>=2.10.1
   - trimesh
-  - wisdem>=4.2
+  - wisdem>=4.2.5
   - pip:
     - control
     - dash-vtk
