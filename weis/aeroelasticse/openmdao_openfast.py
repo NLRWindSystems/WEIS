@@ -222,6 +222,9 @@ class FASTLoadCases(ExplicitComponent):
             # ServoDyn Inputs
             self.add_input('generator_efficiency',   val=1.0,              desc='Generator efficiency')
             self.add_input('max_pitch_rate',         val=0.0,        units='deg/s',          desc='Maximum allowed blade pitch rate')
+            self.add_input('VS_RefSpd',              val=0.0,        units='rad/s',          desc='Rated generator speed from ROSCO tuning')
+            self.add_input('VS_RtTq',                val=0.0,        units='N*m',            desc='Rated generator torque from ROSCO tuning')
+            self.add_input('VS_Rgn2K',               val=0.0,        units='N*m/(rad/s)**2', desc='Region 2 torque constant from ROSCO tuning')
 
             # StC or TMD inputs; structural control and tuned mass dampers
 
@@ -1112,9 +1115,9 @@ class FASTLoadCases(ExplicitComponent):
         fst_vt['ServoDyn']['PitManRat(2)'] = float(inputs['max_pitch_rate'][0])
         fst_vt['ServoDyn']['PitManRat(3)'] = float(inputs['max_pitch_rate'][0])
         # Tune simple variable speed controller in ServoDyn, mostly to support free-free rotor configurations during linearization
-        fst_vt['ServoDyn']['VS_RtGnSp'] = fst_vt['DISCON_in']['VS_RefSpd'] * 30. / np.pi # rpm
-        fst_vt['ServoDyn']['VS_RtTq'] = fst_vt['DISCON_in']['VS_RtTq'] # Nm
-        fst_vt['ServoDyn']['VS_Rgn2K'] = fst_vt['DISCON_in']['VS_Rgn2K'] / (30./np.pi)**2. # N-m/rpm^2
+        fst_vt['ServoDyn']['VS_RtGnSp'] = float(inputs['VS_RefSpd'][0]) * 30. / np.pi # rpm
+        fst_vt['ServoDyn']['VS_RtTq'] = float(inputs['VS_RtTq'][0]) # Nm
+        fst_vt['ServoDyn']['VS_Rgn2K'] = float(inputs['VS_Rgn2K'][0]) / (30./np.pi)**2. # N-m/rpm^2
         # Prevent error in OpenFAST
         if fst_vt['ServoDyn']['VS_Rgn2K']*fst_vt['ServoDyn']['VS_RtGnSp']**2. > fst_vt['ServoDyn']['VS_RtTq']:
             fst_vt['ServoDyn']['VS_Rgn2K'] = fst_vt['ServoDyn']['VS_RtTq']/fst_vt['ServoDyn']['VS_RtGnSp']**2.
