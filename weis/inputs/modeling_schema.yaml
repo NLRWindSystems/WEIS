@@ -999,7 +999,6 @@ properties:
                             uniqueItems: false
                     wave_height_fatigue:
                         type: array
-                        description: Array of Hs for each fatigue bin
                         default: [1.10, 1.18, 1.32, 1.54, 1.84, 2.19, 2.60, 3.06, 3.62, 4.03, 4.52]
                         items:
                             type: number
@@ -1104,6 +1103,11 @@ properties:
                 type: object
                 default: {}
                 description: Users can add to the openfast_input_map of the DLC driver here, with key value pairs
+            rated_wind_speed:
+                type: number
+                unit: m/s
+                default: 11.4
+                description: Rated wind speed, used to define wind speed in some DLCs. This input is only used if the user is not using WISDEM to create a model or the ROSCO tuning yaml.
 
     ROSCO:
         type: object
@@ -1114,6 +1118,10 @@ properties:
                 type: string
                 description: yaml file to tune the ROSCO controller, only used for control-only optimizations using an OpenFAST model.  Absolute path or relative to modeling input.
                 default: none
+            flag:
+                type: boolean
+                default: True
+                description: Whether or not to use ROSCO for control modeling and optimization.  If False, WEIS will attempt to use a pre-defined DISCON, but this functionality has known gaps. If True, the ROSCO controller will be built and tuned using the tuning_yaml input.
 
     OL2CL:
         type: object

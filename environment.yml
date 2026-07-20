@@ -28,7 +28,7 @@ dependencies:
   - pyvista
   - rosco>=2.10.1
   - trimesh
-  - wisdem>=4.2
+  - wisdem>=4.2.5
   - pip:
     - control
     - dash-vtk
@@ -38,6 +38,3 @@ dependencies:
 # Needs to be done outside of environment file:
 #  - m2w64-toolchain # [win]
 #  - libpython # [win]
-#  - compilers # [not win]
-#  - petsc4py # [not win]
-#  - mpi4py # [not win]

@@ -42,6 +42,7 @@ jobs:
 
       # Enable the next entries to use feature branches of dependencies for CI testing
 
+
       # - name: Add dependencies ubuntu specific
       #   if: false == contains( matrix.os, 'windows')
       #   run: |
@@ -59,7 +60,6 @@ jobs:
       #   run: |
       #     conda remove --force wisdem
       #     pip install https://github.com/NLRWindSystems/WISDEM/archive/develop.zip
-
       # Don't delete after this
 
       # Note- could add mpich through conda, but takes forever to resolve the environment in testing
@@ -109,28 +109,23 @@ jobs:
       #  run: |
       #    pytest --collect-only weis 
 
-      - name: Change examples to test mode
-        run: |
-          cd examples
-          if [[ "$RUNNER_OS" == "macOS" ]]; then
-            find . -type f -name "*.py" -exec sed -i '' 's/TEST_RUN = False/TEST_RUN = True/g' {} +
-          else
-            find . -type f -name "*.py" -exec sed -i 's/TEST_RUN = False/TEST_RUN = True/g' {} +
-          fi
-          head -n 5 02_generate_openfast_model_for_dlcs/iea15_semi_driver.py   # check that the sed command worked       
-
-        
       # Run all tests within WEIS, but not computationally expensive examples
       - name: Run tests within WEIS
-        if: false == contains( matrix.os, 'ubuntu') || contains( github.event_name, 'push')
+        env:
+              WEIS_TEST_RUN: "1"
         run: |
-          pytest -p no:warnings --disable-warnings --cov=weis weis
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+              pytest -p no:warnings --disable-warnings --cov=weis weis
+          else
+              pytest -p no:warnings --disable-warnings weis
+          fi
 
       # Run long tests in on pull request
       - name: Run exhaustive
         if: contains( matrix.os, 'ubuntu') && contains( github.event_name, 'pull_request')
         env:
             RUN_EXHAUSTIVE: 1
+            WEIS_TEST_RUN: "1"
         run: |
             pytest  -p no:warnings -s --disable-warnings  weis
 
@@ -166,6 +161,7 @@ jobs:
         if: contains( matrix.os, 'ubuntu') && contains( github.event_name, 'pull_request')
         env:
             RUN_EXHAUSTIVE: 1
+            WEIS_TEST_RUN: "1"
         run: |
           cd examples/01_simulate_own_openfast_model
           mpiexec -np 2 python dlc_sim_driver.py

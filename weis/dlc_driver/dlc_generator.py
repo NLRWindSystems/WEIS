@@ -170,6 +170,9 @@ class DLCGenerator(object):
 
     dlc_schema = sch.validation.get_modeling_schema()['properties']['DLC_driver']['properties']['DLCs']['items']['properties']    
 
+    # ROSCO DISCON.IN schema, used to pull consistent startup/shutdown defaults (see rosco_default())
+    rosco_discon_schema = sch.validation.get_modeling_schema()['properties']['ROSCO']['properties']['DISCON']['properties']
+
     def __init__(
             self, 
             ws_cut_in=4.0, 
@@ -246,6 +249,18 @@ class DLCGenerator(object):
                     self.openfast_input_map[key] = [tuple(v) for v in value]
                 else:
                     self.openfast_input_map[key] = tuple(value)
+
+    def rosco_default(self, key):
+        '''
+        Get the default value of a ROSCO DISCON.IN parameter from the ROSCO toolbox schema,
+        so DLC startup/shutdown defaults stay consistent with ROSCO's own tuning defaults.
+        Array defaults are returned as a compact string (e.g. "[0.2,1.0]") to match the
+        format expected by the case matrix generator.
+        '''
+        default = self.rosco_discon_schema[key]['default']
+        if isinstance(default, list):
+            return str(default).replace(' ', '')
+        return default
 
     def IECwind(self):
         self.IECturb = IEC_TurbulenceModels()
@@ -1110,15 +1125,16 @@ class DLCGenerator(object):
         dlc_options['turbine_status'] = 'parked-idling'     # initial turbine status is what matters here
         dlc_options['wave_model'] = dlc_options.get('wave_model',2)
 
-        # Startup options
+        # Startup options, defaults pulled from the ROSCO toolbox schema to stay consistent
+        # with ROSCO's own startup tuning defaults
         dlc_options['startup_mode'] = 1
-        dlc_options['SU_FW_MinDuration'] = dlc_options.get('SU_FW_MinDuration',40)
-        dlc_options['SU_RotorSpeedThresh'] = dlc_options.get('SU_RotorSpeedThresh',0.02)
-        dlc_options['SU_RotorSpeedCornerFreq'] = dlc_options.get('SU_RotorSpeedCornerFreq',0.51888)
-        dlc_options['SU_LoadStages_N'] = dlc_options.get('SU_LoadStages_N',2)
-        dlc_options['SU_LoadStages'] = dlc_options.get('SU_LoadStages',"[0.4,0.8]")
-        dlc_options['SU_LoadRampDuration'] = dlc_options.get('SU_LoadRampDuration',"[20,20]")
-        dlc_options['SU_LoadHoldDuration'] = dlc_options.get('SU_LoadHoldDuration',"[20,20]")
+        dlc_options['SU_FW_MinDuration'] = dlc_options.get('SU_FW_MinDuration',self.rosco_default('SU_FW_MinDuration'))
+        dlc_options['SU_RotorSpeedThresh'] = dlc_options.get('SU_RotorSpeedThresh',self.rosco_default('SU_RotorSpeedThresh'))
+        dlc_options['SU_RotorSpeedCornerFreq'] = dlc_options.get('SU_RotorSpeedCornerFreq',self.rosco_default('SU_RotorSpeedCornerFreq'))
+        dlc_options['SU_LoadStages_N'] = dlc_options.get('SU_LoadStages_N',self.rosco_default('SU_LoadStages_N'))
+        dlc_options['SU_LoadStages'] = dlc_options.get('SU_LoadStages',self.rosco_default('SU_LoadStages'))
+        dlc_options['SU_LoadRampDuration'] = dlc_options.get('SU_LoadRampDuration',self.rosco_default('SU_LoadRampDuration'))
+        dlc_options['SU_LoadHoldDuration'] = dlc_options.get('SU_LoadHoldDuration',self.rosco_default('SU_LoadHoldDuration'))
 
         # DLC-specific: define groups
         # These options should be the same length and we will generate a matrix of all cases
@@ -1159,16 +1175,16 @@ class DLCGenerator(object):
         dlc_options['turbine_status'] = 'parked-idling'     # initial turbine status is what matters here
         dlc_options['wave_model'] = dlc_options.get('wave_model',2)
 
-        # Specify startup time for this case
-
+        # Specify startup time for this case. Defaults pulled from the ROSCO toolbox schema
+        # to stay consistent with ROSCO's own startup tuning defaults (same as DLC 3.1/3.3)
         dlc_options['startup_mode'] = 1
-        dlc_options['SU_FW_MinDuration'] = dlc_options.get('SU_FW_MinDuration',0)
-        dlc_options['SU_RotorSpeedThresh'] = dlc_options.get('SU_RotorSpeedThresh',0.02)
-        dlc_options['SU_RotorSpeedCornerFreq'] = dlc_options.get('SU_RotorSpeedCornerFreq',0.51888)
-        dlc_options['SU_LoadStages_N'] = dlc_options.get('SU_LoadStages_N',1)
-        dlc_options['SU_LoadStages'] = dlc_options.get('SU_LoadStages',1)
-        dlc_options['SU_LoadRampDuration'] = dlc_options.get('SU_LoadRampDuration',20)
-        dlc_options['SU_LoadHoldDuration'] = dlc_options.get('SU_LoadHoldDuration',20)
+        dlc_options['SU_FW_MinDuration'] = dlc_options.get('SU_FW_MinDuration',self.rosco_default('SU_FW_MinDuration'))
+        dlc_options['SU_RotorSpeedThresh'] = dlc_options.get('SU_RotorSpeedThresh',self.rosco_default('SU_RotorSpeedThresh'))
+        dlc_options['SU_RotorSpeedCornerFreq'] = dlc_options.get('SU_RotorSpeedCornerFreq',self.rosco_default('SU_RotorSpeedCornerFreq'))
+        dlc_options['SU_LoadStages_N'] = dlc_options.get('SU_LoadStages_N',self.rosco_default('SU_LoadStages_N'))
+        dlc_options['SU_LoadStages'] = dlc_options.get('SU_LoadStages',self.rosco_default('SU_LoadStages'))
+        dlc_options['SU_LoadRampDuration'] = dlc_options.get('SU_LoadRampDuration',self.rosco_default('SU_LoadRampDuration'))
+        dlc_options['SU_LoadHoldDuration'] = dlc_options.get('SU_LoadHoldDuration',self.rosco_default('SU_LoadHoldDuration'))
 
         dlc_options['gust_wait_time'] = dlc_options.get('gust_wait_time',[10,13,16,19])
         
@@ -1214,16 +1230,16 @@ class DLCGenerator(object):
         dlc_options['turbine_status'] = 'parked-idling'     # initial turbine status is what matters here
         dlc_options['wave_model'] = dlc_options.get('wave_model',2)
 
-        # Specify startup time for this case
-
+        # Specify startup time for this case, defaults pulled from the ROSCO toolbox schema
+        # to stay consistent with ROSCO's own startup tuning defaults
         dlc_options['startup_mode'] = 1
-        dlc_options['SU_FW_MinDuration'] = dlc_options.get('SU_FW_MinDuration',40)
-        dlc_options['SU_RotorSpeedThresh'] = dlc_options.get('SU_RotorSpeedThresh',0.02)
-        dlc_options['SU_RotorSpeedCornerFreq'] = dlc_options.get('SU_RotorSpeedCornerFreq',0.51888)
-        dlc_options['SU_LoadStages_N'] = dlc_options.get('SU_LoadStages_N',2)
-        dlc_options['SU_LoadStages'] = dlc_options.get('SU_LoadStages',"[0.4,0.8]")
-        dlc_options['SU_LoadRampDuration'] = dlc_options.get('SU_LoadRampDuration',"[20,20]")
-        dlc_options['SU_LoadHoldDuration'] = dlc_options.get('SU_LoadHoldDuration',"[20,20]")
+        dlc_options['SU_FW_MinDuration'] = dlc_options.get('SU_FW_MinDuration',self.rosco_default('SU_FW_MinDuration'))
+        dlc_options['SU_RotorSpeedThresh'] = dlc_options.get('SU_RotorSpeedThresh',self.rosco_default('SU_RotorSpeedThresh'))
+        dlc_options['SU_RotorSpeedCornerFreq'] = dlc_options.get('SU_RotorSpeedCornerFreq',self.rosco_default('SU_RotorSpeedCornerFreq'))
+        dlc_options['SU_LoadStages_N'] = dlc_options.get('SU_LoadStages_N',self.rosco_default('SU_LoadStages_N'))
+        dlc_options['SU_LoadStages'] = dlc_options.get('SU_LoadStages',self.rosco_default('SU_LoadStages'))
+        dlc_options['SU_LoadRampDuration'] = dlc_options.get('SU_LoadRampDuration',self.rosco_default('SU_LoadRampDuration'))
+        dlc_options['SU_LoadHoldDuration'] = dlc_options.get('SU_LoadHoldDuration',self.rosco_default('SU_LoadHoldDuration'))
         
         # Set default wind speed to rated wind speed +- 2 m/sec and v_out according to IEC 61400
         dlc_options['wind_speed'] = dlc_options.get('wind_speed',[self.ws_rated-2., self.ws_rated+2.,self.ws_cut_out])
