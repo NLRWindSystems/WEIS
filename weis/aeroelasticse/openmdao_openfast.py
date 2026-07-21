@@ -737,9 +737,12 @@ class FASTLoadCases(ExplicitComponent):
             fast_reader.execute()
             fst_vt = fast_reader.fst_vt
 
-            # Fix AddF0: Should be a n x 1 array (list of lists):
+            # Fix AddF0: Should be a n x 1 array (list of lists).
+            # Only wrap if the reader returned a flat list (e.g. [0.0, 0.0, ...]);
+            # newer readers already return [[0.0], [0.0], ...].
             if fst_vt['HydroDyn']:
-                fst_vt['HydroDyn']['AddF0'] = [[F0] for F0 in fst_vt['HydroDyn']['AddF0']]
+                if fst_vt['HydroDyn']['AddF0'] and not isinstance(fst_vt['HydroDyn']['AddF0'][0], list):
+                    fst_vt['HydroDyn']['AddF0'] = [[F0] for F0 in fst_vt['HydroDyn']['AddF0']]
 
             if modopt['ROSCO']['flag']:
                 # modopt DISCON_in is populated in tune_rosco if the ROSCO flag is true
@@ -2619,6 +2622,21 @@ class FASTLoadCases(ExplicitComponent):
         self.TMax = np.zeros(dlc_generator.n_cases)
         self.TStart = np.zeros(dlc_generator.n_cases)
 
+        # For MHK turbines, hub_height is negative (below water surface).
+        # TurbSim/InflowWind reference heights from the seabed, so we convert:
+        #   - grid spans the full water depth (seabed to MSL and above) to cover
+        #     both the rotor and any Morison members with freeboard
+        #   - ref_height is the hub depth measured from the seabed
+        #   - hub_height (for TurbSim grid center) becomes the grid half-height
+        if modopt['flags']['MHK']:
+            water_depth = float(fst_vt['Fst']['WtrDpth'])
+            grid_height = 2. * water_depth - 1.e-3
+            ref_height = float(water_depth - np.abs(hub_height))
+            hub_height = grid_height / 2
+            fst_vt['InflowWind']['WindVziList'] = [ref_height]
+        else:
+            ref_height = hub_height
+
         for i_case in range(dlc_generator.n_cases):
             if dlc_generator.cases[i_case].turbulent_wind:
                 # Assign values common to all DLCs
@@ -2631,16 +2649,16 @@ class FASTLoadCases(ExplicitComponent):
                     dlc_generator.cases[i_case].IECturbc = wt_class
                 # Reference height for wind speed
                 if not dlc_generator.cases[i_case].RefHt:   # default RefHt is 0, use hub_height if not set
-                    dlc_generator.cases[i_case].RefHt = hub_height
+                    dlc_generator.cases[i_case].RefHt = ref_height
                 # Center of wind grid (TurbSim confusingly calls it HubHt)
                 if not dlc_generator.cases[i_case].HubHt:   # default HubHt is 0, use hub_height if not set
-                    dlc_generator.cases[i_case].HubHt = hub_height
+                    dlc_generator.cases[i_case].HubHt = np.abs(hub_height)
 
-                if not dlc_generator.cases[i_case].GridHeight:   # default GridHeight is 0, use 2*hub_height if not set
-                    dlc_generator.cases[i_case].GridHeight =  2.0 * hub_height - 1.e-3
+                if not dlc_generator.cases[i_case].GridHeight:   # default GridHeight is 0, use hub_height if not set
+                    dlc_generator.cases[i_case].GridHeight =  2. * np.abs(hub_height) - 1.e-3
 
-                if not dlc_generator.cases[i_case].GridWidth:   # default GridWidth is 0, use 2.2*hub_height if not set
-                    dlc_generator.cases[i_case].GridWidth =  2.2 * hub_height - 1.e-3
+                if not dlc_generator.cases[i_case].GridWidth:   # default GridWidth is 0, use hub_height if not set
+                    dlc_generator.cases[i_case].GridWidth =  2. * hub_height - 1.e-3
 
                 # Power law exponent of wind shear
                 if dlc_generator.cases[i_case].PLExp < 0:    # use PLExp based on environment options (shear_exp), otherwise use custom DLC PLExp
@@ -3503,7 +3521,12 @@ class FASTLoadCases(ExplicitComponent):
             num_dir_changes = 0
             max_pitch_rates = [0,0,0]
             for i_ts in range(self.cruncher.noutputs):
-                iout = self.cruncher.outputs[i_ts].copy()
+                # Use copy.deepcopy(), not AeroelasticOutput.copy(): the latter re-runs
+                # set_data(..., dropna=True), and any all-NaN magnitude channel (e.g. a
+                # blade-3 channel appended for a 2-bladed turbine) causes dropna to wipe
+                # every row. deepcopy preserves the data as-is without reprocessing, and
+                # still avoids mutating the shared self.cruncher.outputs[i_ts].
+                iout = copy.deepcopy(self.cruncher.outputs[i_ts])
                 iout.trim_data(self.TStart[i_ts], self.TMax[i_ts])
                 
                 # total time
