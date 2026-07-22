@@ -18,7 +18,7 @@ dependencies:
   - openfast-io==4.2
   - pyopenfast==4.2
   - openraft>=2.0.3
-  - openmdao
+  - openmdao~=3.44.0
   - osqp
   - pcrunch>=2.1.5
   - pip
@@ -28,7 +28,7 @@ dependencies:
   - pyvista
   - rosco>=2.10.1
   - trimesh
-  - wisdem>=4.2.5
+  - wisdem~=4.2.5 # tight coupling to WISDEM's OM output names; unpin when actively developing
   - pip:
     - control
     - dash-vtk
