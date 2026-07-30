@@ -46,29 +46,45 @@ for libname in ['libopenfastlib', 'openfastlib']:
         break
 
     
-magnitude_channels_default = {
-    'LSShftF': ["RotThrust", "LSShftFys", "LSShftFzs"], 
-    'LSShftM': ["RotTorq", "LSSTipMys", "LSSTipMzs"],
-    'RootMc1': ["RootMxc1", "RootMyc1", "RootMzc1"],
-    'RootMc2': ["RootMxc2", "RootMyc2", "RootMzc2"],
-    'RootMc3': ["RootMxc3", "RootMyc3", "RootMzc3"],
-    'TipDc1': ['TipDxc1', 'TipDyc1', 'TipDzc1'],
-    'TipDc2': ['TipDxc2', 'TipDyc2', 'TipDzc2'],
-    'TipDc3': ['TipDxc3', 'TipDyc3', 'TipDzc3'],
-    'TwrBsM': ['TwrBsMxt', 'TwrBsMyt', 'TwrBsMzt'],
-    'PtfmOffset': ['PtfmSurge', 'PtfmSway'],
-}
+# Number of blades assumed by the module-level defaults. The defaults are built
+# for this many blades for backward compatibility; runFAST_pywrapper.execute()
+# prunes the extra blade channels down to the turbine's actual NumBl.
+DEFAULT_N_BLADES = 3
 
-fatigue_channels_default = {
-    'RootMc1': FatigueParams(slope=10),
-    'RootMc2': FatigueParams(slope=10),
-    'RootMc3': FatigueParams(slope=10),
-    'RootMyb1': FatigueParams(slope=10),
-    'RootMyb2': FatigueParams(slope=10),
-    'RootMyb3': FatigueParams(slope=10),
-    'TwrBsM': FatigueParams(slope=4),
-    'LSShftM': FatigueParams(slope=4),
-}
+# Names of the blade-indexed default channels, formatted with the blade number.
+# These are the only default entries that depend on the number of blades and
+# that must be pruned for turbines with fewer than DEFAULT_N_BLADES blades.
+BLADE_MAGNITUDE_CHANNEL_NAMES = ['RootMc{k}', 'TipDc{k}']
+BLADE_FATIGUE_CHANNEL_NAMES   = ['RootMc{k}', 'RootMyb{k}']
+
+
+def default_magnitude_channels(n_blades=DEFAULT_N_BLADES):
+    channels = {
+        'LSShftF': ["RotThrust", "LSShftFys", "LSShftFzs"],
+        'LSShftM': ["RotTorq", "LSSTipMys", "LSSTipMzs"],
+    }
+    for k in range(1, n_blades + 1):
+        channels[f'RootMc{k}'] = [f"RootMxc{k}", f"RootMyc{k}", f"RootMzc{k}"]
+    for k in range(1, n_blades + 1):
+        channels[f'TipDc{k}'] = [f'TipDxc{k}', f'TipDyc{k}', f'TipDzc{k}']
+    channels['TwrBsM'] = ['TwrBsMxt', 'TwrBsMyt', 'TwrBsMzt']
+    channels['PtfmOffset'] = ['PtfmSurge', 'PtfmSway']
+    return channels
+
+
+def default_fatigue_channels(n_blades=DEFAULT_N_BLADES):
+    channels = {}
+    for k in range(1, n_blades + 1):
+        channels[f'RootMc{k}'] = FatigueParams(slope=10)
+    for k in range(1, n_blades + 1):
+        channels[f'RootMyb{k}'] = FatigueParams(slope=10)
+    channels['TwrBsM'] = FatigueParams(slope=4)
+    channels['LSShftM'] = FatigueParams(slope=4)
+    return channels
+
+
+magnitude_channels_default = default_magnitude_channels()
+fatigue_channels_default = default_fatigue_channels()
 
 # channel_extremes_default = [
 #     'RotSpeed',
@@ -160,6 +176,21 @@ class runFAST_pywrapper(object):
             writer.fst_vt = self.fst_vt = reader.fst_vt
         else:
             writer.fst_vt = self.fst_vt
+
+        # Prune blade-indexed default channels down to this turbine's blade
+        # count. Turbines with fewer than DEFAULT_N_BLADES blades (e.g., a
+        # 2-bladed turbine) don't produce the blade-3 OpenFAST outputs, so
+        # referencing them would fail. Copy first to avoid mutating any shared
+        # (default or caller-supplied) dictionaries.
+        n_blades = self.fst_vt['ElastoDyn']['NumBl']
+        self.magnitude_channels = dict(self.magnitude_channels)
+        self.fatigue_channels = dict(self.fatigue_channels)
+        for k in range(n_blades + 1, DEFAULT_N_BLADES + 1):
+            for name in BLADE_MAGNITUDE_CHANNEL_NAMES:
+                self.magnitude_channels.pop(name.format(k=k), None)
+            for name in BLADE_FATIGUE_CHANNEL_NAMES:
+                self.fatigue_channels.pop(name.format(k=k), None)
+
         writer.FAST_runDirectory = self.FAST_runDirectory
         writer.FAST_namingOut = self.FAST_namingOut
         # Make any case specific variable changes
