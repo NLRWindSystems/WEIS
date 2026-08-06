@@ -50,6 +50,38 @@ class MHKDLCGenerator(DLCGenerator):
         self.current_peak_spring = metocean.get('current_peak_spring', 0.)
         self.current_mean_spring = metocean.get('current_mean_spring', 0.)
 
+        # Tidal turbines have no IEC turbulence class (A/B/C): TI is tabulated
+        # against current_speed in the metocean inputs instead
+        self.current_TI_NTM = np.array(metocean.get('current_TI_NTM') or metocean.get('current_TI') or [], dtype=float)
+        self.current_TI_ETM = np.array(metocean.get('current_TI_ETM') or [], dtype=float)
+        if self.current_TI_ETM.size == 0:
+            self.current_TI_ETM = self.current_TI_NTM
+        for name, table in [('current_TI_NTM', self.current_TI_NTM), ('current_TI_ETM', self.current_TI_ETM)]:
+            if table.size and table.size != len(self.metocean[self.flow_key]):
+                raise Exception(f'The vector of metocean conditions {name} in the modeling options must have the same length of the tabulated {self.flow_key}s')
+
+    def generate_cases(self, generic_case_inputs, dlc_options):
+        '''Generate cases, then set turbulence from the metocean TI tables (TECs have no turbulence class)'''
+        n_before = len(self.cases)
+        super().generate_cases(generic_case_inputs, dlc_options)
+
+        TI_table = self.current_TI_ETM if 'ETM' in dlc_options.get('IEC_WindType', '') else self.current_TI_NTM
+        for idlc in self.cases[n_before:]:
+            if not idlc.turbulent_wind:
+                continue
+            if dlc_options.get('TI'):
+                TI = dlc_options['TI'] / 100     # user override is given in percent
+            elif TI_table.size:
+                TI = float(np.interp(idlc.URef, self.metocean[self.flow_key], TI_table))
+            else:
+                raise Exception(
+                    'MHK turbines have no IEC turbulence class: provide current_TI_NTM '
+                    '(and current_TI_ETM for ETM DLCs) in metocean_conditions, or TI in the DLC options.'
+                )
+            idlc.IECturbc = TI * 100
+            # TurbSim's TIDAL/RIVER models are driven by UStar, not IECturbc
+            idlc.UStar = 1.2814 * TI * idlc.URef
+
     # ──────────────────────────────────────────────────────────────────────
     # DLC 1.1 — Normal operation, NTM current, OSS waves
     # IEC TS 62600-2, Table 8: NTM Uin≤U≤Uout, flood/ebb/OE, OSS H=Hm0
@@ -670,8 +702,8 @@ class MHKDLCGenerator(DLCGenerator):
         self.generate_cases(generic_case_inputs, dlc_options)
 
     # ──────────────────────────────────────────────────────────────────────
-    # AEP — Annual Energy Production, current-TI from metocean table
-    # Overrides base class to interpolate TI from current_TI vs current_speed
+    # AEP — Annual Energy Production; TI comes from the metocean table via
+    # generate_cases, like every other MHK DLC
     # ──────────────────────────────────────────────────────────────────────
     def generate_AEP(self, dlc_options):
         dlc_options.update(self.default_options)
@@ -689,28 +721,7 @@ class MHKDLCGenerator(DLCGenerator):
         generic_case_inputs.append([self.flow_key, 'wave_height', 'wave_period', 'wind_seed'])
         generic_case_inputs.append(['yaw_misalign'])
 
-        # Track case index before generating
-        n_cases_before = len(self.cases)
-
         self.generate_cases(generic_case_inputs, dlc_options)
-
-        # Set TI on each AEP case from metocean current_TI table
-        current_speed_table = np.array(self.metocean.get('current_speed', []))
-        current_TI_table = np.array(self.metocean.get('current_TI', []))
-
-        for idlc in self.cases[n_cases_before:]:
-            if 'TI' in dlc_options:
-                # User-specified constant TI (percentage)
-                idlc.IECturbc = dlc_options['TI']
-            elif len(current_speed_table) > 0 and len(current_TI_table) > 0:
-                # Interpolate TI (fraction) from metocean table, convert to percentage
-                TI_interp = np.interp(idlc.URef, current_speed_table, current_TI_table)
-                idlc.IECturbc = TI_interp * 100
-            else:
-                raise Exception(
-                    'For MHK AEP, provide either TI in dlc_options or '
-                    'current_speed and current_TI in metocean_conditions.'
-                )
 
     # ──────────────────────────────────────────────────────────────────────
     # Wind-only DLCs — blocked for MHK TECs

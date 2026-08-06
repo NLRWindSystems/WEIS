@@ -1132,6 +1132,26 @@ properties:
                             minItems: 0
                             minimum: 0.0
                             maximum: 1.0
+                    current_TI_NTM:
+                        type: array
+                        description: Normal turbulence model TI of current at each speed bin (MHK TECs), as a fraction (e.g. 0.10 for 10%). Replaces the IEC wind turbulence class, which does not apply to tidal turbines. Falls back to current_TI if not given.
+                        default: []
+                        items:
+                            type: number
+                            unit: none
+                            minItems: 0
+                            minimum: 0.0
+                            maximum: 1.0
+                    current_TI_ETM:
+                        type: array
+                        description: Extreme turbulence model TI of current at each speed bin (MHK TECs), as a fraction. Used by ETM DLCs (1.3, 7.1). Falls back to current_TI_NTM, then current_TI.
+                        default: []
+                        items:
+                            type: number
+                            unit: none
+                            minItems: 0
+                            minimum: 0.0
+                            maximum: 1.0
                     current_NSS:
                         type: array
                         description: Normal current speed per wave height bin (MHK TECs).
