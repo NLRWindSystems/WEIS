@@ -252,6 +252,25 @@ class TestMHKDLCGenerator(unittest.TestCase):
         for c in cases:
             self.assertAlmostEqual(c.IECturbc, 15.0)
 
+    # ── Turbulence from metocean tables (no IEC turbulence class) ─────────
+
+    def test_ti_and_ustar_on_all_turbulent_dlcs(self):
+        for dlc in ['1.1', '1.2', '1.3', '7.1', 'AEP']:
+            _, cases = self._generate_single_dlc(dlc)
+            turb = [c for c in cases if c.turbulent_wind]
+            self.assertGreater(len(turb), 0, msg=f'DLC {dlc} has no turbulent cases')
+            ETM = 'ETM' in turb[0].IEC_WindType
+            table = self.metocean['current_TI_ETM'] if ETM else self.metocean['current_TI_NTM']
+            for c in turb:
+                TI = np.interp(c.URef, self.metocean['current_speed'], table)
+                self.assertAlmostEqual(c.IECturbc, TI * 100)
+                self.assertAlmostEqual(c.UStar, 1.2814 * TI * c.URef)
+
+    def test_etm_ti_exceeds_ntm(self):
+        _, ntm = self._generate_single_dlc('1.1')
+        _, etm = self._generate_single_dlc('1.3')
+        self.assertGreater(max(c.IECturbc for c in etm), max(c.IECturbc for c in ntm))
+
     # ── Wind-only DLCs blocked ───────────────────────────────────────────
 
     def test_wind_only_dlcs_blocked(self):
