@@ -118,7 +118,7 @@ class MHKDLCGenerator(DLCGenerator):
             dlc_options['yaw_misalign'] = [0]
 
         generic_case_inputs = []
-        generic_case_inputs.append([])  # group 0
+        generic_case_inputs.append(['wave_model'])  # group 0
         generic_case_inputs.append([self.flow_key, 'wave_height', 'wave_period', 'wind_seed', 'wave_seed'])  # group 1
         generic_case_inputs.append(['yaw_misalign'])  # group 2
 
@@ -157,7 +157,7 @@ class MHKDLCGenerator(DLCGenerator):
             dlc_options['yaw_misalign'] = [0]
 
         generic_case_inputs = []
-        generic_case_inputs.append([])  # group 0
+        generic_case_inputs.append(['wave_model'])  # group 0
         generic_case_inputs.append([self.flow_key, 'wave_height', 'wave_period', 'wind_seed', 'wave_seed'])  # group 1
         generic_case_inputs.append(['wave_direction'])  # group 2
         generic_case_inputs.append(['yaw_misalign'])  # group 3
@@ -183,7 +183,7 @@ class MHKDLCGenerator(DLCGenerator):
             dlc_options['yaw_misalign'] = [0]
 
         generic_case_inputs = []
-        generic_case_inputs.append([])  # group 0
+        generic_case_inputs.append(['wave_model'])  # group 0
         generic_case_inputs.append([self.flow_key, 'wave_height', 'wave_period', 'wind_seed', 'wave_seed'])  # group 1
         generic_case_inputs.append(['yaw_misalign'])  # group 2
 
@@ -735,7 +735,7 @@ class MHKDLCGenerator(DLCGenerator):
             dlc_options['yaw_misalign'] = [0]
 
         generic_case_inputs = []
-        generic_case_inputs.append([])
+        generic_case_inputs.append(['wave_model'])
         generic_case_inputs.append([self.flow_key, 'wave_height', 'wave_period', 'wind_seed'])
         generic_case_inputs.append(['yaw_misalign'])
 
