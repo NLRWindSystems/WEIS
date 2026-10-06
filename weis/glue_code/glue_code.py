@@ -396,6 +396,13 @@ class WindPark(om.Group):
             self.connect("TMDs.damping",            "aeroelastic.TMD_damping")
 
         if modeling_options["OpenFAST"]["flag"] or modeling_options["OpenFAST_Linear"]["flag"]:
+            if modeling_options["OpenFAST"]["from_openfast"] and not modeling_options["ROSCO"]["flag"]:
+                # blade subsystem not available in from_openfast path, derive Rtip from assembly rotor_diameter
+                # Must be added before aeroelastic so it executes first (no iterative solver on this group)
+                self.add_subsystem("rtip_calc", om.ExecComp("Rtip = rotor_diameter / 2.0",
+                                                             Rtip={"units": "m"},
+                                                             rotor_diameter={"units": "m"}))
+
             self.add_subsystem("aeroelastic",       FASTLoadCases(modeling_options = modeling_options, opt_options = opt_options))
             self.add_subsystem("stall_check_of",    NoStallConstraint(modeling_options = modeling_options))
 
@@ -960,10 +967,7 @@ class WindPark(om.Group):
                     # Tower frequency can be ignored
                     self.connect("high_level_tower_props.hub_height", "aeroelastic.hub_height")
 
-                    # blade subsystem not available in from_openfast path, derive Rtip from assembly rotor_diameter
-                    self.add_subsystem("rtip_calc", om.ExecComp("Rtip = rotor_diameter / 2.0",
-                                                                 Rtip={"units": "m"},
-                                                                 rotor_diameter={"units": "m"}))
+                    # rtip_calc is added before aeroelastic, above
                     self.connect("configuration.rotor_diameter_user", "rtip_calc.rotor_diameter")
                     self.connect("rtip_calc.Rtip", "aeroelastic.Rtip")
                     # v_rated is an input to the dlc generator, but the user can also input the DLC 1.4, 1.5 wind speds in the modeling options
