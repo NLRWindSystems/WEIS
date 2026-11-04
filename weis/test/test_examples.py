@@ -1,5 +1,6 @@
 import os
 import unittest
+import numpy as np
 from weis.test.utils import execute_script
 from weis import weis_main
 
@@ -46,7 +47,7 @@ class TestExamples(unittest.TestCase):
 
     def test_model_only(self):
         # TEST_RUN will reduce the number and duration of simulations
-        TEST_RUN = False
+        TEST_RUN = True
 
         ## File management
         run_dir = os.path.dirname( os.path.realpath(__file__) )
@@ -68,8 +69,41 @@ class TestExamples(unittest.TestCase):
             self.assertTrue(True)
         except:
             self.assertEqual("model_only", "Success")
-        
-        
+
+    def test_from_openfast_no_rosco(self):
+        # from_openfast with ROSCO tuning disabled: Rtip comes from rtip_calc, which must run before aeroelastic
+        TEST_RUN = True
+
+        ## File management
+        run_dir = os.path.dirname( os.path.realpath(__file__) )
+        examples_dir = os.path.join(run_dir, "..", "..", "examples")
+        fname_wt_input = os.path.join(examples_dir, "00_setup", "ref_turbines", "IEA-15-240-RWT.yaml")
+        fname_modeling_options = os.path.join(examples_dir, "01_simulate_own_openfast_model", "dlc_sim_no_tune_modeling.yaml")
+        fname_analysis_options = os.path.join(examples_dir, "01_simulate_own_openfast_model", "dlc_sim_analysis.yaml")
+
+        modeling_override = {}
+        modeling_override["General"] = {}
+        modeling_override["General"]["openfast_configuration"] = {}
+        modeling_override["General"]["openfast_configuration"]["model_only"] = True
+        analysis_override = {}
+        analysis_override["general"] = {}
+        analysis_override["general"]["folder_output"] = "outputs/01_openfast_no_tune"
+        wt_opt, modeling_options, opt_options = weis_main(fname_wt_input,
+                                                          fname_modeling_options,
+                                                          fname_analysis_options,
+                                                          modeling_override=modeling_override,
+                                                          analysis_override=analysis_override,
+                                                          test_run=TEST_RUN)
+
+        # from_src=False reads the value aeroelastic actually received, not the connected output
+        Rtip = wt_opt.get_val("aeroelastic.Rtip", units="m", from_src=False)
+        rotor_diameter = wt_opt.get_val("configuration.rotor_diameter_user", units="m")
+        np.testing.assert_allclose(Rtip, 0.5 * rotor_diameter)
+
+        hub_height = wt_opt.get_val("aeroelastic.hub_height", units="m", from_src=False)
+        np.testing.assert_allclose(hub_height, wt_opt.get_val("high_level_tower_props.hub_height", units="m"))
+
+
     def test_skinny(self):
         for ks,s in enumerate(skinny_scripts):
             with self.subTest(f"Running: {s}", i=ks):

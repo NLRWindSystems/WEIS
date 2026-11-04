@@ -62,7 +62,7 @@ The installation instructions below use the environment name, "weis-env," but an
         git checkout branch_name                         # (Only if you want to switch branches, say "develop")
         conda env create --name weis-env -f environment.yml
         conda activate weis-env                          # (if this does not work, try source activate weis-env)
-        conda install -y petsc4py mpi4py pyoptsparse     # (Mac / Linux only, sometimes Windows users may need to install mpi4py)
+        conda install -y petsc4py mpi4py pyoptsparse netcdf4=1.7.3     # (Mac / Linux only, sometimes Windows users may need to install mpi4py)
 
 2. If you are NOT on Kestrel, install the software
         
@@ -73,9 +73,15 @@ The installation instructions below use the environment name, "weis-env," but an
         module load intel-oneapi-compilers intel-oneapi-mpi intel-oneapi-mkl
         pip install --no-deps -e . -v
 
+The conda environment includes the visualization tools. If you install WEIS with pip alone, the visualization app, MOO dashboard and input GUI need the `viz` extra: `pip install -e ".[viz]"`. Other extras are `opt` (pyOptSparse), `test` and `docs`.
+
 **NOTE:** To use WEIS again after installation is complete, you will always need to activate the conda environment first with `conda activate weis-env` (or `source activate weis-env`). On Kestrel, make sure to reload the necessary modules
 
 For Windows users, we recommend installing `git` and the `m264` packages in separate environments as some of the libraries appear to conflict such that WISDEM cannot be successfully built from source.  The `git` package is best installed in the `base` environment.
+
+For macOS users (Apple Silicon), if you encounter an `AttributeError: partially initialized module 'polars'` error, it is caused by a conflict between the `polars` and `polars-lts-cpu` packages installed by a dependency (`wombat`). Run the following after installation to resolve it:
+
+        pip uninstall -y polars-lts-cpu
 
 ## Developer guide
 

@@ -65,13 +65,21 @@ WEIS Outputs
 
    weis_outputs
 
-WEIS Visualization Application
+WEIS I/O Visualization Application
 ===============================
 
 .. toctree::
    :maxdepth: 2
 
    how_weis_viz_works
+
+WEIS Multi-Objective Optimization Visualization Application
+================================================
+
+.. toctree::
+   :maxdepth: 2
+
+   how_weis_moo_viz_works
 
 Developer Documentation
 =========================

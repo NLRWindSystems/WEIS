@@ -1,13 +1,29 @@
 name: CI_WEIS
 
-# We run CI on push commits on all branches
-on: [push, pull_request]
+# We run CI on push commits on all branches, and weekly on the default branch
+# (main) so upstream dependency releases that break WEIS are caught quickly.
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '23 7 * * 1'  # Mondays 07:23 UTC
     
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build:
     name: Build (${{ matrix.os }} Python ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 150
+
+    env:
+      # Keeps output from being lost when a step is killed by a signal (exit 143).
+      PYTHONUNBUFFERED: "1"
+      # Hosted runners are single-node, so Open MPI only needs shared memory and TCP.
+      # UCX fails on runner VMs with an Azure MANA NIC ("uct_iface_open(ud_verbs/mana_0:1)
+      # failed"), which breaks MPI communication and deadlocks mpiexec runs.
+      OMPI_MCA_pml: ob1
+      OMPI_MCA_btl: self,sm,tcp
+      OMPI_MCA_osc: ^ucx
 
     defaults:
         run:
@@ -21,9 +37,26 @@ jobs:
         
     steps:
       - uses: actions/checkout@v5
-    
+
+      # All conda packages must go in ONE solve: adding petsc4py/mpi4py/
+      # pyoptsparse to an already-solved env made conda backtrack for 80+ min.
+      # openmpi is pinned so the MPI stack doesn't vary per Python version.
+      # netcdf4 is held at 1.7.3 because 1.7.4 build 110+ is Cython 3.3.0
+      # limited-API and clashes with petsc4py under mpiexec ("Shared Cython
+      # type ... has the wrong size"). Unpin when conda-forge rebuilds them
+      # consistently, or when windIO drops its unused netCDF4 import.
+      - name: Build CI environment file
+        run: |
+            cp environment.yml environment_ci.yml
+            if [[ "$RUNNER_OS" == "Linux" ]]; then
+                printf -- '  - petsc4py\n  - mpi4py\n  - openmpi\n  - pyoptsparse\n  - libglu\n' >> environment_ci.yml
+                printf -- '  - netcdf4=1.7.3\n' >> environment_ci.yml
+            fi
+            printf -- '  - pytest\n  - pytest-cov\n  - coveralls\n  - treon\n' >> environment_ci.yml
+            cat environment_ci.yml
+
       - name: Install conda/mamba
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v4
         # https://github.com/marketplace/actions/setup-miniconda
         with:
           # To use mamba, uncomment here, comment out the miniforge line
@@ -31,7 +64,7 @@ jobs:
           miniforge-version: "latest"
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
-          environment-file: environment.yml
+          environment-file: environment_ci.yml
           activate-environment: test
           auto-activate-base: false
             
@@ -41,6 +74,7 @@ jobs:
       #    conda install -y -c intel intel-openmp mkl
 
       # Enable the next entries to use feature branches of dependencies for CI testing
+
 
       # - name: Add dependencies ubuntu specific
       #   if: false == contains( matrix.os, 'windows')
@@ -59,27 +93,20 @@ jobs:
       #   run: |
       #     conda remove --force wisdem
       #     pip install https://github.com/NLRWindSystems/WISDEM/archive/develop.zip
-
       # Don't delete after this
 
-      # Note- could add mpich through conda, but takes forever to resolve the environment in testing
+      # MPI, petsc4py, pyoptsparse and the test packages now come from
+      # environment_ci.yml above; only pip-only packages are left here.
       - name: Add dependencies ubuntu specific
         if: contains( matrix.os, 'ubuntu')
         run: |
-            sudo apt install -y libglu1-mesa mpich
-            conda install -y petsc4py mpi4py pyoptsparse
             pip install pygmsh==7.1.17
-            pip install https://github.com/LHEEA/meshmagick/archive/master.zip  
-            which -a mpiexec
-            which -a mpirun
-      
-      - name: Add test packages
-        run: |
-            conda install -y pytest pytest-cov coveralls treon
-            
+            pip install https://github.com/LHEEA/meshmagick/archive/master.zip
+
       - name: Show custom environment
         run: |
             conda list
+            which -a mpiexec mpirun || true
             printenv | sort
           
       # Install WEIS
@@ -109,34 +136,29 @@ jobs:
       #  run: |
       #    pytest --collect-only weis 
 
-      - name: Change examples to test mode
-        run: |
-          cd examples
-          if [[ "$RUNNER_OS" == "macOS" ]]; then
-            find . -type f -name "*.py" -exec sed -i '' 's/TEST_RUN = False/TEST_RUN = True/g' {} +
-          else
-            find . -type f -name "*.py" -exec sed -i 's/TEST_RUN = False/TEST_RUN = True/g' {} +
-          fi
-          head -n 5 02_generate_openfast_model_for_dlcs/iea15_semi_driver.py   # check that the sed command worked       
-
-        
       # Run all tests within WEIS, but not computationally expensive examples
       - name: Run tests within WEIS
-        if: false == contains( matrix.os, 'ubuntu') || contains( github.event_name, 'push')
+        env:
+              WEIS_TEST_RUN: "1"
         run: |
-          pytest -p no:warnings --disable-warnings --cov=weis weis
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+              pytest -p no:warnings --disable-warnings --cov=weis weis
+          else
+              pytest -p no:warnings --disable-warnings weis
+          fi
 
-      # Run long tests in on pull request
+      # Run long tests on pull requests and the weekly scheduled run
       - name: Run exhaustive
-        if: contains( matrix.os, 'ubuntu') && contains( github.event_name, 'pull_request')
+        if: contains( matrix.os, 'ubuntu') && (github.event_name == 'pull_request' || github.event_name == 'schedule')
         env:
             RUN_EXHAUSTIVE: 1
+            WEIS_TEST_RUN: "1"
         run: |
             pytest  -p no:warnings -s --disable-warnings  weis
 
         # Test walkthrough notebook
       - name: Test postprocessing notebooks
-        if: contains( matrix.os, 'ubuntu') && contains( github.event_name, 'pull_request')
+        if: contains( matrix.os, 'ubuntu') && (github.event_name == 'pull_request' || github.event_name == 'schedule')
         env:
             RUN_EXHAUSTIVE: 1
         run: |
@@ -148,13 +170,13 @@ jobs:
           treon rev_WEIS_CSV.ipynb
 
       - name: Test preprocessing notebooks
-        if: contains( matrix.os, 'ubuntu') && contains( github.event_name, 'pull_request')
+        if: contains( matrix.os, 'ubuntu') && (github.event_name == 'pull_request' || github.event_name == 'schedule')
         run: |
           cd examples/09_preprocessing/fatigue
           treon Fatigue_Setup.ipynb
       
       - name: Test model creation notebooks and drivers
-        if: contains( matrix.os, 'ubuntu') && contains( github.event_name, 'pull_request')
+        if: contains( matrix.os, 'ubuntu') && (github.event_name == 'pull_request' || github.event_name == 'schedule')
         run: |
           cd examples/11_model_creation_process/0_notebooks
           treon chapter1.ipynb
@@ -162,16 +184,21 @@ jobs:
           treon chapter3.ipynb
 
       # Run parallel script calling OpenFAST
+      # python -m mpi4py aborts all ranks when one raises, instead of leaving the
+      # others blocked in a collective. The step normally takes ~3 min, so the
+      # timeout only catches hangs.
       - name: Run parallel cases
-        if: contains( matrix.os, 'ubuntu') && contains( github.event_name, 'pull_request')
+        if: contains( matrix.os, 'ubuntu') && (github.event_name == 'pull_request' || github.event_name == 'schedule')
+        timeout-minutes: 30
         env:
             RUN_EXHAUSTIVE: 1
+            WEIS_TEST_RUN: "1"
         run: |
           cd examples/01_simulate_own_openfast_model
-          mpiexec -np 2 python dlc_sim_driver.py
+          mpiexec -np 2 python -m mpi4py dlc_sim_driver.py
           cd ../06_parametric_analysis
-          mpiexec -n 2 python raft_doe_driver.py
-          mpiexec -n 2 --bind-to core python openfast_doe_driver.py
+          mpiexec -n 2 python -m mpi4py raft_doe_driver.py
+          mpiexec -n 2 --bind-to core python -m mpi4py openfast_doe_driver.py
           python postprocess_results.py
 
       # Skip these until we figure out MPI and overrides
@@ -186,7 +213,7 @@ jobs:
             
       # Run coveralls
       - name: Run coveralls
-        if: contains( matrix.os, 'ubuntu') && contains( matrix.python-version, '3.11')
+        if: contains( matrix.os, 'ubuntu') && matrix.python-version == '3.12'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         #uses: coverallsapp/github-action@v2
