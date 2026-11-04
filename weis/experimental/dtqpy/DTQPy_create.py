@@ -8,13 +8,13 @@ Primary Contributor: Daniel R. Herber (danielrherber on Github)
 """
 import numpy as np
 from scipy import sparse
-from weis.dtqpy.classes.DTQPy_CLASS_INTERNAL import *
-from weis.dtqpy.objective.DTQPy_createH import DTQPy_createH
-from weis.dtqpy.objective.DTQPy_createf import DTQPy_createf
-from weis.dtqpy.objective.DTQPy_createc import DTQPy_createc
-from weis.dtqpy.defects.DTQPy_DEFECTS import DTQPy_DEFECTS
-from weis.dtqpy.add_constraints.DTQPy_create_YZ import DTQPy_create_YZ
-from weis.dtqpy.add_constraints.DTQPy_create_bnds import DTQPy_create_bnds
+from weis.experimental.dtqpy.classes.DTQPy_CLASS_INTERNAL import *
+from weis.experimental.dtqpy.objective.DTQPy_createH import DTQPy_createH
+from weis.experimental.dtqpy.objective.DTQPy_createf import DTQPy_createf
+from weis.experimental.dtqpy.objective.DTQPy_createc import DTQPy_createc
+from weis.experimental.dtqpy.defects.DTQPy_DEFECTS import DTQPy_DEFECTS
+from weis.experimental.dtqpy.add_constraints.DTQPy_create_YZ import DTQPy_create_YZ
+from weis.experimental.dtqpy.add_constraints.DTQPy_create_bnds import DTQPy_create_bnds
 
 def DTQPy_create(setup,opts):
     # initialize some stuff

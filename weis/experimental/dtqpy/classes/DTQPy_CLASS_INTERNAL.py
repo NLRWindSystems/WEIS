@@ -7,7 +7,7 @@ Contributor: Athul Krishna Sundarrajan (AthulKrishnaSundarrajan on Github)
 Primary Contributor: Daniel R. Herber (danielrherber on Github)
 """
 import numpy as np
-from weis.dtqpy.classes.DTQPy_CLASS_SETUP import LQ_objective
+from weis.experimental.dtqpy.classes.DTQPy_CLASS_SETUP import LQ_objective
 
 def DTQPy_extact_order_subsets(Otemp):
     

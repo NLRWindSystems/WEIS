@@ -103,10 +103,10 @@ if filterflag:
 
 
 # temporary solution, will need to change
-from weis.dtqpy.src.classes.DTQPy_CLASS_OPTS import *
+from weis.experimental.dtqpy.src.classes.DTQPy_CLASS_OPTS import *
 breakpoint()
-from weis.dtqpy.src.classes.DTQPy_CLASS_SETUP import *
-from weis.dtqpy.src.DTQPy_solve import DTQPy_solve
+from weis.experimental.dtqpy.src.classes.DTQPy_CLASS_SETUP import *
+from weis.experimental.dtqpy.src.DTQPy_solve import DTQPy_solve
 
 opts = options()
 

@@ -170,7 +170,7 @@ atomic = true
 #src_paths=isort,test
 
 [tool.coverage.run]
-source = ["weis", "nsga2_weis/src"]
+source = ["weis"]
 omit = ["weis/test/*", "*schema2rst.py", "weis/experimental/*"]
 
 #[tool.cibuildwheel]

@@ -7,9 +7,9 @@ Contributor: Athul Krishna Sundarrajan (AthulKrishnaSundarrajan on Github)
 Primary Contributor: Daniel R. Herber (danielrherber on Github)
 """
 import numpy as np
-from weis.dtqpy.DTQPy_create import DTQPy_create
-from weis.dtqpy.solver.DTQPy_SOLVER import DTQPy_SOLVER
-from weis.dtqpy.DTQPy_scalingLinear import DTQPy_scalingLinear
+from weis.experimental.dtqpy.DTQPy_create import DTQPy_create
+from weis.experimental.dtqpy.solver.DTQPy_SOLVER import DTQPy_SOLVER
+from weis.experimental.dtqpy.DTQPy_scalingLinear import DTQPy_scalingLinear
 
 def DTQPy_multiphase(setup,opts):
     

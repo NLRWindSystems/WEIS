@@ -11,8 +11,8 @@ Primary Contributor: Daniel R. Herber (danielrherber on Github)
 import numpy as np
 
 # import DTQPy specific functions
-from weis.dtqpy.utilities.DTQPy_tmultiprod import DTQPy_tmultiprod
-from weis.dtqpy.DTQPy_getQPIndex import DTQPy_getQPIndex
+from weis.experimental.dtqpy.utilities.DTQPy_tmultiprod import DTQPy_tmultiprod
+from weis.experimental.dtqpy.DTQPy_getQPIndex import DTQPy_getQPIndex
 
 def DTQPy_L(Lfull,internal,opts):
     

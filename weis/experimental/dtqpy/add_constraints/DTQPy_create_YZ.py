@@ -9,8 +9,8 @@ Primary Contributor: Daniel R. Herber (danielrherber on Github)
 import numpy as np
 from scipy.sparse import csc_matrix
 
-from weis.dtqpy.add_constraints.DTQPy_path import DTQPy_path
-from weis.dtqpy.add_constraints.DTQPy_boundary import DTQPy_boundary
+from weis.experimental.dtqpy.add_constraints.DTQPy_path import DTQPy_path
+from weis.experimental.dtqpy.add_constraints.DTQPy_boundary import DTQPy_boundary
 
 def DTQPy_create_YZ(YZ,internal):
     

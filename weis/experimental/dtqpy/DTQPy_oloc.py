@@ -15,9 +15,9 @@ import os
 import sys
 import pickle
 
-from weis.dtqpy.classes.DTQPy_CLASS_OPTS import *
-from weis.dtqpy.classes.DTQPy_CLASS_SETUP import *
-from weis.dtqpy.DTQPy_solve import DTQPy_solve
+from weis.experimental.dtqpy.classes.DTQPy_CLASS_OPTS import *
+from weis.experimental.dtqpy.classes.DTQPy_CLASS_SETUP import *
+from weis.experimental.dtqpy.DTQPy_solve import DTQPy_solve
 
 def BuildLambda(Ax):
         return lambda t: Ax(t)
