@@ -26,7 +26,7 @@ copyright = '2020, NLR WEIS Team'
 author = 'NLR WEIS Team'
 
 # The full version, including alpha/beta/rc tags
-release = '2.0'
+release = '2.2'
 
 
 # -- General configuration ---------------------------------------------------
