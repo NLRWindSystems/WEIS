@@ -15,9 +15,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 150
 
-    # Keeps output from being lost when a step is killed by a signal (exit 143).
     env:
+      # Keeps output from being lost when a step is killed by a signal (exit 143).
       PYTHONUNBUFFERED: "1"
+      # Hosted runners are single-node, so Open MPI only needs shared memory and TCP.
+      # UCX fails on runner VMs with an Azure MANA NIC ("uct_iface_open(ud_verbs/mana_0:1)
+      # failed"), which breaks MPI communication and deadlocks mpiexec runs.
+      OMPI_MCA_pml: ob1
+      OMPI_MCA_btl: self,sm,tcp
+      OMPI_MCA_osc: ^ucx
 
     defaults:
         run:
@@ -178,17 +184,21 @@ jobs:
           treon chapter3.ipynb
 
       # Run parallel script calling OpenFAST
+      # python -m mpi4py aborts all ranks when one raises, instead of leaving the
+      # others blocked in a collective. The step normally takes ~3 min, so the
+      # timeout only catches hangs.
       - name: Run parallel cases
         if: contains( matrix.os, 'ubuntu') && (github.event_name == 'pull_request' || github.event_name == 'schedule')
+        timeout-minutes: 30
         env:
             RUN_EXHAUSTIVE: 1
             WEIS_TEST_RUN: "1"
         run: |
           cd examples/01_simulate_own_openfast_model
-          mpiexec -np 2 python dlc_sim_driver.py
+          mpiexec -np 2 python -m mpi4py dlc_sim_driver.py
           cd ../06_parametric_analysis
-          mpiexec -n 2 python raft_doe_driver.py
-          mpiexec -n 2 --bind-to core python openfast_doe_driver.py
+          mpiexec -n 2 python -m mpi4py raft_doe_driver.py
+          mpiexec -n 2 --bind-to core python -m mpi4py openfast_doe_driver.py
           python postprocess_results.py
 
       # Skip these until we figure out MPI and overrides
