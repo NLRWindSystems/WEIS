@@ -42,21 +42,27 @@ classifiers = [  # Optional
   "Programming Language :: Python :: 3 :: Only",
 ]
 
+# Keep in sync with environment.yml (openfast and pyopenfast are conda-only).
 dependencies = [
+  "control",
+  "dill",
+  "jsonmerge",
   "marmot-agents>=0.2.5",
   "mat4py",
-  "moorpy",
+  "moorpy==1.2.1",
   "nlopt",
   "numpy",
+  "openfast-io==4.2",
+  "openmdao",
   "openpyxl",
-  "openraft",
+  "openraft>=2.0.3",
   "osqp",
   "pcrunch>=2.1.5",
-  "pyhams",
+  "pyhams>=1.3",
   "rosco>=2.10.1",
   "scipy",
   "smt",
-  "wisdem>4.0.4",
+  "wisdem>=4.2.7",  # numpy>=2.5 thrust-shaving fix
 ]
 
 # List additional groups of dependencies here (e.g. development
@@ -70,7 +76,18 @@ dependencies = [
 [project.optional-dependencies] # Optional
 test = ["coveralls", "pytest", "pytest-cov"]
 opt = ["pyoptsparse"]
-docs = ["sphinx",
+# Visualization app (weis_viz), MOO dashboard, input GUI and mesh rendering
+viz = ["beautifulsoup4",
+	"dash",
+	"dash-bootstrap-components",
+	"dash-mantine-components",
+	"dash-vtk",
+	"dearpygui",
+	"pyvista",
+	"trimesh",
+]
+docs = ["numpydoc",
+	"sphinx",
 	"sphinxcontrib-bibtex",
 	"sphinx_rtd_theme>=1.3",
 	"sphinxcontrib-applehelp",

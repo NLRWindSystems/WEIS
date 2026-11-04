@@ -2,38 +2,45 @@ channels:
   - conda-forge
   - defaults
 
+# Keep in sync with pyproject.toml: the first block matches its dependencies
+# and the viz block matches its [viz] extra. Differences are only conda-only
+# packages (openfast, pyopenfast, pip, numpydoc for docs) and PyPI-only
+# packages (under pip: below).
 dependencies:
-  - bs4
-  - dash
-  - dash-bootstrap-components
-  - dash-mantine-components
+  - control
   - dill
   - jsonmerge
+  - marmot-agents>=0.2.5
   - mat4py
   - moorpy==1.2.1
   - nlopt
-  - numpydoc
   - numpy
+  - numpydoc
   - openfast==4.2
   - openfast-io==4.2
-  - pyopenfast==4.2
+  - openmdao
+  - openpyxl
   - openraft>=2.0.3
-  - openmdao~=3.44.0
   - osqp
   - pcrunch>=2.1.5
   - pip
   - pyhams>=1.3
-  - pyvista
+  - pyopenfast==4.2
   #- pyoptsparse
-  - pyvista
   - rosco>=2.10.1
+  - scipy
+  - smt
+  - wisdem>=4.2.7  # numpy>=2.5 thrust-shaving fix
+  # viz: visualization app, MOO dashboard, input GUI and mesh rendering
+  - beautifulsoup4
+  - dash
+  - dash-bootstrap-components
+  - dash-mantine-components
+  - pyvista
   - trimesh
-  - wisdem~=4.2.5 # tight coupling to WISDEM's OM output names; unpin when actively developing
   - pip:
-    - control
-    - dash-vtk
-    - dearpygui
-    - smt
+    - dash-vtk  # viz
+    - dearpygui  # viz
     # - git+https://github.com/NLRWindSystems/RAFT.git@dev
 # Needs to be done outside of environment file:
 #  - m2w64-toolchain # [win]

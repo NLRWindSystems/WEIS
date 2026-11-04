@@ -8,6 +8,11 @@ jobs:
   build:
     name: Build (${{ matrix.os }} Python ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 150
+
+    # Keeps output from being lost when a step is killed by a signal (exit 143).
+    env:
+      PYTHONUNBUFFERED: "1"
 
     defaults:
         run:
@@ -21,9 +26,26 @@ jobs:
         
     steps:
       - uses: actions/checkout@v5
-    
+
+      # All conda packages must go in ONE solve: adding petsc4py/mpi4py/
+      # pyoptsparse to an already-solved env made conda backtrack for 80+ min.
+      # openmpi is pinned so the MPI stack doesn't vary per Python version.
+      # netcdf4 is held at 1.7.3 because 1.7.4 build 110+ is Cython 3.3.0
+      # limited-API and clashes with petsc4py under mpiexec ("Shared Cython
+      # type ... has the wrong size"). Unpin when conda-forge rebuilds them
+      # consistently, or when windIO drops its unused netCDF4 import.
+      - name: Build CI environment file
+        run: |
+            cp environment.yml environment_ci.yml
+            if [[ "$RUNNER_OS" == "Linux" ]]; then
+                printf -- '  - petsc4py\n  - mpi4py\n  - openmpi\n  - pyoptsparse\n  - libglu\n' >> environment_ci.yml
+                printf -- '  - netcdf4=1.7.3\n' >> environment_ci.yml
+            fi
+            printf -- '  - pytest\n  - pytest-cov\n  - coveralls\n  - treon\n' >> environment_ci.yml
+            cat environment_ci.yml
+
       - name: Install conda/mamba
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v4
         # https://github.com/marketplace/actions/setup-miniconda
         with:
           # To use mamba, uncomment here, comment out the miniforge line
@@ -31,7 +53,7 @@ jobs:
           miniforge-version: "latest"
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
-          environment-file: environment.yml
+          environment-file: environment_ci.yml
           activate-environment: test
           auto-activate-base: false
             
@@ -62,24 +84,18 @@ jobs:
       #     pip install https://github.com/NLRWindSystems/WISDEM/archive/develop.zip
       # Don't delete after this
 
-      # Note- could add mpich through conda, but takes forever to resolve the environment in testing
+      # MPI, petsc4py, pyoptsparse and the test packages now come from
+      # environment_ci.yml above; only pip-only packages are left here.
       - name: Add dependencies ubuntu specific
         if: contains( matrix.os, 'ubuntu')
         run: |
-            sudo apt install -y libglu1-mesa mpich
-            conda install -y petsc4py mpi4py pyoptsparse
             pip install pygmsh==7.1.17
-            pip install https://github.com/LHEEA/meshmagick/archive/master.zip  
-            which -a mpiexec
-            which -a mpirun
-      
-      - name: Add test packages
-        run: |
-            conda install -y pytest pytest-cov coveralls treon
-            
+            pip install https://github.com/LHEEA/meshmagick/archive/master.zip
+
       - name: Show custom environment
         run: |
             conda list
+            which -a mpiexec mpirun || true
             printenv | sort
           
       # Install WEIS
@@ -182,7 +198,7 @@ jobs:
             
       # Run coveralls
       - name: Run coveralls
-        if: contains( matrix.os, 'ubuntu') && contains( matrix.python-version, '3.11')
+        if: contains( matrix.os, 'ubuntu') && matrix.python-version == '3.12'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         #uses: coverallsapp/github-action@v2

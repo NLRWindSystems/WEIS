@@ -485,7 +485,7 @@ def run():
         dpg.start_dearpygui()
         dpg.destroy_context()
     else:
-        print("GUI is not available")
+        print("GUI is not available: install dearpygui, e.g. pip install weis[viz]")
 
 if __name__ == "__main__":
     run()

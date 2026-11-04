@@ -40,6 +40,8 @@ We created a bash script which installs all of the related libraries with a sing
 
 Please check if the installation of weis, conda virtual environment, openfast, rosco, wisdem and raft are successful by running a few example cases.
 
+The app's dependencies are part of the conda environment in ``environment.yml``. If you installed WEIS with pip alone, add them with ``pip install -e ".[viz]"`` from the WEIS directory.
+
 **The following steps (4 and 5) apply to running the visualization application from an HPC host or locally.**
 
 4. Generate visualization input yaml file

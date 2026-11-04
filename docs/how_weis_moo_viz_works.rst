@@ -24,12 +24,13 @@ The dashboard enables users to:
 Installation
 ------------
 
-The MOO Dashboard is included with WEIS. Ensure you have the required dependencies:
+The MOO Dashboard is included with WEIS, and its dependencies are part of the
+conda environment in ``environment.yml``. If you installed WEIS with pip alone,
+install the ``viz`` extra from the WEIS directory:
 
 .. code-block:: bash
 
-   conda activate weis-env
-   pip install dash plotly pandas numpy pyyaml dash-bootstrap-components
+   pip install -e ".[viz]"
 
 Running the Dashboard
 ---------------------
