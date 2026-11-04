@@ -1,7 +1,12 @@
 name: CI_WEIS
 
-# We run CI on push commits on all branches
-on: [push, pull_request]
+# We run CI on push commits on all branches, and weekly on the default branch
+# (main) so upstream dependency releases that break WEIS are caught quickly.
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '23 7 * * 1'  # Mondays 07:23 UTC
     
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -136,9 +141,9 @@ jobs:
               pytest -p no:warnings --disable-warnings weis
           fi
 
-      # Run long tests in on pull request
+      # Run long tests on pull requests and the weekly scheduled run
       - name: Run exhaustive
-        if: contains( matrix.os, 'ubuntu') && contains( github.event_name, 'pull_request')
+        if: contains( matrix.os, 'ubuntu') && (github.event_name == 'pull_request' || github.event_name == 'schedule')
         env:
             RUN_EXHAUSTIVE: 1
             WEIS_TEST_RUN: "1"
@@ -147,7 +152,7 @@ jobs:
 
         # Test walkthrough notebook
       - name: Test postprocessing notebooks
-        if: contains( matrix.os, 'ubuntu') && contains( github.event_name, 'pull_request')
+        if: contains( matrix.os, 'ubuntu') && (github.event_name == 'pull_request' || github.event_name == 'schedule')
         env:
             RUN_EXHAUSTIVE: 1
         run: |
@@ -159,13 +164,13 @@ jobs:
           treon rev_WEIS_CSV.ipynb
 
       - name: Test preprocessing notebooks
-        if: contains( matrix.os, 'ubuntu') && contains( github.event_name, 'pull_request')
+        if: contains( matrix.os, 'ubuntu') && (github.event_name == 'pull_request' || github.event_name == 'schedule')
         run: |
           cd examples/09_preprocessing/fatigue
           treon Fatigue_Setup.ipynb
       
       - name: Test model creation notebooks and drivers
-        if: contains( matrix.os, 'ubuntu') && contains( github.event_name, 'pull_request')
+        if: contains( matrix.os, 'ubuntu') && (github.event_name == 'pull_request' || github.event_name == 'schedule')
         run: |
           cd examples/11_model_creation_process/0_notebooks
           treon chapter1.ipynb
@@ -174,7 +179,7 @@ jobs:
 
       # Run parallel script calling OpenFAST
       - name: Run parallel cases
-        if: contains( matrix.os, 'ubuntu') && contains( github.event_name, 'pull_request')
+        if: contains( matrix.os, 'ubuntu') && (github.event_name == 'pull_request' || github.event_name == 'schedule')
         env:
             RUN_EXHAUSTIVE: 1
             WEIS_TEST_RUN: "1"
