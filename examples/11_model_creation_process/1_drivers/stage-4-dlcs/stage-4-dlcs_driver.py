@@ -2,7 +2,7 @@
 import os
 from weis import weis_main
 
-TEST_RUN = True
+TEST_RUN = False
 
 run_dir = os.path.dirname( os.path.realpath(__file__) )
 fname_wt_input = os.path.join(run_dir, "..", "..", "2_models", "new-20-270-RWT_Floater.yaml")

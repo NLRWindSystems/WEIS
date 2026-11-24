@@ -197,9 +197,19 @@ def load_problem_vars_yaml(fn_vars):
     bounds : dict
         ``{var_name: {"lower": float | None, "upper": float | None}}``
         Values whose magnitude exceeds 1e28 are treated as unconstrained
-        (returned as ``None``).
+        (returned as ``None``). Array bounds, which OpenMDAO writes with one
+        value per element, are reduced to their tightest finite value (the
+        largest lower bound, the smallest upper bound).
     """
     INF = 1e28
+
+    def _scalar_bound(val, tightest):
+        if val is None or (isinstance(val, str) and val.strip("'\" ") == ""):
+            return None
+        arr = np.atleast_1d(np.asarray(val, dtype=float)).flatten()
+        arr = arr[np.abs(arr) < INF]
+        return float(tightest(arr)) if arr.size else None
+
     bounds = {}
     if not os.path.isfile(fn_vars):
         return bounds
@@ -209,11 +219,9 @@ def load_problem_vars_yaml(fn_vars):
         for entry in pv.get(section, []):
             meta = entry[1]  # each entry is [name_str, meta_dict]
             name = meta["name"]
-            lo = meta.get("lower", None)
-            hi = meta.get("upper", None)
             bounds[name] = {
-                "lower": float(lo) if lo not in (None, "", "''") and abs(float(lo)) < INF else None,
-                "upper": float(hi) if hi not in (None, "", "''") and abs(float(hi)) < INF else None,
+                "lower": _scalar_bound(meta.get("lower", None), np.max),
+                "upper": _scalar_bound(meta.get("upper", None), np.min),
             }
     return bounds
 
@@ -726,7 +734,7 @@ def toggle(click, is_open):
 def store_dataframes(var_files):
     dfs = {}
     for _, file_path in var_files.items():
-        df = pd.read_csv(file_path, skiprows=[0,1,2,3,4,5,7], sep='\s+')
+        df = pd.read_csv(file_path, skiprows=[0,1,2,3,4,5,7], sep=r'\s')
         dfs[file_path] = df.to_dict('records')
     
     return dfs
