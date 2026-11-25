@@ -111,7 +111,11 @@ def convert_str(val):
         return val
 
 def CaseGen_General(case_inputs, dir_matrix='', namebase='', save_matrix=True, filename_ext=''):
-    """ Cartesian product to enumerate over all combinations of set of variables that are changed together"""
+    """Enumerate combinations of groups of variables that change together.
+
+    Each item in a variable's ``vals`` is one case value. NumPy arrays used as
+    case values are converted to Python lists for the OpenFAST input writer.
+    """
 
     # put case dict into lists
     change_vars = sorted(case_inputs.keys())
@@ -129,39 +133,40 @@ def CaseGen_General(case_inputs, dir_matrix='', namebase='', save_matrix=True, f
     # index of each group
     matrix_group_idx = [np.where([group_i == group_j for group_j in change_group])[0].tolist() for group_i in group_set]
 
-    # build final matrix of variable values
+    # Build the typed case inputs and the display rows for the saved matrix.
     matrix_out = []
-    for i, row in enumerate(matrix_idx):
-        row_out = [None]*len(change_vars)
+    case_list = []
+    for row in matrix_idx:
+        row_values = [None] * len(change_vars)
         for j, val in enumerate(row):
             for g in matrix_group_idx[j]:
-                row_out[g] = change_vals[g][val]
-        matrix_out.append(row_out)
-    try:
-        matrix_out = np.array([[str(item) for item in row] for row in matrix_out])
-    except:
-        matrix_out = np.asarray(matrix_out)
-    n_cases = np.shape(matrix_out)[0]
+                row_values[g] = change_vals[g][val]
+
+        case = {}
+        matrix_row = []
+        for var, value in zip(change_vars, row_values):
+            # NumPy's display string can omit elements and commas.
+            is_array = isinstance(value, np.ndarray) and value.ndim > 0
+            if is_array:
+                value = value.tolist()
+            cell = str(value)
+            case[var] = value if is_array else convert_str(cell)
+            matrix_row.append(cell)
+        case_list.append(case)
+        matrix_out.append(matrix_row)
 
     # case naming
-    case_name = case_naming(n_cases, namebase=namebase)
+    case_name = case_naming(len(case_list), namebase=namebase)
     
     # Save case matrix
     if save_matrix:
         if not dir_matrix:
             dir_matrix = os.getcwd()
+        matrix_out = np.asarray(matrix_out)
         try:
             save_case_matrix(matrix_out, change_vars, dir_matrix, filename_ext=filename_ext)
             save_case_matrix_yaml(matrix_out, change_vars, dir_matrix, case_name, filename_ext=filename_ext)
         except: 
             save_case_matrix_yaml(matrix_out, change_vars, dir_matrix, case_name, filename_ext=filename_ext)
-
-    case_list = []
-    for i in range(n_cases):
-        case_list_i = {}
-        for j, var in enumerate(change_vars):
-            case_list_i[var] = convert_str(matrix_out[i,j])
-        case_list.append(case_list_i)
-
 
     return case_list, case_name
